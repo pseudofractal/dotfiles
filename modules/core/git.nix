@@ -17,4 +17,10 @@
       core.editor = "nvim";
     };
   };
+  programs.gh = {
+    enable = true;
+    gitCredentialHelper = {
+      enable = true;
+    };
+  };
 }
