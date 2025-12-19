@@ -4,11 +4,11 @@
   ...
 }: {
   imports = [
-    ../../modules/core/default.nix
+    ../../modules
   ];
 
   home.username = "pseudofractal";
-  home.homeDirectory = "/home/pseudofractal/";
+  home.homeDirectory = "/home/pseudofractal";
 
   home.stateVersion = "26.05";
   programs.home-manager.enable = true;

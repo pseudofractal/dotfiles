@@ -1,9 +1,9 @@
 {pkgs, ...}: {
   imports = [
+    ./secrets.nix
+    ./catppuccin.nix
+    ./fish
     ./git.nix
-    ./nix-search.nix
-  ];
-
-  home.packages = with pkgs; [
+    ./tools.nix
   ];
 }

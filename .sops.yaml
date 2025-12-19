@@ -1,0 +1,8 @@
+keys:
+  - &pc_pseudofractal age1rt3snmwmq9myza96g8e3znaq2wf0kgnk7uqr4fg365nvpdvnq5asjnffg0
+
+creation_rules:
+  - path_regex: secrets.yaml$
+    key_groups:
+      - age:
+          - *pc_pseudofractal
