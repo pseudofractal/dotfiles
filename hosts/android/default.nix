@@ -38,7 +38,7 @@
     imports = [
       ../../modules
       inputs.sops-nix.homeManagerModules.sops
-      inputs.catppuccin.homeManagerModules.catppuccin
+      inputs.catppuccin.homeModules.catppuccin
       inputs.mnemosyne.homeManagerModules.default
       inputs.kensaku.homeManagerModules.default
     ];
