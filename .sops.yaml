@@ -1,8 +1,10 @@
 keys:
-  - &pc_pseudofractal age1rt3snmwmq9myza96g8e3znaq2wf0kgnk7uqr4fg365nvpdvnq5asjnffg0
+  - &pc-pseudofractal age1rt3snmwmq9myza96g8e3znaq2wf0kgnk7uqr4fg365nvpdvnq5asjnffg0
+  - &koch-phone age1p4sn34yz9e9g6cnza3lzg83mnv82d9k0pu0ssxlw5s6pjxlqfgsqht9pxd
 
 creation_rules:
   - path_regex: secrets.yaml$
     key_groups:
       - age:
-          - *pc_pseudofractal
+          - *pc-pseudofractal
+          - *koch-phone
