@@ -46,7 +46,7 @@
     # Configure Sops-Nix for Android
     # We must hardcode the path because $HOME isn't available during activation in the same way
     sops.age.keyFile = "/data/data/com.termux.nix/files/home/.config/sops/age/keys.txt";
-    sops.defaultSopsFile = "../../secrets.yaml";
+    sops.defaultSopsFile = ../../secrets.yaml;
 
     home.stateVersion = "24.05";
     # CRITICAL: Nix-on-Droid uses this path, not /home/username
