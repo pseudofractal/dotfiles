@@ -9,6 +9,12 @@
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
+    nix-on-droid = {
+      url = "github:nix-community/nix-on-droid";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
+
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -27,6 +33,7 @@
   outputs = {
     self,
     nixpkgs,
+    nix-on-droid,
     home-manager,
     nix-std,
     sops-nix,
@@ -37,7 +44,6 @@
   } @ inputs: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
-    std = nix-std.lib;
   in {
     homeConfigurations = {
       "pseudofractal" = home-manager.lib.homeManagerConfiguration {
@@ -53,6 +59,16 @@
 
           inputs.mnemosyne.homeManagerModules.default
           kensaku.homeManagerModules.default
+        ];
+      };
+    };
+    nixOnDroidConfigurations = {
+      "koch" = nix-on-droid.lib.nixOnDroidConfiguration {
+        pkgs = import nixpkgs {system = "aarch64-linux";};
+        extraSpecialArgs = {inherit inputs;};
+
+        modules = [
+          ./hosts/android/default.nix
         ];
       };
     };
