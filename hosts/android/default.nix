@@ -7,7 +7,6 @@
 
   environment.packages = with pkgs; [
     git
-    neovim
     sops
     openssh
     fish
