@@ -22,6 +22,11 @@
 
     catppuccin.url = "github:catppuccin/nix";
 
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # My custom packages and configurations
     kensaku.url = "github:pseudofractal/kensaku";
     kensaku.inputs.nixpkgs.follows = "nixpkgs";
@@ -31,15 +36,9 @@
   };
 
   outputs = {
-    self,
     nixpkgs,
     nix-on-droid,
     home-manager,
-    nix-std,
-    sops-nix,
-    catppuccin,
-    kensaku,
-    mnemosyne,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -52,13 +51,13 @@
           inherit inputs;
         };
         modules = [
-          sops-nix.homeManagerModules.sops
+          inputs.sops-nix.homeManagerModules.sops
 
           ./hosts/arch/default.nix
-          catppuccin.homeModules.catppuccin
+          inputs.catppuccin.homeModules.catppuccin
 
           inputs.mnemosyne.homeManagerModules.default
-          kensaku.homeManagerModules.default
+          inputs.kensaku.homeManagerModules.default
         ];
       };
     };
@@ -66,7 +65,6 @@
       "koch" = nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import nixpkgs {system = "aarch64-linux";};
         extraSpecialArgs = {inherit inputs;};
-
         modules = [
           ./hosts/android/default.nix
         ];
