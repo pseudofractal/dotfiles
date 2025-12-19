@@ -21,7 +21,7 @@ function rebuild --description "Rebuild the system configuration based on the cu
     if command -q nix-on-droid
         echo (set_color green)"Detected Nix-on-Droid"(set_color normal)
         echo "Building flake output: #koch"
-        nix-on-droid switch --flake .#koch --impure --verbose
+        nix-on-droid switch --flake .#koch  --verbose
 
     else
         echo (set_color blue)"Detected Standard Linux PC"(set_color normal)
