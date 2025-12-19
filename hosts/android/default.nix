@@ -1,6 +1,4 @@
 {
-  config,
-  lib,
   pkgs,
   inputs,
   ...
@@ -34,7 +32,7 @@
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
 
-  home-manager.config = {pkgs, ...}: {
+  home-manager.config = {...}: {
     imports = [
       ../../modules
       inputs.sops-nix.homeManagerModules.sops

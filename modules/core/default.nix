@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{...}: {
   imports = [
     ./secrets.nix
     ./catppuccin.nix
