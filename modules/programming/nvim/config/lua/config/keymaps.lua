@@ -1,0 +1,6 @@
+vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save Buffer" })
+vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Quit" })
+vim.keymap.set("n", "<leader>tn", function()
+  vim.cmd("enew")
+end, { desc = "New Buffer" })
+vim.keymap.set({ "n", "v" }, "<C-a>", "<Esc>ggVG", { desc = "Select All" })

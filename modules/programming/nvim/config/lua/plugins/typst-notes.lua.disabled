@@ -1,0 +1,32 @@
+-- return {
+--   "pseudofractal/typst-notes.nvim",
+--   priority = 1000,
+--   lazy = false,
+--   dependencies = { "L3MON4D3/LuaSnip" },
+--   opts = {
+--     pdf = { enable = false, opener = "zathura" },
+--     notes = {
+--       daily = { path = "~/vault/Daily/", template_file_path = "~/vault/.templates/class-notes.typ" },
+--       class = { parent = "~/vault/Major/Sem VII", template_file_name = "template.typ" },
+--     },
+--     git = { enabled = false, max_commits_on_local = 50 },
+--     snuippets = { enable = true },
+--   },
+--   keys = {
+--     {
+--       "<leader>nP",
+--       "<cmd>TypstOpenPDF<cr>",
+--       desc = "Open PDF preview of the currently open typst file.",
+--     },
+--     {
+--       "<leader>nd",
+--       "<cmd>TypstDailyNote<cr>",
+--       desc = "Open today's daily note.",
+--     },
+--     {
+--       "<leader>nc",
+--       "<cmd>TypstClassNote<cr>",
+--       desc = "Open Class Notes Selector",
+--     },
+--   },
+-- }
