@@ -33,6 +33,9 @@
 
     mnemosyne.url = "github:pseudofractal/mnemosyne";
     mnemosyne.inputs.nixpkgs.follows = "nixpkgs";
+
+    shiryoku.url = "github:pseudofractal/shiryoku";
+    shiryoku.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -58,6 +61,7 @@
 
           inputs.mnemosyne.homeManagerModules.default
           inputs.kensaku.homeManagerModules.default
+          inputs.shiryoku.homeManagerModules.default
         ];
       };
     };

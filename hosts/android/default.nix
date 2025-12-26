@@ -35,9 +35,12 @@
     imports = [
       ../../modules
       inputs.sops-nix.homeManagerModules.sops
+
       inputs.catppuccin.homeModules.catppuccin
+
       inputs.mnemosyne.homeManagerModules.default
       inputs.kensaku.homeManagerModules.default
+      inputs.shiryoku.homeManagerModules.default
     ];
 
     # Configure Sops-Nix for Android
@@ -46,7 +49,7 @@
     sops.defaultSopsFile = ../../secrets.yaml;
 
     home.stateVersion = "24.05";
-    # CRITICAL: Nix-on-Droid uses this path, not /home/username
+    # [NOTE] Nix-on-Droid uses this path, not /home/username
     home.homeDirectory = "/data/data/com.termux.nix/files/home";
     home.username = "nix-on-droid";
   };
