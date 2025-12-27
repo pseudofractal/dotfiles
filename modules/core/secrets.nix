@@ -1,27 +1,49 @@
 {
   config,
+  lib,
+  pkgs,
+  hostName ? "",
   ...
-}: {
+}: let
+  isKoch = hostName == "koch";
+
+  secretEnvVars = {
+    github_token = "GITHUB_PERSONAL_ACCESS_TOKEN";
+    figma_key = "FIGMA_API_KEY";
+  };
+in {
   sops = {
-    # Assume your keys.txt is at ~/.config/sops/age/keys.txt
     defaultSopsFile = ../../secrets.yaml;
     defaultSopsFormat = "yaml";
-
     age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
 
-    # Secrets
-    secrets.github_token = {};
-    secrets.figma_key = {};
+    secrets = lib.mapAttrs (name: _: {}) secretEnvVars;
+
+    defaultSymlinkPath =
+      lib.mkIf isKoch
+      "${config.home.homeDirectory}/.local/share/sops/secrets";
+    defaultSecretsMountPoint =
+      lib.mkIf isKoch
+      "${config.home.homeDirectory}/.local/share/sops/mount";
+
+    templates."exported-vars.fish" = {
+      content = lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (secretName: envVar: ''
+          set -gx ${envVar} "${config.sops.placeholder.${secretName}}"
+        '')
+        secretEnvVars
+      );
+    };
   };
 
-  # sops-nix stores secrets in $XDG_RUNTIME_DIR/secrets/ by default
   programs.fish.interactiveShellInit = ''
-    if test -f ${config.sops.secrets.github_token.path}
-        set -gx GITHUB_PERSONAL_ACCESS_TOKEN (cat ${config.sops.secrets.github_token.path})
-    end
-
-    if test -f ${config.sops.secrets.figma_key.path}
-        set -gx FIGMA_API_KEY (cat ${config.sops.secrets.figma_key.path})
+    if test -f ${config.sops.templates."exported-vars.fish".path}
+      source ${config.sops.templates."exported-vars.fish".path}
     end
   '';
+
+  home.activation.sopsNixForce = lib.mkIf isKoch (lib.hm.dag.entryAfter ["writeBoundary"] ''
+    echo "Host is Koch: Forcing manual sops-nix decryption..."
+    $DRY_RUN_CMD ${pkgs.bash}/bin/bash -c "${config.systemd.user.services.sops-nix.Service.ExecStart}"
+  '');
 }
