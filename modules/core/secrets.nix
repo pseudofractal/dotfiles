@@ -42,6 +42,8 @@ in {
 
   home.activation.sopsNixForce = lib.mkIf isAndroid (lib.hm.dag.entryAfter ["writeBoundary"] ''
     echo "🔐 Decrypting secrets via sops-nix..."
+    export XDG_RUNTIME_DIR="${config.xdg.cacheHome}/sops-nix"
+    mkdir -p "$XDG_RUNTIME_DIR"
     $DRY_RUN_CMD ${pkgs.bash}/bin/bash -c ${lib.escapeShellArg sopsCommand}
   '');
 }
