@@ -2,36 +2,39 @@
   config,
   lib,
   pkgs,
-  hostName ? "",
+  isAndroid,
   ...
 }: let
-  isKoch = hostName == "koch";
-
-  secretEnvVars = {
+  secretMap = {
     github_token = "GITHUB_PERSONAL_ACCESS_TOKEN";
     figma_key = "FIGMA_API_KEY";
+    wifi_password = "WIFI_PASSWORD";
   };
 in {
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     defaultSopsFormat = "yaml";
+
     age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
 
-    secrets = lib.mapAttrs (name: _: {}) secretEnvVars;
+    secrets = lib.mapAttrs (_: _: {}) secretMap;
 
+    # Android Specifics
+    # Cannot use /run/user/1000 on Android (no tmpfs/permissions).
     defaultSymlinkPath =
-      lib.mkIf isKoch
-      "${config.home.homeDirectory}/.local/share/sops/secrets";
+      lib.mkIf isAndroid
+      "${config.xdg.dataHome}/sops/secrets";
+
     defaultSecretsMountPoint =
-      lib.mkIf isKoch
-      "${config.home.homeDirectory}/.local/share/sops/mount";
+      lib.mkIf isAndroid
+      "${config.xdg.dataHome}/sops/mount";
 
     templates."exported-vars.fish" = {
       content = lib.concatStringsSep "\n" (
         lib.mapAttrsToList (secretName: envVar: ''
           set -gx ${envVar} "${config.sops.placeholder.${secretName}}"
         '')
-        secretEnvVars
+        secretMap
       );
     };
   };
@@ -42,8 +45,9 @@ in {
     end
   '';
 
-  home.activation.sopsNixForce = lib.mkIf isKoch (lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Host is Koch: Forcing manual sops-nix decryption..."
+  # Systemd hack to force manual sops-nix decryption on Android
+  home.activation.sopsNixForce = lib.mkIf isAndroid (lib.hm.dag.entryAfter ["writeBoundary"] ''
+    echo "Android Detected: Forcing manual sops-nix decryption."
     $DRY_RUN_CMD ${pkgs.bash}/bin/bash -c "${config.systemd.user.services.sops-nix.Service.ExecStart}"
   '');
 }

@@ -1,11 +1,16 @@
 {...}: {
-  imports = [
-    ../../modules
-  ];
+  imports = [../../modules];
 
   home.username = "pseudofractal";
   home.homeDirectory = "/home/pseudofractal";
 
-  home.stateVersion = "26.05";
+  home.stateVersion = "24.11";
+
+  xdg = {
+    enable = true;
+    userDirs.enable = true;
+    userDirs.createDirectories = true;
+  };
+
   programs.home-manager.enable = true;
 }
