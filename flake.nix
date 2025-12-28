@@ -53,8 +53,6 @@
           isLinux = true;
         };
         modules = [
-          inputs.sops-nix.homeManagerModules.sops
-          inputs.catppuccin.homeModules.catppuccin
           ./hosts/${hostname}/default.nix
         ];
       };
