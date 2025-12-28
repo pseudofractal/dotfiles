@@ -10,24 +10,19 @@
     figma_key = "FIGMA_API_KEY";
     wifi_password = "WIFI_PASSWORD";
   };
+
+  sopsService = config.systemd.user.services.sops-nix;
+  sopsCommand = lib.escapeShellArgs (lib.toList sopsService.Service.ExecStart);
 in {
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     defaultSopsFormat = "yaml";
-
     age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
-
     secrets = lib.mapAttrs (_: _: {}) secretMap;
 
-    # Android Specifics
-    # Cannot use /run/user/1000 on Android (no tmpfs/permissions).
-    defaultSymlinkPath =
-      lib.mkIf isAndroid
-      "${config.xdg.dataHome}/sops/secrets";
-
-    defaultSecretsMountPoint =
-      lib.mkIf isAndroid
-      "${config.xdg.dataHome}/sops/mount";
+    # Android specific adjustments
+    defaultSymlinkPath = lib.mkIf isAndroid "${config.xdg.dataHome}/sops/secrets";
+    defaultSecretsMountPoint = lib.mkIf isAndroid "${config.xdg.dataHome}/sops/mount";
 
     templates."exported-vars.fish" = {
       content = lib.concatStringsSep "\n" (
@@ -45,9 +40,8 @@ in {
     end
   '';
 
-  # Systemd hack to force manual sops-nix decryption on Android
   home.activation.sopsNixForce = lib.mkIf isAndroid (lib.hm.dag.entryAfter ["writeBoundary"] ''
-    echo "Android Detected: Forcing manual sops-nix decryption."
-    $DRY_RUN_CMD ${pkgs.bash}/bin/bash -c "${config.systemd.user.services.sops-nix.Service.ExecStart}"
+    echo "🔐 Decrypting secrets via sops-nix..."
+    $DRY_RUN_CMD ${pkgs.bash}/bin/bash -c ${lib.escapeShellArg sopsCommand}
   '');
 }
