@@ -52,7 +52,7 @@
         inherit pkgs;
         extraSpecialArgs = {
           inherit inputs;
-          hostname = "arch";
+          hostName = "arch";
         };
         modules = [
           inputs.sops-nix.homeManagerModules.sops
@@ -71,7 +71,7 @@
         pkgs = import nixpkgs {system = "aarch64-linux";};
         extraSpecialArgs = {
           inherit inputs;
-          hostname = "koch";
+          hostName = "koch";
         };
         modules = [
           ./hosts/android/default.nix
