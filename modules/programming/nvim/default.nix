@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -9,6 +6,10 @@
     vimAlias = true;
     withNodeJs = true;
     withPython3 = true;
+    plugins = with pkgs.vimPlugins; [
+      nvim-treesitter.withAllGrammars
+      nvim-treesitter-textobjects
+    ];
   };
 
   home.packages = with pkgs; [
@@ -22,6 +23,7 @@
     yazi
     nodejs
     python3
+    tree-sitter
 
     # LSPs
     lua-language-server # lua_ls
