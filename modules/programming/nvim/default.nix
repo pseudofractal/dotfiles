@@ -35,12 +35,12 @@
     clang-tools # clangd
     taplo # taplo (TOML)
     nixd # nixd (Nix)
+    astro-language-server # astro (Astro)
 
     # Formatters & Linters
+    cspell # Spell checker
     stylua # Lua
     ruff # Python
-    black # Python
-    isort # Python (Imports)
     prettierd # JS/TS/HTML/CSS
     alejandra # Nix formatter
     markdownlint-cli2 # Markdown
@@ -50,6 +50,7 @@
     rustfmt # Rust
     mdformat # Markdown
     biome # JS
+    typstyle # Typst
   ];
 
   xdg.configFile."nvim" = {

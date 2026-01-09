@@ -26,6 +26,7 @@
 
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
+    nixgl.url = "github:nix-community/nixGL";
 
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";
@@ -51,6 +52,7 @@
           inherit inputs hostname;
           isAndroid = false;
           isLinux = true;
+          isNixOS = false;
         };
         modules = [
           ./hosts/${hostname}/default.nix
@@ -63,7 +65,10 @@
       pkgsInput ? nixpkgs,
     }:
       nix-on-droid.lib.nixOnDroidConfiguration {
-        pkgs = import pkgsInput {system = "aarch64-linux";};
+        pkgs = import pkgsInput {
+          system = "aarch64-linux";
+          config.allowUnfree = true;
+        };
         extraSpecialArgs = {inherit inputs hostname;};
         modules = [
           # Hardware
@@ -77,6 +82,7 @@
               inherit inputs hostname;
               isAndroid = true;
               isLinux = false;
+              isNixOS = false;
             };
             home-manager.config = ./hosts/android/home.nix;
           }

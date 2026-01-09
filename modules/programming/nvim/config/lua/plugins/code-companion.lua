@@ -33,6 +33,14 @@ return {
     "ravitemer/codecompanion-history.nvim",
   },
   opts = {
+    interactions = {
+      chat = {
+        adapter = "gemini_cli",
+      },
+      inline = {
+        adapter = "copilot",
+      },
+    },
     adapters = {
       acp = {
         gemini_cli = function()
@@ -42,45 +50,6 @@ return {
             },
           })
         end,
-      },
-    },
-    strategies = {
-      chat = {
-        adapter = {
-          name = "copilot",
-          model = "gpt-5-codex",
-        },
-        tools = {
-          opts = {
-            auto_submit_errors = true,
-            auto_submit_success = true,
-            extensions = {
-              spinner = {},
-            },
-          },
-        },
-      },
-      inline = {
-        adapter = {
-          name = "copilot",
-          model = "gpt-4.1",
-        },
-      },
-      cmd = {
-        adapter = {
-          name = "copilot",
-          model = "gpt-4.1",
-        },
-      },
-    },
-    extensions = {
-      mcphub = {
-        callback = "mcphub.extensions.codecompanion",
-        opts = {
-          show_result_in_chat = true,
-          make_vars = true,
-          make_slash_commands = true,
-        },
       },
     },
   },

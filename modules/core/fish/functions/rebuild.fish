@@ -30,7 +30,7 @@ function rebuild --description "Rebuild the system configuration based on the cu
             echo (set_color yellow)"⚠️  Git tree is dirty. Using current state..."(set_color normal)
         end
         
-        home-manager switch --flake .
+        home-manager switch --flake . --impure
     end
 
     builtin cd "$original_dir"

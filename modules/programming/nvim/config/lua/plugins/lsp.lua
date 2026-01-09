@@ -208,6 +208,14 @@ return {
       local servers = {
         clangd = {},
         biome = {},
+        astro = {
+          filetypes = { "astro", "mdx" },
+          init_options = {
+            typescript = {
+              tsdk = vim.fs.joinpath(vim.fn.getcwd(), "node_modules", "typescript", "lib"),
+            },
+          },
+        },
         ruff = {
           init_options = {
             settings = {
@@ -231,11 +239,8 @@ return {
         marksman = {},
         nixd = {},
         tinymist = {
-          root_dir = function(_, bufnr)
-            return vim.fs.root(bufnr, { ".git" }) or vim.fn.expand("%:p:h")
-          end,
+          root_markers = { "typst.toml", ".git" },
           settings = {
-            formatterMode = "typstyle",
             exportPdf = "onType",
           },
         },
