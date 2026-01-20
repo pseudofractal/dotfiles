@@ -1,4 +1,9 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  lib,
+  hostname,
+  ...
+}: {
   programs.fish = {
     enable = true;
 
@@ -21,13 +26,15 @@
       nv = "nvim .";
     };
 
-    shellAliases = {
-      cat = "bat";
-      fzf = "fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}'";
-      c = "nvim .";
-    };
-
-
+    shellAliases =
+      {
+        cat = "bat";
+        fzf = "fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}'";
+        c = "nvim .";
+      }
+      // (lib.optionalAttrs (hostname == "arch") {
+        paru = "env -i HOME=$HOME TERM=$TERM PATH=/usr/local/bin:/usr/bin:/bin paru";
+      });
   };
 
   xdg.configFile."fish/conf.d" = {

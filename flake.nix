@@ -27,6 +27,10 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    opencode = {
+      url = "github:anomalyco/opencode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";

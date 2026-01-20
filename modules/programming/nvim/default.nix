@@ -8,7 +8,9 @@
     withPython3 = true;
     plugins = with pkgs.vimPlugins; [
       nvim-treesitter.withAllGrammars
-      nvim-treesitter-textobjects
+      (nvim-treesitter-textobjects.overrideAttrs (old: {
+        doCheck = false;
+      }))
     ];
   };
 
