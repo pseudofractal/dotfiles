@@ -17,14 +17,23 @@
       else (pkg.meta.mainProgram or (lib.getName pkg));
 
     binPath = "${pkg}/bin/${programName}";
+
+    runtimeLibs = with pkgs; [
+      pipewire
+      libGL
+      libpulseaudio
+      stdenv.cc.cc.lib
+      fontconfig
+      wayland
+      libxkbcommon
+    ];
   in
     pkgs.writeShellScriptBin programName ''
+      export LD_LIBRARY_PATH="${lib.makeLibraryPath runtimeLibs}:$LD_LIBRARY_PATH"
       export PATH="${pkgs.iproute2}/bin:$PATH"
-      export __NV_PRIME_RENDER_OFFLOAD=1
-      export __GLX_VENDOR_LIBRARY_NAME=nvidia
-      export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
       export QT_X11_NO_MITSHM=1
-      export _GL_CORE_PROFILE_CHECK=0
+      export QT_QPA_PLATFORM="wayland;xcb"
+      export XDG_SESSION_TYPE="wayland"
       exec ${nixGLPkg}/bin/nixGL ${binPath} "$@"
     '';
 
@@ -49,5 +58,6 @@ in {
     ./packet.nix
     ./zoom.nix
     ./tools.nix
+    ./sioyek.nix
   ];
 }

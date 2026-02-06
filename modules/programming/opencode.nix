@@ -26,6 +26,7 @@ in {
   sops.templates."opencode.json" = {
     content = builtins.toJSON {
       "$schema" = "https://opencode.ai/config.json";
+      "plugin" = ["opencode-gemini-auth@latest"];
       lsp = {
       };
       mcp = {

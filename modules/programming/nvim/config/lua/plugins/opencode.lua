@@ -1,43 +1,60 @@
 return {
   "NickvanDyke/opencode.nvim",
   dependencies = {
-    ---@module 'snacks'
     { "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
   },
   config = function()
+    vim.env.KITTY_LISTEN_ON = "unix:/tmp/mykitty"
     ---@type opencode.Opts
     vim.g.opencode_opts = {
-      -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+      provider = {
+        enabled = "kitty",
+        kitty = {
+          type = "window",
+          title = "Opencode AI",
+          location = "vsplit",
+          bias = 30,
+          cwd = vim.fn.getcwd(),
+        },
+      },
     }
 
     vim.o.autoread = true
 
-    vim.keymap.set({ "n", "x" }, "<C-a>", function()
+    -- [A]sk: Open prompt for a quick question
+    vim.keymap.set({ "n", "x" }, "<leader>oa", function()
       require("opencode").ask("@this: ", { submit = true })
-    end, { desc = "Ask opencode" })
-    vim.keymap.set({ "n", "x" }, "<C-x>", function()
-      require("opencode").select()
-    end, { desc = "Execute opencode action…" })
-    vim.keymap.set({ "n", "t" }, "<C-.>", function()
-      require("opencode").toggle()
-    end, { desc = "Toggle opencode" })
+    end, { desc = "opencode: Ask" })
 
+    -- [S]elect: Pick from the prompt library (Review, Explain, etc.)
+    vim.keymap.set({ "n", "x" }, "<leader>os", function()
+      require("opencode").select()
+    end, { desc = "opencode: Select action" })
+
+    -- [T]oggle: Show/Hide the AI chat window
+    vim.keymap.set({ "n", "t" }, "<leader>ot", function()
+      require("opencode").toggle()
+    end, { desc = "opencode: Toggle window" })
+
+    --  --- Operator Bindings ---
+    -- Usage: 'goip' to send a paragraph, 'gow' for a word
     vim.keymap.set({ "n", "x" }, "go", function()
       return require("opencode").operator("@this ")
-    end, { expr = true, desc = "Add range to opencode" })
+    end, { expr = true, desc = "opencode: Send motion to AI" })
+
+    -- 'goo' to send the current line
     vim.keymap.set("n", "goo", function()
       return require("opencode").operator("@this ") .. "_"
-    end, { expr = true, desc = "Add line to opencode" })
+    end, { expr = true, desc = "opencode: Send line to AI" })
 
-    vim.keymap.set("n", "<S-C-u>", function()
+    --  --- Navigation (Scrolling the AI Window) ---
+    -- Using <leader> and directional keys for easier memory
+    vim.keymap.set("n", "<leader>ou", function()
       require("opencode").command("session.half.page.up")
-    end, { desc = "opencode half page up" })
-    vim.keymap.set("n", "<S-C-d>", function()
-      require("opencode").command("session.half.page.down")
-    end, { desc = "opencode half page down" })
+    end, { desc = "opencode: Scroll window up" })
 
-    -- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
-    vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
-    vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
+    vim.keymap.set("n", "<leader>od", function()
+      require("opencode").command("session.half.page.down")
+    end, { desc = "opencode: Scroll window down" })
   end,
 }
