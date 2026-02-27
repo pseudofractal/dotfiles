@@ -27,10 +27,6 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";
@@ -51,7 +47,15 @@
       pkgsInput ? nixpkgs,
     }:
       home-manager.lib.homeManagerConfiguration {
-        pkgs = pkgsInput.legacyPackages.${system};
+        pkgs = import pkgsInput {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [
+            (final: prev: {
+              python3 = prev.python312;
+            })
+          ];
+        };
         extraSpecialArgs = {
           inherit inputs hostname;
           isAndroid = false;
@@ -67,10 +71,12 @@
     mkDroid = {
       hostname,
       pkgsInput ? nixpkgs,
-    }:
+    }: let
+      system = "aarch64-linux";
+    in
       nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import pkgsInput {
-          system = "aarch64-linux";
+          inherit system;
           config.allowUnfree = true;
         };
         extraSpecialArgs = {inherit inputs hostname;};
@@ -83,7 +89,7 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hm-bak";
             home-manager.extraSpecialArgs = {
-              inherit inputs hostname;
+              inherit inputs hostname system;
               isAndroid = true;
               isLinux = false;
               isNixOS = false;
@@ -92,6 +98,8 @@
           }
         ];
       };
+  in let
+    systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
   in {
     homeConfigurations."pseudofractal" = mkHome {
       hostname = "arch";

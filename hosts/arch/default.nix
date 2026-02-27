@@ -1,4 +1,4 @@
-{...}: {
+{inputs, ...}: {
   imports = [../../modules];
   nixpkgs.config.allowUnfree = true;
 
@@ -6,6 +6,9 @@
   home.homeDirectory = "/home/pseudofractal";
 
   home.stateVersion = "24.11";
+
+  home.packages = [
+  ];
 
   xdg = {
     enable = true;

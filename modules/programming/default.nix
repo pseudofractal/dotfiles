@@ -1,6 +1,6 @@
 {...}: {
   imports = [
     ./nvim
-    ./opencode.nix
+    #    ./opencode.nix
   ];
 }

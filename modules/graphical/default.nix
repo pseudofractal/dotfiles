@@ -17,23 +17,8 @@
       else (pkg.meta.mainProgram or (lib.getName pkg));
 
     binPath = "${pkg}/bin/${programName}";
-
-    runtimeLibs = with pkgs; [
-      pipewire
-      libGL
-      libpulseaudio
-      stdenv.cc.cc.lib
-      fontconfig
-      wayland
-      libxkbcommon
-    ];
   in
     pkgs.writeShellScriptBin programName ''
-      export LD_LIBRARY_PATH="${lib.makeLibraryPath runtimeLibs}:$LD_LIBRARY_PATH"
-      export PATH="${pkgs.iproute2}/bin:$PATH"
-      export QT_X11_NO_MITSHM=1
-      export QT_QPA_PLATFORM="wayland;xcb"
-      export XDG_SESSION_TYPE="wayland"
       exec ${nixGLPkg}/bin/nixGL ${binPath} "$@"
     '';
 

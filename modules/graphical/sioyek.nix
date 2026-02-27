@@ -22,7 +22,7 @@
     };
   };
 
-  # xdg.mimeApps.defaultApplications = {
-  #   "application/pdf" = ["sioyek.desktop"];
-  # };
+  xdg.mimeApps.defaultApplications = {
+    "application/pdf" = ["sioyek.desktop"];
+  };
 }

@@ -7,11 +7,29 @@
     withNodeJs = true;
     withPython3 = true;
     plugins = with pkgs.vimPlugins; [
+      image-nvim
+      molten-nvim
       nvim-treesitter.withAllGrammars
       (nvim-treesitter-textobjects.overrideAttrs (old: {
         doCheck = false;
       }))
     ];
+    extraPackages = with pkgs; [
+      imagemagick
+    ];
+    extraLuaPackages = ps:
+      with ps; [
+        magick
+      ];
+    extraPython3Packages = ps:
+      with ps; [
+        pynvim
+        jupyter-client
+        cairosvg
+        pnglatex
+        plotly
+        pyperclip
+      ];
   };
 
   home.packages = with pkgs; [
