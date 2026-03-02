@@ -27,6 +27,14 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    opencode = {
+      url = "github:anomalyco/opencode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nvf = {
+      url = "github:notashelf/nvf";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";
@@ -47,15 +55,7 @@
       pkgsInput ? nixpkgs,
     }:
       home-manager.lib.homeManagerConfiguration {
-        pkgs = import pkgsInput {
-          inherit system;
-          config.allowUnfree = true;
-          overlays = [
-            (final: prev: {
-              python3 = prev.python312;
-            })
-          ];
-        };
+        pkgs = pkgsInput.legacyPackages.${system};
         extraSpecialArgs = {
           inherit inputs hostname;
           isAndroid = false;
@@ -71,9 +71,10 @@
     mkDroid = {
       hostname,
       pkgsInput ? nixpkgs,
-    }: let
-      system = "aarch64-linux";
-    in
+    }:
+      let
+        system = "aarch64-linux";
+      in
       nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import pkgsInput {
           inherit system;
