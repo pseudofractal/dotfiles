@@ -1,6 +1,6 @@
 {...}: {
   imports = [
-    ./make-print-ready-pdf.nix
+    ./make-print-ready.nix
     ./kensaku.nix
     ./mnemosyne.nix
     ./octave
