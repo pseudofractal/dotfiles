@@ -7,6 +7,7 @@ in {
       import argparse
       import io
       import json
+      import os
       import re
       import sys
       import fitz
@@ -143,6 +144,34 @@ in {
           out.close()
           doc.close()
 
+      def split_pdf(inp, num_splits=None, pages_per_split=None):
+          doc = fitz.open(inp)
+          total_pages = doc.page_count
+
+          if num_splits:
+              base_pages = total_pages // num_splits
+              remainder = total_pages % num_splits
+          else:
+              base_pages = pages_per_split
+              num_splits = (total_pages + base_pages - 1) // base_pages
+              remainder = 0
+
+          base_name = os.path.splitext(os.path.basename(inp))[0]
+          out_dir = base_name
+          os.makedirs(out_dir, exist_ok=True)
+
+          page_idx = 0
+          for part in range(num_splits):
+              pages_in_part = base_pages + (1 if part < remainder else 0)
+              out = fitz.open()
+              for _ in range(pages_in_part):
+                  out.insert_pdf(doc, from_page=page_idx, to_page=page_idx)
+                  page_idx += 1
+              out.save(f"{out_dir}/{part+1}.pdf")
+              out.close()
+
+          doc.close()
+
       def main():
           ap = argparse.ArgumentParser(prog="make-print-ready")
           sub = ap.add_subparsers(dest="cmd", required=True)
@@ -156,12 +185,21 @@ in {
           c.add_argument("--invert", action="store_true")
           c.add_argument("--close", type=int, default=3)
           c.add_argument("--quiet", action="store_true")
+          s = sub.add_parser("split")
+          s.add_argument("input")
+          s.add_argument("-n", "--num", type=int, default=None)
+          s.add_argument("-p", "--pages", type=int, default=None)
           a = ap.parse_args()
           if a.cmd == "detect":
               detect_pdf(a.input)
               return 0
           if a.cmd == "convert":
               convert_pdf(a.input, a.output, dpi=a.dpi, margin=a.margin, invert=a.invert, close_k=a.close, quiet=a.quiet)
+              return 0
+          if a.cmd == "split":
+              if (a.num is None) == (a.pages is None):
+                  raise SystemExit("Specify exactly one of -n/--num or -p/--pages")
+              split_pdf(a.input, num_splits=a.num, pages_per_split=a.pages)
               return 0
           return 2
 
