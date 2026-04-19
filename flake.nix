@@ -27,6 +27,14 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nur-vortriz = {
+      url = "github:Vortriz/nur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     opencode = {
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -14,11 +14,9 @@
       # External Modules from Flake Inputs
       inputs.sops-nix.homeManagerModules.sops
       inputs.catppuccin.homeModules.catppuccin
+      inputs.nvf.homeManagerModules.default
 
       # My packages
-      inputs.mnemosyne.homeManagerModules.default
-      inputs.kensaku.homeManagerModules.default
-      inputs.shiryoku.homeManagerModules.default
     ]
     ++ lib.optionals (!isAndroid) [
       ./graphical

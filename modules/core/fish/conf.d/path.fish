@@ -10,3 +10,6 @@ set -gx PATH /home/pseudofractal/.juliaup/bin $PATH
 
 # Scripts
 set -gx PATH $HOME/.config/scripts/ $PATH
+
+# Keep Nix/Home Manager binaries first so managed apps resolve correctly.
+set -gx PATH $HOME/.nix-profile/bin $PATH

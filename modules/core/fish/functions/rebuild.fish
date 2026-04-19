@@ -18,19 +18,36 @@ function rebuild --description "Rebuild the system configuration based on the cu
         end
     end
 
+    set -l git_dirty 0
+    set -l git_status (git status --porcelain --untracked-files=normal 2>/dev/null)
+    if test (count $git_status) -gt 0
+        set git_dirty 1
+    end
+
     if command -q nix-on-droid
         echo (set_color green)"Detected Nix-on-Droid"(set_color normal)
         echo "Building flake output: #koch"
-        nix-on-droid switch --flake .#koch  --verbose
+        if test "$git_dirty" -gt 0
+            echo (set_color yellow)"⚠️  Git tree is dirty. Using current state..."(set_color normal)
+            env NIX_CONFIG="warn-dirty = false" nix-on-droid switch --flake .#koch --verbose
+        else
+            nix-on-droid switch --flake .#koch --verbose
+        end
 
     else
         echo (set_color blue)"Detected Standard Linux PC"(set_color normal)
-        
-        if not git diff --quiet
+
+        if test "$git_dirty" -gt 0
             echo (set_color yellow)"⚠️  Git tree is dirty. Using current state..."(set_color normal)
         end
-        
-        home-manager switch --flake . --impure
+
+        set -l backup_suffix "hm-bak-"(date +"%Y%m%d-%H%M%S")
+        echo "Using Home Manager backup suffix: $backup_suffix"
+        if test "$git_dirty" -gt 0
+            env NIX_CONFIG="warn-dirty = false" home-manager switch -b "$backup_suffix" --flake . --impure
+        else
+            home-manager switch -b "$backup_suffix" --flake . --impure
+        end
     end
 
     builtin cd "$original_dir"

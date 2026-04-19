@@ -9,7 +9,7 @@
     github_token = "GITHUB_PERSONAL_ACCESS_TOKEN";
     figma_key = "FIGMA_API_KEY";
     wifi_password = "WIFI_PASSWORD";
-    z_ai_api_key = "Z_AI_API_KEY";
+    annas_archive_token_password = "ANNAS_ARCHIVE_TOKEN";
   };
 
   sopsService = config.systemd.user.services.sops-nix;

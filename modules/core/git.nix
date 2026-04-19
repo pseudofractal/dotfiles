@@ -1,6 +1,7 @@
 {...}: {
   programs.git = {
     enable = true;
+    signing.format = "openpgp";
     lfs = {
       enable = true;
       skipSmudge = true;

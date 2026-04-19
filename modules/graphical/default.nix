@@ -1,48 +1,24 @@
-{
-  pkgs,
-  lib,
-  inputs,
-  isNixOS,
-  ...
-} @ args: let
-  system = pkgs.stdenv.hostPlatform.system;
-  nixGLPkg = inputs.nixgl.packages.${system}.nixGLDefault;
+{lib, ...}: {
+  options.dotfiles.graphical.nixgl = {
+    enable = lib.mkEnableOption "nixGL wrapping for graphical packages";
 
-  wrap = pkg: let
-    programName =
-      if (lib.getName pkg) == "mesa-demos"
-      then "glxinfo"
-      else if (lib.getName pkg) == "zoom-us"
-      then "zoom"
-      else (pkg.meta.mainProgram or (lib.getName pkg));
+    package = lib.mkOption {
+      type = lib.types.str;
+      default = "nixGLDefault";
+      example = "nixGLIntel";
+      description = "Attribute name under inputs.nixgl.packages.<system> used for wrapping.";
+    };
+  };
 
-    binPath = "${pkg}/bin/${programName}";
-  in
-    pkgs.writeShellScriptBin programName ''
-      exec ${nixGLPkg}/bin/nixGL ${binPath} "$@"
-    '';
-
-  applyNixGL = modules:
-    map (
-      path: let
-        m = import path args;
-        shouldWrap = (m.useNixGL or false) && !isNixOS;
-        cleanedModule = builtins.removeAttrs m ["useNixGL"];
-      in
-        cleanedModule
-        // {
-          home.packages =
-            if shouldWrap
-            then map wrap (m.home.packages or [])
-            else (m.home.packages or []);
-        }
-    )
-    modules;
-in {
-  imports = applyNixGL [
-    ./packet.nix
+  imports = [
+    ./nixgl.nix
     ./zoom.nix
+    ./zen-browser
     ./tools.nix
     ./sioyek.nix
+    ./kitty.nix
+    ./vesktop.nix
+    ./zotero.nix
+    ./carta.nix
   ];
 }

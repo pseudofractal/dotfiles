@@ -1,7 +1,12 @@
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    mesa-demos
     iproute2
   ];
-  useNixGL = true;
+
+  dotfiles.graphical.nixgl.requests.home = [
+    {
+      package = pkgs.mesa-demos;
+      bin = "glxinfo";
+    }
+  ];
 }

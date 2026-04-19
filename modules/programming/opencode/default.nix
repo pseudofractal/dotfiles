@@ -10,8 +10,9 @@
     enable = true;
     enableMcpIntegration = true;
 
+    tui.theme = "catppuccin";
+
     settings = {
-      theme = "catppuccin";
       logLevel = "INFO";
       plugin = [
         "opencode-openai-codex-auth@latest"

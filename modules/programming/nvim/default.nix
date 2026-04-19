@@ -4,6 +4,7 @@
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
+    withRuby = true;
     withNodeJs = true;
     withPython3 = true;
     plugins = with pkgs.vimPlugins; [

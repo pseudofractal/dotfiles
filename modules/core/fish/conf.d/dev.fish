@@ -1,12 +1,12 @@
 # >>> Flutter Development >>>
-set -gx PATH $HOME/Dev/flutter/bin $PATH
-set -gx ANDROID_HOME "$HOME/Android/Sdk"
-set -gx PATH $HOME/Android/Sdk/tools $PATH
-set -gx PATH $HOME/Sdk/platform-tools $PATH
-set -gx PATH $HOME/Android/Sdk $PATH
-set -gx PATH $HOME/Android/Sdk/cmdline-tools/latest/bin $PATH
-set -gx PATH $HOME/.pub-cache/bin $PATH
-set -gx PATH /usr/lib/jvm/java-21-openjdk/bin/java $PATH
+#set -gx PATH $HOME/Dev/flutter/bin $PATH
+#set -gx ANDROID_HOME "$HOME/Android/Sdk"
+#set -gx PATH $HOME/Android/Sdk/tools $PATH
+#set -gx PATH $HOME/Sdk/platform-tools $PATH
+#set -gx PATH $HOME/Android/Sdk $PATH
+#set -gx PATH $HOME/Android/Sdk/cmdline-tools/latest/bin $PATH
+#set -gx PATH $HOME/.pub-cache/bin $PATH
+#set -gx PATH /usr/lib/jvm/java-21-openjdk/bin/java $PATH
 # <<< Flutter Development <<<
 
 # >>> CUDA >>>

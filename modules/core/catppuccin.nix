@@ -3,8 +3,6 @@
     enable = true;
     flavor = "mocha";
     accent = "teal";
-
     nvim.enable = false;
-    sioyek.enable = false;
   };
 }
