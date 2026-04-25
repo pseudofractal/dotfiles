@@ -3,10 +3,26 @@
   config,
   pkgs,
   lib,
+  isNixOS,
   ...
 }: let
   sidebarExpandedWidth = config.programs.zen-browser.profiles.main.settings."zen.view.sidebar-expanded.max-width";
   sidebarExpandedWidthPx = "${toString sidebarExpandedWidth}px";
+  nixgl = import ../nixgl-helper.nix {
+    inherit config lib pkgs inputs isNixOS;
+  };
+  wrappedZenTwilightPackage = let
+    wrap = pkg:
+      nixgl.maybeWrap {
+        package = pkg;
+        bin = "zen-twilight";
+      };
+    base = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.twilight;
+  in
+    (wrap base)
+    // {
+      override = args: wrap (base.override args);
+    };
   mozlz4a = lib.getExe pkgs.mozlz4a;
   jq = lib.getExe pkgs.jq;
   sessionsFile = "${config.xdg.configHome}/zen/main/zen-sessions.jsonlz4";
@@ -23,6 +39,7 @@ in {
 
   programs.zen-browser = {
     enable = true;
+    package = wrappedZenTwilightPackage;
     configPath = ".config/zen";
     profiles.main = {
       id = 0;
@@ -54,6 +71,14 @@ in {
         }
       '';
     };
+  };
+
+  xdg.mimeApps.enable = true;
+  xdg.mimeApps.defaultApplications = {
+    "application/xhtml+xml" = ["zen-twilight.desktop"];
+    "text/html" = ["zen-twilight.desktop"];
+    "x-scheme-handler/http" = ["zen-twilight.desktop"];
+    "x-scheme-handler/https" = ["zen-twilight.desktop"];
   };
 
   home.activation.zenSortSpacesByPosition = lib.hm.dag.entryAfter ["zen-sessions-main"] ''

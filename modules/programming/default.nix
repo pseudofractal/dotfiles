@@ -2,7 +2,8 @@
   imports = [
     ./nvim
     ./opencode
-                # ./nvf
+    ./zed.nix
+    # ./nvf
   ];
   home.packages = with pkgs; [
     numbat

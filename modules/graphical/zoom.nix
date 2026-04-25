@@ -14,7 +14,7 @@
     postBuild = ''
       for bin in zoom zoom-us; do
         rm -f "$out/bin/$bin"
-        makeWrapper ${zoomPackage}/bin/$bin "$out/bin/$bin" --set BROWSER ${pkgs.firefox}/bin/firefox
+        makeWrapper ${zoomPackage}/bin/$bin "$out/bin/$bin"
       done
     '';
   };

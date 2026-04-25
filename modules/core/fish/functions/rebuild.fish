@@ -19,8 +19,11 @@ function rebuild --description "Rebuild the system configuration based on the cu
     end
 
     set -l git_dirty 0
-    set -l git_status (git status --porcelain --untracked-files=normal 2>/dev/null)
-    if test (count $git_status) -gt 0
+    if not git diff --no-ext-diff --quiet --exit-code 2>/dev/null
+        set git_dirty 1
+    else if not git diff --no-ext-diff --cached --quiet --exit-code 2>/dev/null
+        set git_dirty 1
+    else if git ls-files --others --exclude-standard 2>/dev/null | read -l _
         set git_dirty 1
     end
 
