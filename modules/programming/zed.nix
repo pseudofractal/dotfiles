@@ -1,23 +1,33 @@
 {
   lib,
   pkgs,
+  inputs,
   ...
-}: let
+}:
+let
+  treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ../../treefmt.nix;
   extensions = [
+    # keep-sorted start
     "astro"
+    "cargo-tom"
+    "catppuccin"
+    "catppuccin-icons"
     "fish"
     "julia"
     "latex"
     "lua"
-    "typst"
     "nix"
-    "svelte"
-    "quarto"
     "qml"
+    "quarto"
+    "rainbow-csv"
+    "svelte"
+    "typst"
+    # keep-sorted end
   ];
 
   lspPackages = [
     # keep-sorted start
+    "kotlin-language-server"
     "lua-language-server"
     "nixd"
     "package-version-server"
@@ -27,17 +37,34 @@
     "tinymist"
     # keep-sorted end
   ];
-in {
+
+  treefmtStdin = pkgs.writeShellApplication {
+    name = "treefmt-stdin";
+    runtimeInputs = with pkgs; [ coreutils treefmtEval.config.build.wrapper ];
+    text = ''
+      tmpfile=$(mktemp "''${1:+.''${1##*.}}")
+      cat > "''$tmpfile"
+      treefmt "''$tmpfile"
+      cat "''$tmpfile"
+      rm -f "''$tmpfile"
+    '';
+  };
+in
+{
   programs.zed-editor = {
     enable = true;
 
     inherit extensions;
 
     extraPackages = with pkgs; [
+      # keep-sorted start
       alejandra
       astro-language-server
       kdePackages.qtdeclarative
+      keep-sorted
+      kotlin-language-server
       lua-language-server
+      nil
       nixd
       package-version-server
       ruff
@@ -46,7 +73,8 @@ in {
       tailwindcss-language-server
       texlab
       tinymist
-      ty
+      treefmtStdin
+      # keep-sorted end
     ];
 
     userSettings = {
@@ -57,11 +85,10 @@ in {
 
       vim_mode = true;
       cursor_shape = "bar";
-      git.inline_blame.enabled = false;
+      git.inline_blame.enabled = true;
 
       minimap = {
-        show = "always";
-        thumb = "always";
+        show = "never";
       };
 
       tab_size = 2;
@@ -79,34 +106,45 @@ in {
       unnecessary_code_fade = 0.5;
       use_smartcase_search = true;
 
+      format_on_save = "on";
+      formatter = {
+        external = {
+          command = lib.getExe treefmtStdin;
+          arguments = [ "{buffer_path}" ];
+        };
+      };
+
       auto_install_extensions = lib.genAttrs extensions (_: false);
 
       lsp =
         lib.mergeAttrsList (
           map (name: {
             ${name}.binary.path = lib.getExe pkgs.${name};
-          })
-          lspPackages
+          }) lspPackages
         )
         // {
           astro-language-server.binary = {
             path = lib.getExe pkgs.astro-language-server;
-            arguments = ["--stdio"];
+            arguments = [ "--stdio" ];
           };
 
           ruff.binary = {
             path = lib.getExe pkgs.ruff;
-            arguments = ["server"];
+            arguments = [ "server" ];
           };
 
           tailwindcss-language-server.binary = {
             path = lib.getExe pkgs.tailwindcss-language-server;
-            arguments = ["--stdio"];
+            arguments = [ "--stdio" ];
           };
 
           ty.binary = {
             path = lib.getExe pkgs.ty;
-            arguments = ["server"];
+            arguments = [ "server" ];
+          };
+
+          kotlin-language-server.binary = {
+            path = lib.getExe pkgs.kotlin-language-server;
           };
         };
     };

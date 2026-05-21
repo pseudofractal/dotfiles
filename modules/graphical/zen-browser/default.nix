@@ -29,12 +29,14 @@
   sessionStoreFile = "${config.xdg.configHome}/zen/main/sessionstore.jsonlz4";
 in {
   imports = [
+    # keep-sorted start
     inputs.zen-browser.homeModules.twilight
-    ./spaces.nix
-    ./pinned-tabs.nix
     ./extensions.nix
-    ./stylus-userstyles.nix
+    ./pinned-tabs.nix
     ./search-engines.nix
+    ./spaces.nix
+    ./stylus-userstyles.nix
+    # keep-sorted end
   ];
 
   programs.zen-browser = {

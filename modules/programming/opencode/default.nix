@@ -1,9 +1,11 @@
 {...}: {
   imports = [
-    ./mcps.nix
+    # keep-sorted start
     #./tools
-    ./skills
+    ./mcps.nix
     ./rules
+    ./skills
+    # keep-sorted end
   ];
 
   programs.opencode = {
@@ -15,9 +17,11 @@
     settings = {
       logLevel = "INFO";
       plugin = [
-        "opencode-openai-codex-auth@latest"
-        "opencode-gemini-auth@latest"
+        # keep-sorted start
         "@mohak34/opencode-notifier@latest"
+        "opencode-gemini-auth@latest"
+        "opencode-openai-codex-auth@latest"
+        # keep-sorted end
       ];
     };
   };

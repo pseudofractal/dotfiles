@@ -2,15 +2,17 @@
   system.stateVersion = "24.05";
 
   environment.packages = with pkgs; [
-    git
-    openssh
+    # keep-sorted start
+    coreutils
+    findutils
     fish
+    git
+    ncurses
+    openssh
+    procps
     sops
     vim
-    coreutils
-    ncurses
-    procps
-    findutils
+    # keep-sorted end
   ];
 
   android-integration = {

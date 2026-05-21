@@ -35,6 +35,10 @@
       url = "github:Vortriz/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    firefox-addons = {
+      url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     opencode = {
       url = "github:anomalyco/opencode";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,79 +47,95 @@
       url = "github:notashelf/nvf";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";
     mnemosyne.url = "github:pseudofractal/mnemosyne";
     shiryoku.url = "github:pseudofractal/shiryoku";
   };
 
-  outputs = {
-    nixpkgs,
-    home-manager,
-    nix-on-droid,
-    ...
-  } @ inputs: let
-    system = "x86_64-linux";
-    # Builder for Standalone Home Manager
-    mkHome = {
-      hostname,
-      pkgsInput ? nixpkgs,
-    }:
-      home-manager.lib.homeManagerConfiguration {
-        pkgs = pkgsInput.legacyPackages.${system};
-        extraSpecialArgs = {
-          inherit inputs hostname;
-          isAndroid = false;
-          isLinux = true;
-          isNixOS = false;
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      nix-on-droid,
+      treefmt-nix,
+      ...
+    }@inputs:
+    let
+      system = "x86_64-linux";
+      treefmtEval = treefmt-nix.lib.evalModule nixpkgs ./treefmt.nix;
+      # Builder for Standalone Home Manager
+      mkHome =
+        {
+          hostname,
+          pkgsInput ? nixpkgs,
+        }:
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = import pkgsInput {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          extraSpecialArgs = {
+            inherit inputs hostname;
+            isAndroid = false;
+            isLinux = true;
+            isNixOS = false;
+          };
+          modules = [
+            ./hosts/${hostname}/default.nix
+          ];
         };
-        modules = [
-          ./hosts/${hostname}/default.nix
-        ];
+
+      # Builder for Nix-on-Droid
+      mkDroid =
+        {
+          hostname,
+          pkgsInput ? nixpkgs,
+        }:
+        let
+          system = "aarch64-linux";
+        in
+        nix-on-droid.lib.nixOnDroidConfiguration {
+          pkgs = import pkgsInput {
+            inherit system;
+            config.allowUnfree = true;
+          };
+          extraSpecialArgs = { inherit inputs hostname; };
+          modules = [
+            # Hardware
+            ./hosts/android/system.nix
+            {
+              # Home Manager
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "hm-bak";
+              home-manager.extraSpecialArgs = {
+                inherit inputs hostname system;
+                isAndroid = true;
+                isLinux = false;
+                isNixOS = false;
+              };
+              home-manager.config = ./hosts/android/home.nix;
+            }
+          ];
+        };
+    in
+    {
+      homeConfigurations."pseudofractal" = mkHome {
+        hostname = "arch";
       };
 
-    # Builder for Nix-on-Droid
-    mkDroid = {
-      hostname,
-      pkgsInput ? nixpkgs,
-    }:
-      let
-        system = "aarch64-linux";
-      in
-      nix-on-droid.lib.nixOnDroidConfiguration {
-        pkgs = import pkgsInput {
-          inherit system;
-          config.allowUnfree = true;
-        };
-        extraSpecialArgs = {inherit inputs hostname;};
-        modules = [
-          # Hardware
-          ./hosts/android/system.nix
-          {
-            # Home Manager
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "hm-bak";
-            home-manager.extraSpecialArgs = {
-              inherit inputs hostname system;
-              isAndroid = true;
-              isLinux = false;
-              isNixOS = false;
-            };
-            home-manager.config = ./hosts/android/home.nix;
-          }
-        ];
+      nixOnDroidConfigurations."koch" = mkDroid {
+        hostname = "android";
       };
-  in let
-    systems = ["x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin"];
-  in {
-    homeConfigurations."pseudofractal" = mkHome {
-      hostname = "arch";
-    };
 
-    nixOnDroidConfigurations."koch" = mkDroid {
-      hostname = "android";
+      formatter.${system} = treefmtEval.config.build.wrapper;
+
+      checks.${system}.formatting = treefmtEval.config.build.check self;
     };
-  };
 }

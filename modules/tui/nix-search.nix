@@ -7,8 +7,10 @@
   nix-search = pkgs.writeShellScriptBin "nix-search" (builtins.readFile scriptSource);
 in {
   home.packages = [
-    pkgs.nix-search-tv
-    pkgs.fzf
+    # keep-sorted start
     nix-search
+    pkgs.fzf
+    pkgs.nix-search-tv
+    # keep-sorted end
   ];
 }

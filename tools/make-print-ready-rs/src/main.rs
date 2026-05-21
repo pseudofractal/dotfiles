@@ -60,6 +60,10 @@ enum Commands {
     #[arg(long, default_value_t = 300)]
     dpi: u32,
 
+    /// Accurate-mode render multiplier on top of --dpi
+    #[arg(long)]
+    scale: Option<u32>,
+
     /// Bias toward background classification (non-negative; higher usually thins strokes)
     #[arg(long, default_value_t = 0)]
     margin: i32,
@@ -162,6 +166,31 @@ fn ensure_close_value(close: u32) -> Result<()> {
   } else {
     bail!("close must be one of 0,3,5,7,9");
   }
+}
+
+fn resolve_scale(engine: EngineArg, scale: Option<u32>) -> Result<u32> {
+  let Some(scale) = scale else {
+    return Ok(1);
+  };
+
+  if engine != EngineArg::Accurate {
+    bail!("--scale is only supported with --engine accurate");
+  }
+  if scale <= 1 {
+    bail!("scale must be greater than 1");
+  }
+
+  Ok(scale)
+}
+
+fn compute_effective_dpi(dpi: u32, scale: u32) -> Result<u32> {
+  dpi
+    .checked_mul(scale)
+    .context("effective dpi overflowed u32; reduce --dpi or --scale")
+}
+
+fn compute_render_target_width(points_width: f32, effective_dpi: u32) -> i32 {
+  ((points_width / 72.0) * effective_dpi as f32).max(1.0) as i32
 }
 
 fn resolve_object<'a>(doc: &'a Document, object: &'a Object) -> Result<&'a Object> {
@@ -623,7 +652,7 @@ fn gray_image_to_png_bytes(image: &GrayImage) -> Result<Vec<u8>> {
 fn write_bw_pages_to_pdf(
   output_path: &str,
   pages: Vec<(GrayImage, f32, f32)>,
-  dpi: u32,
+  embed_dpi: u32,
 ) -> Result<()> {
   let mut pdf = PdfDocument::new("make-print-ready-rs output");
   let mut pdf_pages = Vec::with_capacity(pages.len());
@@ -642,7 +671,7 @@ fn write_bw_pages_to_pdf(
         rotate: None,
         scale_x: None,
         scale_y: None,
-        dpi: Some(dpi as f32),
+        dpi: Some(embed_dpi as f32),
       },
     }];
     pdf_pages.push(printpdf::PdfPage::new(
@@ -663,6 +692,7 @@ struct ConvertOptions<'a> {
   input: &'a str,
   output: &'a str,
   dpi: u32,
+  scale: u32,
   margin: i32,
   invert: bool,
   close: u32,
@@ -676,6 +706,7 @@ fn run_convert_accurate_preview(opts: ConvertOptions<'_>) -> Result<()> {
   if opts.dpi == 0 {
     bail!("dpi must be > 0");
   }
+  let effective_dpi = compute_effective_dpi(opts.dpi, opts.scale)?;
 
   let debug_dir = opts.debug_dir;
   if let Some(path) = debug_dir {
@@ -725,7 +756,7 @@ fn run_convert_accurate_preview(opts: ConvertOptions<'_>) -> Result<()> {
     progress.set_message(format!("rendering page {}", index + 1));
     let points_height = page.height().value;
     let points_width = page.width().value;
-    let target_width = ((points_width / 72.0) * opts.dpi as f32).max(1.0) as i32;
+    let target_width = compute_render_target_width(points_width, effective_dpi);
     let render_config = PdfRenderConfig::new().set_target_width(target_width);
     let dynamic_image = page
       .render_with_config(&render_config)
@@ -797,7 +828,7 @@ fn run_convert_accurate_preview(opts: ConvertOptions<'_>) -> Result<()> {
   }
 
   progress.finish_with_message("writing pdf");
-  write_bw_pages_to_pdf(opts.output, converted_pages, opts.dpi)?;
+  write_bw_pages_to_pdf(opts.output, converted_pages, effective_dpi)?;
   Ok(())
 }
 
@@ -825,6 +856,7 @@ fn run() -> Result<()> {
       input,
       output,
       dpi,
+      scale,
       margin,
       invert,
       close,
@@ -835,6 +867,7 @@ fn run() -> Result<()> {
       debug,
     } => {
       ensure_close_value(close)?;
+      let resolved_scale = resolve_scale(engine, scale)?;
       let selected_flavor = flavor_from_arg(flavor);
       let background_hex = [
         selected_flavor.colors.base.hex,
@@ -844,8 +877,8 @@ fn run() -> Result<()> {
 
       if !quiet {
         eprintln!(
-          "[make-print-ready-rs] engine={engine:?} preset={preset:?} flavor={} bg={:?}",
-          selected_flavor.name, background_hex
+          "[make-print-ready-rs] engine={engine:?} preset={preset:?} scale={} flavor={} bg={:?}",
+          resolved_scale, selected_flavor.name, background_hex
         );
       }
 
@@ -888,6 +921,7 @@ fn run() -> Result<()> {
             input: &input,
             output: &output,
             dpi,
+            scale: resolved_scale,
             margin,
             invert,
             close,
@@ -918,6 +952,10 @@ fn main() -> ExitCode {
 mod tests {
   use super::*;
 
+  fn parse_cli(args: &[&str]) -> Cli {
+    Cli::try_parse_from(args).expect("cli should parse")
+  }
+
   #[test]
   fn split_layout_by_num_distributes_remainder_to_front() {
     let layout = compute_split_layout(10, Some(3), None).unwrap();
@@ -942,5 +980,52 @@ mod tests {
       assert!(ensure_close_value(value).is_ok());
     }
     assert!(ensure_close_value(4).is_err());
+  }
+
+  #[test]
+  fn convert_scale_cli_parses() {
+    let cli = parse_cli(&[
+      "make-print-ready",
+      "convert",
+      "input.pdf",
+      "output.pdf",
+      "--scale",
+      "2",
+    ]);
+
+    match cli.command {
+      Commands::Convert { scale, .. } => assert_eq!(scale, Some(2)),
+      _ => panic!("expected convert command"),
+    }
+  }
+
+  #[test]
+  fn resolve_scale_defaults_to_one() {
+    assert_eq!(resolve_scale(EngineArg::Accurate, None).unwrap(), 1);
+  }
+
+  #[test]
+  fn resolve_scale_rejects_zero() {
+    assert!(resolve_scale(EngineArg::Accurate, Some(0)).is_err());
+  }
+
+  #[test]
+  fn resolve_scale_rejects_one() {
+    assert!(resolve_scale(EngineArg::Accurate, Some(1)).is_err());
+  }
+
+  #[test]
+  fn resolve_scale_rejects_legacy_engine() {
+    assert!(resolve_scale(EngineArg::Legacy, Some(2)).is_err());
+  }
+
+  #[test]
+  fn effective_dpi_multiplies_scale() {
+    assert_eq!(compute_effective_dpi(300, 2).unwrap(), 600);
+  }
+
+  #[test]
+  fn render_target_width_uses_effective_dpi() {
+    assert_eq!(compute_render_target_width(612.0, 600), 5100);
   }
 }

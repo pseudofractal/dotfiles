@@ -1,7 +1,5 @@
 {inputs, ...}: {
   imports = [../../modules];
-  nixpkgs.config.allowUnfree = true;
-
   home.username = "pseudofractal";
   home.homeDirectory = "/home/pseudofractal";
 

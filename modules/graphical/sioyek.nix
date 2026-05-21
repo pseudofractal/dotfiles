@@ -11,9 +11,11 @@
   };
 in {
   home.packages = with pkgs; [
-    pdfarranger
+    # keep-sorted start
     diffpdf
     ghostscript
+    pdfarranger
+    # keep-sorted end
   ];
 
   programs.sioyek = {

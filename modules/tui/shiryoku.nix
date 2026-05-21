@@ -14,13 +14,15 @@
       pkgs.pkg-config
     ];
     buildInputs = [
-      pkgs.openssl
-      pkgs.wayland
-      pkgs.libxkbcommon
+      # keep-sorted start
       pkgs.libx11
       pkgs.libxcursor
       pkgs.libxi
+      pkgs.libxkbcommon
       pkgs.libxrandr
+      pkgs.openssl
+      pkgs.wayland
+      # keep-sorted end
     ];
   };
 in {

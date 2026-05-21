@@ -42,12 +42,14 @@ in {
         autoUpdateNotification = false;
         notifyAboutUpdates = false;
         plugins = {
-          ClearURLs.enabled = true;
-          NoTrack.enabled = true;
+          # keep-sorted start
           BetterSessions.enabled = true;
+          ClearURLs.enabled = true;
           ImageZoom.enabled = true;
-          ShikiCodeblocks.enabled = true;
+          NoTrack.enabled = true;
           PlatformIndicators.enabled = true;
+          ShikiCodeblocks.enabled = true;
+          # keep-sorted end
         };
       };
     };

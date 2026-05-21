@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -16,44 +16,42 @@
   };
 
   home.packages = with pkgs; [
+    # keep-sorted start
+    chromium
+    fd
+    fzf
     gcc
     gnumake
-    unzip
-    ripgrep
-    fd
-    xclip
-    fzf
-    yazi
     nodejs
     python3
+    ripgrep
     tree-sitter
+    unzip
+    xclip
+    # keep-sorted end
 
     # LSPs
-    lua-language-server # lua_ls
-    rust-analyzer # rust_analyzer
-    basedpyright # basedpyright
-    tinymist # tinymist (Typst)
-    marksman # marksman (Markdown)
-    biome # biome (JS/TS)
-    clang-tools # clangd
-    taplo # taplo (TOML)
-    nixd # nixd (Nix)
-    astro-language-server # astro (Astro)
+    # keep-sorted start
+    astro-language-server
+    basedpyright
+    biome
+    clang-tools
+    lua-language-server
+    marksman
+    nixd
+    rust-analyzer
+    taplo
+    tinymist
+    # keep-sorted end
 
-    # Formatters & Linters
-    cspell # Spell checker
-    stylua # Lua
-    ruff # Python
-    prettierd # JS/TS/HTML/CSS
-    alejandra # Nix formatter
-    markdownlint-cli2 # Markdown
-    cpplint # C++ linter
-    shfmt # Shell formatter
-    shellcheck # Shell linter
-    rustfmt # Rust
-    mdformat # Markdown
-    biome # JS
-    typstyle # Typst
+    # Linters
+    # keep-sorted start
+    cpplint
+    cspell
+    luaPackages.luacheck
+    markdownlint-cli2
+    shellcheck
+    # keep-sorted end
   ];
 
   xdg.configFile."nvim" = {

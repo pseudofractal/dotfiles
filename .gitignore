@@ -1,4 +1,6 @@
 .mnemosyne.json
 .mnemosyne.ignore
 .opencode/
+result
 tools/make-print-ready-rs/target/
+tools/catppucinify-rs/target/

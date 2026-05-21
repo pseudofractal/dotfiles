@@ -49,7 +49,10 @@ return {
             end
           end
 
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+          if
+            client
+            and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
+          then
             local highlight = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
             vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
               buffer = event.buf,
@@ -153,11 +156,11 @@ return {
         local left_width = 1
 
         ---@type string[]
-          local lines = {}
-          for msg_line in diagnostic.message:gmatch("([^\n]+)") do
-            local max_width = text_area_width - diagnostic.col - center_width - left_width
-            vim.list_extend(lines, wrap_line_at_width(msg_line, max_width))
-          end
+        local lines = {}
+        for msg_line in diagnostic.message:gmatch("([^\n]+)") do
+          local max_width = text_area_width - diagnostic.col - center_width - left_width
+          vim.list_extend(lines, wrap_line_at_width(msg_line, max_width))
+        end
 
         return table.concat(lines, "\n")
       end
@@ -203,6 +206,37 @@ return {
 
       ----------------------------- DIAGNOSTICS OVER
 
+      --- Code Lens
+      vim.lsp.codelens.enable(true)
+
+      vim.api.nvim_create_autocmd({
+        "BufEnter",
+        "CursorHold",
+        "InsertLeave",
+      }, {
+        callback = function()
+          vim.lsp.codelens.refresh()
+        end,
+      })
+
+      vim.keymap.set("n", "<leader>lc", vim.lsp.codelens.run, {
+        desc = "Run CodeLens",
+      })
+
+      vim.lsp.commands["editor.action.showReferences"] = function()
+        require("fzf-lua").lsp_references()
+      end
+      -----  Code Lens
+
+      --- Julia Language Server jetls
+      vim.lsp.config("jetls", {
+        cmd = { "jetls", "serve" },
+        filetypes = { "julia" },
+        root_markers = { "Project.toml", "Manifest.toml", ".git" },
+      })
+      vim.lsp.enable("jetls")
+      vim.lsp.enable("julials", false)
+
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       local servers = {
@@ -223,7 +257,7 @@ return {
             },
           },
         },
-        julials = {},
+        -- julials = {},
         basedpyright = {
           settings = {
             basedpyright = { autoImportCompletion = true },
@@ -238,6 +272,7 @@ return {
         },
         marksman = {},
         nixd = {},
+        kotlin_language_server = {},
         tinymist = {
           root_markers = { "typst.toml", ".git" },
           settings = {

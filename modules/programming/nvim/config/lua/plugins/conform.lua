@@ -12,37 +12,18 @@ return {
   config = function()
     local conform = require("conform")
 
-    local ft = {
-      lua = { "stylua" },
-      python = { "ruff_format", "ruff_organize_imports", "ruff_fix" },
-      rust = { "rustfmt" },
-      markdown = { "mdformat" },
-      nix = { "alejandra" },
-      typst = { "typstyle" },
-    }
-
-    for _, f in ipairs({
-      "javascript",
-      "javascriptreact",
-      "typescript",
-      "typescriptreact",
-      "json",
-      "jsonc",
-      "html",
-      "css",
-      "scss",
-      "less",
-    }) do
-      ft[f] = function(bufnr)
-        if conform.get_formatter_info("biome", bufnr).error then
-          return { "biome" }
-        end
-        return { "prettierd" }
-      end
-    end
-
     conform.setup({
-      formatters_by_ft = ft,
+      formatters_by_ft = {
+        ["*"] = { "treefmt", lsp_format = "fallback" },
+      },
+      formatters = {
+        treefmt = {
+          require_cwd = false,
+          cwd = function()
+            return vim.fn.getcwd()
+          end,
+        },
+      },
       format_on_save = function(bufnr)
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return

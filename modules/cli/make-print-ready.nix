@@ -242,6 +242,10 @@
           echo "make-print-ready: '$1' is ignored on Android legacy mode." >&2
           skip_next=1
           ;;
+        --scale)
+          echo "make-print-ready: '--scale' is not supported in Android legacy mode yet." >&2
+          exit 2
+          ;;
         *)
           args+=("$1")
           ;;

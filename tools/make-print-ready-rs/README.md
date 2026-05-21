@@ -10,6 +10,7 @@ Current status:
 - Engine/preset/debug flags defined
 - `convert --engine accurate` implementation:
   - renders via `pdfium-render`
+  - supports `--scale` as an additional render multiplier on top of `--dpi`
   - classifies with Catppuccin flavor-aware BG/INK split in Oklab
   - preserves uncertain edge pixels with hysteresis linking
   - applies conservative morphology for `--close`
@@ -25,6 +26,8 @@ Runtime notes:
 - Accurate mode requires PDFium to be loadable (`libpdfium.so`).
 - In Nix, this is provided by `pdfium-binaries`; wrapper/env should expose it.
 - You can also set `PDFIUM_DYNAMIC_LIB_PATH=/path/to/libpdfium.so` manually.
+- `--scale` is currently supported only with `convert --engine accurate`.
+- `--scale` increases render density on top of `--dpi` while preserving the original PDF page size.
 
 Current focus remaining:
 - deeper threshold tuning across large handwritten corpora

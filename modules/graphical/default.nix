@@ -1,4 +1,8 @@
-{lib, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: {
   options.dotfiles.graphical.nixgl = {
     enable = lib.mkEnableOption "nixGL wrapping for graphical packages";
 
@@ -11,14 +15,17 @@
   };
 
   imports = [
-    ./nixgl.nix
-    ./zoom.nix
-    ./zen-browser
-    ./tools.nix
-    ./sioyek.nix
-    ./kitty.nix
-    ./vesktop.nix
-    ./zotero.nix
+    # keep-sorted start
     ./carta.nix
+    ./kitty.nix
+    ./nixgl.nix
+    ./sioyek.nix
+    ./tools.nix
+    ./vesktop.nix
+    ./vivaldi.nix
+    ./zen-browser
+    ./zotero.nix
+    ./zoom.nix
+    # keep-sorted end
   ];
 }
