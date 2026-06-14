@@ -12,8 +12,8 @@ It covers both:
 ### Most common: add a normal package (desktop)
 
 1. Add it to the right category module (`modules/core|cli|tui|programming|graphical`).
-2. Put it in `home.packages` (or `programs.<name>.enable` if HM module exists).
-3. Run:
+1. Put it in `home.packages` (or `programs.<name>.enable` if HM module exists).
+1. Run:
 
 ```bash
 home-manager switch --flake . --impure
@@ -22,7 +22,7 @@ home-manager switch --flake . --impure
 ### Add a package from a custom flake input
 
 1. Add input in `flake.nix`.
-2. Lock it:
+1. Lock it:
 
 ```bash
 nix flake lock --update-input myflake
@@ -93,20 +93,24 @@ So in modules, you can use `inputs.<name>...` directly.
 Use this decision order:
 
 1. **Shared category module first** (preferred)
+
    - `modules/core/*` for shell/systemwide tools
    - `modules/cli/*` for CLI app groups
    - `modules/tui/*` for terminal UI apps
    - `modules/programming/*` for dev toolchains/editors
    - `modules/graphical/*` for desktop GUI apps
 
-2. **Use Home Manager program modules when available**
+1. **Use Home Manager program modules when available**
+
    - Prefer `programs.<name>.enable = true;` when the module exists.
    - Use `programs.<name>.package = ...;` only when you need a custom package source/override.
 
-3. **Use `home.packages` for plain binaries**
+1. **Use `home.packages` for plain binaries**
+
    - If no dedicated HM module/config is needed, add package to the right category module’s `home.packages`.
 
-4. **Use host files only for host-specific needs**
+1. **Use host files only for host-specific needs**
+
    - Desktop host: `hosts/arch/default.nix`
    - Android HM user config: `hosts/android/home.nix`
    - Android system-level packages: `hosts/android/system.nix` (`environment.packages`)
@@ -186,8 +190,8 @@ If a tool is not in nixpkgs (or missing for your pinned revision), package a pin
 ### Example 1: Add a nixpkgs package to desktop GUI stack
 
 1. Create/update a module under `modules/graphical/`.
-2. Add package in `home.packages`.
-3. Ensure module is imported in `modules/graphical/default.nix`.
+1. Add package in `home.packages`.
+1. Ensure module is imported in `modules/graphical/default.nix`.
 
 ```nix
 { pkgs, ... }: {
@@ -252,15 +256,19 @@ nix build .#nixOnDroidConfigurations.koch.activationPackage
 ## Troubleshooting
 
 - **Untracked new file not picked up by flake eval**
+
   - If a new file is not included in source filtering yet, stage it once before build/switch.
 
 - **Wrong package attr for current system**
+
   - Verify package path includes `${system}` where needed.
 
 - **Version skew between flakes**
+
   - Add or correct `inputs.<name>.inputs.nixpkgs.follows = "nixpkgs"`.
 
 - **Pure eval failures from impure dependencies**
+
   - Use the repo’s current desktop flow: `home-manager switch --flake . --impure`.
 
 ## Maintenance Checklist

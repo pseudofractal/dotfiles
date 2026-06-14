@@ -32,7 +32,8 @@ in {
   config = let
     cfg = config.dotfiles.graphical.nixgl;
   in {
-    home.packages = map
+    home.packages =
+      map
       (req:
         nixgl.maybeWrap {
           package = req.package;

@@ -1,4 +1,4 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use catppuccin::{Flavor, PALETTE};
 use clap::{Parser, Subcommand, ValueEnum};
 use image::{DynamicImage, GrayImage, ImageFormat, Luma};

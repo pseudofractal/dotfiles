@@ -1,4 +1,8 @@
-{pkgs, inputs, ...}: let
+{
+  pkgs,
+  inputs,
+  ...
+}: let
   system = pkgs.stdenv.hostPlatform.system;
   mnemosyneSettings = {
     dependency_graph = false;
@@ -15,20 +19,21 @@
       "*.exe"
       "*.fits"
       "*.gif"
+      "*.git"
       "*.gz"
       "*.ico"
       "*.idx"
       "*.jar"
-      "*.jpg"
       "*.jpeg"
+      "*.jpg"
       "*.mkv"
       "*.mov"
       "*.mp3"
       "*.mp4"
       "*.npy"
       "*.o"
-      "*.otf"
       "*.ogg"
+      "*.otf"
       "*.pack"
       "*.png"
       "*.po"
@@ -41,7 +46,6 @@
       "*.woff"
       "*.woff2"
       "*.zip"
-      "*.git"
       # keep-sorted end
     ];
   };

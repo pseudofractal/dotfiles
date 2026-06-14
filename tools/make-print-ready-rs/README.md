@@ -3,6 +3,7 @@
 Rust implementation of `make-print-ready`.
 
 Current status:
+
 - CLI contract scaffolded (`detect`, `convert`, `split`)
 - `detect` implemented natively in Rust (JSON-compatible output shape)
 - `split` implemented natively in Rust with progress bar
@@ -23,6 +24,7 @@ Current status:
   - android: `make-print-ready` shim to legacy fallback
 
 Runtime notes:
+
 - Accurate mode requires PDFium to be loadable (`libpdfium.so`).
 - In Nix, this is provided by `pdfium-binaries`; wrapper/env should expose it.
 - You can also set `PDFIUM_DYNAMIC_LIB_PATH=/path/to/libpdfium.so` manually.
@@ -30,10 +32,12 @@ Runtime notes:
 - `--scale` increases render density on top of `--dpi` while preserving the original PDF page size.
 
 Current focus remaining:
+
 - deeper threshold tuning across large handwritten corpora
 - expanded integration corpus tests
 
 Helper scripts:
+
 - `scripts/benchmark-gate.sh`
 - `scripts/quality-gate.sh`
 

@@ -3,24 +3,24 @@
   lib,
   isAndroid,
   ...
-}:
-{
-  imports = [
-    # keep-sorted start
-    ./cli
-    ./core
-    ./programming
-    ./tui
-    # keep-sorted end
+}: {
+  imports =
+    [
+      # keep-sorted start
+      ./cli
+      ./core
+      ./programming
+      ./tui
+      # keep-sorted end
 
-    # External Modules from Flake Inputs
-    inputs.sops-nix.homeManagerModules.sops
-    inputs.catppuccin.homeModules.catppuccin
-    inputs.nvf.homeManagerModules.default
+      # External Modules from Flake Inputs
+      inputs.sops-nix.homeManagerModules.sops
+      inputs.catppuccin.homeModules.catppuccin
+      inputs.nvf.homeManagerModules.default
 
-    # My packages
-  ]
-  ++ lib.optionals (!isAndroid) [
-    ./graphical
-  ];
+      # My packages
+    ]
+    ++ lib.optionals (!isAndroid) [
+      ./graphical
+    ];
 }

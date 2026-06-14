@@ -24,20 +24,21 @@
     hash = appImageHash;
   };
 
-  cartaAppImage = pkgs.runCommand "carta-appimage-${version}" {
-    nativeBuildInputs = [pkgs.gnutar];
-  } ''
-    mkdir -p "$out/bin"
-    tar -xzf ${cartaTarball}
+  cartaAppImage =
+    pkgs.runCommand "carta-appimage-${version}" {
+      nativeBuildInputs = [pkgs.gnutar];
+    } ''
+      mkdir -p "$out/bin"
+      tar -xzf ${cartaTarball}
 
-    appimage_file="$(echo ./*.AppImage)"
-    if [ ! -f "$appimage_file" ]; then
-      echo "expected one AppImage in CARTA tarball, found none"
-      exit 1
-    fi
+      appimage_file="$(echo ./*.AppImage)"
+      if [ ! -f "$appimage_file" ]; then
+        echo "expected one AppImage in CARTA tarball, found none"
+        exit 1
+      fi
 
-    install -m755 "$appimage_file" "$out/bin/carta.AppImage"
-  '';
+      install -m755 "$appimage_file" "$out/bin/carta.AppImage"
+    '';
 
   cartaLauncher = pkgs.writeShellScriptBin "carta" ''
     browser_cmd="xdg-open CARTA_URL"

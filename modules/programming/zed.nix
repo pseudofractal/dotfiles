@@ -3,8 +3,7 @@
   pkgs,
   inputs,
   ...
-}:
-let
+}: let
   treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ../../treefmt.nix;
   extensions = [
     # keep-sorted start
@@ -40,7 +39,7 @@ let
 
   treefmtStdin = pkgs.writeShellApplication {
     name = "treefmt-stdin";
-    runtimeInputs = with pkgs; [ coreutils treefmtEval.config.build.wrapper ];
+    runtimeInputs = with pkgs; [coreutils treefmtEval.config.build.wrapper];
     text = ''
       tmpfile=$(mktemp "''${1:+.''${1##*.}}")
       cat > "''$tmpfile"
@@ -49,8 +48,7 @@ let
       rm -f "''$tmpfile"
     '';
   };
-in
-{
+in {
   programs.zed-editor = {
     enable = true;
 
@@ -110,7 +108,7 @@ in
       formatter = {
         external = {
           command = lib.getExe treefmtStdin;
-          arguments = [ "{buffer_path}" ];
+          arguments = ["{buffer_path}"];
         };
       };
 
@@ -120,27 +118,28 @@ in
         lib.mergeAttrsList (
           map (name: {
             ${name}.binary.path = lib.getExe pkgs.${name};
-          }) lspPackages
+          })
+          lspPackages
         )
         // {
           astro-language-server.binary = {
             path = lib.getExe pkgs.astro-language-server;
-            arguments = [ "--stdio" ];
+            arguments = ["--stdio"];
           };
 
           ruff.binary = {
             path = lib.getExe pkgs.ruff;
-            arguments = [ "server" ];
+            arguments = ["server"];
           };
 
           tailwindcss-language-server.binary = {
             path = lib.getExe pkgs.tailwindcss-language-server;
-            arguments = [ "--stdio" ];
+            arguments = ["--stdio"];
           };
 
           ty.binary = {
             path = lib.getExe pkgs.ty;
-            arguments = [ "server" ];
+            arguments = ["server"];
           };
 
           kotlin-language-server.binary = {

@@ -1,8 +1,8 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use catppuccin::{Flavor, PALETTE};
 use clap::{Parser, ValueEnum};
 use image::codecs::png::PngEncoder;
-use image::imageops::{resize, FilterType};
+use image::imageops::{FilterType, resize};
 use image::{ColorType, ImageEncoder, RgbaImage};
 use palette::{IntoColor, Oklab, Srgb};
 use std::collections::HashMap;
@@ -522,7 +522,9 @@ fn write_output(output: &OutputTarget, image: &RgbaImage) -> Result<()> {
   match output {
     OutputTarget::Stdout { explicit } => {
       if !explicit && io::stdout().is_terminal() {
-        bail!("refusing to write PNG bytes to an interactive terminal; use --output <path> or --output -")
+        bail!(
+          "refusing to write PNG bytes to an interactive terminal; use --output <path> or --output -"
+        )
       }
 
       let stdout = io::stdout();

@@ -11,8 +11,8 @@ in {
     copy-as-markdown
     redirector
     stylus
-    unpaywall
     ublock-origin
+    unpaywall
     user-agent-string-switcher
     zotero-connector
     # keep-sorted end

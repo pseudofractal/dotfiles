@@ -1,4 +1,9 @@
-{config, lib, pkgs, ...}: let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   arxivMcpSrc = pkgs.fetchFromGitHub {
     owner = "takashiishida";
     repo = "arxiv-latex-mcp";

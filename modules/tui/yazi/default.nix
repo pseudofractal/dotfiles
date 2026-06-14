@@ -21,6 +21,10 @@
     initLua = ./init.lua;
     extraPackages = with pkgs; [
       # keep-sorted start
+      (python313.withPackages (p: [
+        p.nbconvert
+        p.xlsx2csv
+      ]))
       aapt
       asciinema
       bat
@@ -46,16 +50,12 @@
       ripdrag
       sqlite
       starship
+      transmission_4
       trash-cli
       tree
-      transmission_4
       ueberzugpp
       unar
       woff2
-      (python313.withPackages (p: [
-        p.nbconvert
-        p.xlsx2csv
-      ]))
       # keep-sorted end
     ];
   };

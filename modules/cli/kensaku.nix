@@ -1,4 +1,8 @@
-{pkgs, inputs, ...}: let
+{
+  pkgs,
+  inputs,
+  ...
+}: let
   system = pkgs.stdenv.hostPlatform.system;
   kensakuSettings = {
     accent_color = "cyan";

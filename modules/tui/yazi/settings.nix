@@ -1,4 +1,8 @@
-{config, lib, ...}: let
+{
+  config,
+  lib,
+  ...
+}: let
   inherit (lib.attrsets) cartesianProduct;
   inherit (lib.lists) concatLists;
   username = config.home.username;

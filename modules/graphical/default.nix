@@ -24,8 +24,8 @@
     ./vesktop.nix
     ./vivaldi.nix
     ./zen-browser
-    ./zotero.nix
     ./zoom.nix
+    ./zotero.nix
     # keep-sorted end
   ];
 }

@@ -1,4 +1,8 @@
-{config, lib, ...}: let
+{
+  config,
+  lib,
+  ...
+}: let
   ruleSources = {
     "general.md" = ./general.md;
   };
@@ -9,11 +13,12 @@
 in {
   xdg.configFile =
     (lib.mapAttrs' (
-      name: source: {
-        name = "opencode/rules/${name}";
-        value.source = source;
-      }
-    ) ruleSources)
+        name: source: {
+          name = "opencode/rules/${name}";
+          value.source = source;
+        }
+      )
+      ruleSources)
     // {
       "opencode/config.json".text = builtins.toJSON {
         "$schema" = "https://opencode.ai/config.json";

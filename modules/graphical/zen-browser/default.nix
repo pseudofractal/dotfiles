@@ -30,12 +30,12 @@
 in {
   imports = [
     # keep-sorted start
-    inputs.zen-browser.homeModules.twilight
     ./extensions.nix
     ./pinned-tabs.nix
     ./search-engines.nix
     ./spaces.nix
     ./stylus-userstyles.nix
+    inputs.zen-browser.homeModules.twilight
     # keep-sorted end
   ];
 

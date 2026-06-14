@@ -14,6 +14,7 @@ dotfiles.graphical.nixgl = {
 ```
 
 Behavior:
+
 - wrapping applies only when `enable = true` and host is non-NixOS
 - on NixOS, packages are returned unwrapped automatically
 
@@ -28,6 +29,7 @@ nixgl = import ./nixgl-helper.nix {
 ```
 
 Available helpers:
+
 - `nixgl.maybeWrap { package; bin ? null; }`
 - `nixgl.enabled`
 - `nixgl.getProgramName`

@@ -1,8 +1,6 @@
----
-name: web-fetch
-description: Fetch and summarize web content with safe defaults
-compatibility: opencode
----
+______________________________________________________________________
+
+## name: web-fetch description: Fetch and summarize web content with safe defaults compatibility: opencode
 
 ## What I do
 

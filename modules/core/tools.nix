@@ -37,10 +37,10 @@
 
   home.packages = with pkgs; [
     # keep-sorted start
+
     # For secret management
     age
     sops
-
     # Prefer uutils-provided core commands from the Home Manager profile.
     uutils-coreutils-noprefix
     # keep-sorted end

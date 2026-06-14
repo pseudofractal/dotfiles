@@ -3,4 +3,3 @@
     youtube-tui
   ];
 }
-

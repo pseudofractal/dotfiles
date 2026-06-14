@@ -12,9 +12,9 @@
 
   fixedVivaldi = pkgs.symlinkJoin {
     name = "vivaldi-fixed";
-    paths = [ pkgs.vivaldi ];
+    paths = [pkgs.vivaldi];
 
-    nativeBuildInputs = [ pkgs.makeWrapper ];
+    nativeBuildInputs = [pkgs.makeWrapper];
 
     postBuild = ''
       wrapProgram $out/bin/vivaldi \

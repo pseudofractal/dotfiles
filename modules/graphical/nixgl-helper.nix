@@ -24,8 +24,7 @@
   in
     if builtins.hasAttr cfg.package nixGLPackages
     then builtins.getAttr cfg.package nixGLPackages
-    else
-      throw "dotfiles.graphical.nixgl.package `${cfg.package}` is not available for `${system}`";
+    else throw "dotfiles.graphical.nixgl.package `${cfg.package}` is not available for `${system}`";
 
   wrapPackage = nixGLPkg: pkg: bin: let
     programName = getProgramName pkg bin;

@@ -1,12 +1,14 @@
-{ pkgs, inputs, ... }:
-let
-  treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ../../treefmt.nix;
-in
 {
+  pkgs,
+  inputs,
+  ...
+}: let
+  treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs ../../treefmt.nix;
+in {
   imports = [
     # keep-sorted start
-    ./nvim
     ./nvf
+    ./nvim
     ./opencode
     ./zed.nix
     # keep-sorted end
