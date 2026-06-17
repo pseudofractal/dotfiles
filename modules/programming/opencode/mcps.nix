@@ -32,5 +32,9 @@ in {
         "server/main.py"
       ];
     };
+    nix = {
+      type = "local";
+      command = ["mcp-nixos"];
+    };
   };
 }

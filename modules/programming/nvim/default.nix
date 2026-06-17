@@ -33,7 +33,6 @@
     # LSPs
     # keep-sorted start
     astro-language-server
-    basedpyright
     biome
     clang-tools
     lua-language-server
@@ -42,7 +41,17 @@
     rust-analyzer
     taplo
     tinymist
+    ty
     # keep-sorted end
+
+    # DAP
+    (pkgs.writeShellApplication {
+      name = "codelldb";
+      runtimeInputs = [pkgs.vscode-extensions.vadimcn.vscode-lldb];
+      text = ''
+        exec "${pkgs.vscode-extensions.vadimcn.vscode-lldb}/lib/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb" "$@"
+      '';
+    })
 
     # Linters
     # keep-sorted start

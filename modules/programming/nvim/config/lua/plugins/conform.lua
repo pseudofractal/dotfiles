@@ -14,7 +14,7 @@ return {
 
     conform.setup({
       formatters_by_ft = {
-        ["*"] = { "treefmt", lsp_format = "fallback" },
+        ["*"] = { "treefmt" },
       },
       formatters = {
         treefmt = {

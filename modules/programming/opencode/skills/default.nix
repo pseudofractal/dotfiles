@@ -1,15 +1,116 @@
-{lib, ...}: let
-  skillSources = {
-    "frontend-design" = ./frontend-design.md;
-    "web-fetch" = ./web-fetch.md;
+{pkgs, ...}: let
+  matt-pocock-skills = pkgs.fetchFromGitHub {
+    owner = "fullheart";
+    repo = "mattpocock-skills-opencode";
+    rev = "82394f3398ee7623a158a9b2fde088e558a30e35";
+    hash = "sha256-6/M/JXflTTZ1FtrhdBWS5k8uYZgtHlP+yy8m63u+oNg=";
+  };
+  julia-skills = pkgs.fetchFromGitHub {
+    owner = "Krastanov";
+    repo = "JuliaLLMAgentSkills";
+    rev = "3dd1163515dd3df990a31c4df59d1d984ee725b4";
+    hash = "sha256-OlztOj3QWU83d6bugIrUFoilTSDbG9OCnXWmV/ZvI80=";
+  };
+  scientific-skills = pkgs.fetchFromGitHub {
+    owner = "K-Dense-AI";
+    repo = "scientific-agent-skills";
+    rev = "209390194c85b3466259853417eeac81ea4f0976";
+    hash = "sha256-e7FQELopdQw6zvu2sQoatcazFQtudpC2JR4Gu5MmXI8=";
   };
 in {
-  xdg.configFile =
-    lib.mapAttrs' (
-      name: source: {
-        name = "opencode/skills/${name}/SKILL.md";
-        value.source = source;
-      }
-    )
-    skillSources;
+  programs.opencode.skills = {
+    # keep-sorted start
+    "aeon" = "${scientific-skills}/skills/aeon";
+    "astropy" = "${scientific-skills}/skills/astropy";
+    "autoskill" = "${scientific-skills}/skills/autoskill";
+    "citation-management" = "${scientific-skills}/skills/citation-management";
+    "dask" = "${scientific-skills}/skills/dask";
+    "database-lookup" = "${scientific-skills}/skills/database-lookup";
+    "docx" = "${scientific-skills}/skills/docx";
+    "exa-search" = "${scientific-skills}/skills/exa-search";
+    "experimental-design" = "${scientific-skills}/skills/experimental-design";
+    "exploratory-data-analysis" = "${scientific-skills}/skills/exploratory-data-analysis";
+    "fluidsim" = "${scientific-skills}/skills/fluidsim";
+    "frontend-design" = ./frontend-design.md;
+    "generate-image" = "${scientific-skills}/skills/generate-image";
+    "get-available-resources" = "${scientific-skills}/skills/get-available-resources";
+    "grill-me" = "${matt-pocock-skills}/grill-me";
+    "gtars" = "${scientific-skills}/skills/gtars";
+    "hugging-science" = "${scientific-skills}/skills/hugging-science";
+    "improve-codebase-architecture" = "${matt-pocock-skills}/improve-codebase-architecture";
+    "infographics" = "${scientific-skills}/skills/infographics";
+    "julia-bench" = "${julia-skills}/julia-bench";
+    "julia-comonicon" = "${julia-skills}/julia-comonicon";
+    "julia-csv" = "${julia-skills}/julia-csv";
+    "julia-docs" = "${julia-skills}/julia-docs";
+    "julia-external-cmd" = "${julia-skills}/julia-external-cmd";
+    "julia-github" = "${julia-skills}/julia-github";
+    "julia-jet" = "${julia-skills}/julia-jet";
+    "julia-makie-recipes" = "${julia-skills}/julia-makie-recipes";
+    "julia-package-dev" = "${julia-skills}/julia-package-dev";
+    "julia-perf" = "${julia-skills}/julia-perf";
+    "julia-prettytables" = "${julia-skills}/julia-prettytables";
+    "julia-scratch" = "${julia-skills}/julia-scratch";
+    "julia-term" = "${julia-skills}/julia-term";
+    "julia-tests" = "${julia-skills}/julia-tests";
+    "julia-threads" = "${julia-skills}/julia-threads";
+    "julia-toml" = "${julia-skills}/julia-toml";
+    "julia-yaml" = "${julia-skills}/julia-yaml";
+    "latex-posters" = "${scientific-skills}/skills/latex-posters";
+    "literature-review" = "${scientific-skills}/skills/literature-review";
+    "markdown-mermaid-writing" = "${scientific-skills}/skills/markdown-mermaid-writing";
+    "markitdown" = "${scientific-skills}/skills/markitdown";
+    "matlab" = "${scientific-skills}/skills/matlab";
+    "matplotlib" = "${scientific-skills}/skills/matplotlib";
+    "modal" = "${scientific-skills}/skills/modal";
+    "networkx" = "${scientific-skills}/skills/networkx";
+    "nextflow" = "${scientific-skills}/skills/nextflow";
+    "open-notebook" = "${scientific-skills}/skills/open-notebook";
+    "optimize-for-gpu" = "${scientific-skills}/skills/optimize-for-gpu";
+    "paper-lookup" = "${scientific-skills}/skills/paper-lookup";
+    "paperzilla" = "${scientific-skills}/skills/paperzilla";
+    "parallel-web" = "${scientific-skills}/skills/parallel-web";
+    "pdf" = "${scientific-skills}/skills/pdf";
+    "peer-review" = "${scientific-skills}/skills/peer-review";
+    "polars" = "${scientific-skills}/skills/polars";
+    "pptx" = "${scientific-skills}/skills/pptx";
+    "pptx-posters" = "${scientific-skills}/skills/pptx-posters";
+    "pymc" = "${scientific-skills}/skills/pymc";
+    "pymoo" = "${scientific-skills}/skills/pymoo";
+    "pytorch-lightning" = "${scientific-skills}/skills/pytorch-lightning";
+    "pyzotero" = "${scientific-skills}/skills/pyzotero";
+    "research-grants" = "${scientific-skills}/skills/research-grants";
+    "research-lookup" = "${scientific-skills}/skills/research-lookup";
+    "rowan" = "${scientific-skills}/skills/rowan";
+    "scholar-evaluation" = "${scientific-skills}/skills/scholar-evaluation";
+    "scientific-brainstorming" = "${scientific-skills}/skills/scientific-brainstorming";
+    "scientific-critical-thinking" = "${scientific-skills}/skills/scientific-critical-thinking";
+    "scientific-schematics" = "${scientific-skills}/skills/scientific-schematics";
+    "scientific-slides" = "${scientific-skills}/skills/scientific-slides";
+    "scientific-visualization" = "${scientific-skills}/skills/scientific-visualization";
+    "scientific-writing" = "${scientific-skills}/skills/scientific-writing";
+    "scikit-learn" = "${scientific-skills}/skills/scikit-learn";
+    "seaborn" = "${scientific-skills}/skills/seaborn";
+    "shap" = "${scientific-skills}/skills/shap";
+    "simpy" = "${scientific-skills}/skills/simpy";
+    "stable-baselines3" = "${scientific-skills}/skills/stable-baselines3";
+    "statistical-analysis" = "${scientific-skills}/skills/statistical-analysis";
+    "statistical-power" = "${scientific-skills}/skills/statistical-power";
+    "statsmodels" = "${scientific-skills}/skills/statsmodels";
+    "sympy" = "${scientific-skills}/skills/sympy";
+    "tdd" = "${matt-pocock-skills}/tdd";
+    "timesfm-forecasting" = "${scientific-skills}/skills/timesfm-forecasting";
+    "torch-geometric" = "${scientific-skills}/skills/torch-geometric";
+    "transformers" = "${scientific-skills}/skills/transformers";
+    "umap-learn" = "${scientific-skills}/skills/umap-learn";
+    "vaex" = "${scientific-skills}/skills/vaex";
+    "venue-templates" = "${scientific-skills}/skills/venue-templates";
+    "web-fetch" = ./web-fetch.md;
+    "what-if-oracle" = "${scientific-skills}/skills/what-if-oracle";
+    "whitespace" = "${julia-skills}/whitespace";
+    "write-a-skill" = "${matt-pocock-skills}/write-a-skill";
+    "xlsx" = "${scientific-skills}/skills/xlsx";
+    "zarr-python" = "${scientific-skills}/skills/zarr-python";
+    # keep-sorted end
+  };
 }

@@ -27,6 +27,10 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    lmstudio = {
+      url = "github:Daaboulex/lmstudio-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -53,6 +57,7 @@
     };
     # My Personal Modules
     kensaku.url = "github:pseudofractal/kensaku";
+    rmcl.url = "github:pseudofractal/rmcl";
     mnemosyne.url = "github:pseudofractal/mnemosyne";
     shiryoku.url = "github:pseudofractal/shiryoku";
   };

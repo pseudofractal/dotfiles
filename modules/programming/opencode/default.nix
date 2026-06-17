@@ -1,4 +1,4 @@
-{...}: {
+{pkgs, ...}: {
   imports = [
     # keep-sorted start
     #./tools
@@ -25,6 +25,10 @@
       ];
     };
   };
+
+  home.packages = [
+    pkgs.mcp-nixos
+  ];
 
   home.sessionVariables = {
     OPENCODE_EXPERIMENTAL = "true";

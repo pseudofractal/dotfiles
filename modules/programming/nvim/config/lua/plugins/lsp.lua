@@ -258,21 +258,52 @@ return {
           },
         },
         -- julials = {},
-        basedpyright = {
+        ty = {
           settings = {
-            basedpyright = { autoImportCompletion = true },
-            python = {
-              analysis = {
-                autoSearchPaths = true,
-                diagnosticMode = "openFilesOnly",
-                typeCheckingMode = "off",
+            ty = {
+              diagnosticMode = "workspace",
+              inlayHints = {
+                variableTypes = true,
+                callArgumentNames = true,
+              },
+              completions = {
+                autoImport = true,
+                completeFunctionParentheses = false,
+              },
+              configuration = {
+                analysis = {
+                  ["replace-imports-with-any"] = {
+                    "astropy.**",
+                    "astroquery.**",
+                    "photutils.**",
+                    "sunpy.**",
+                    "gatspy.**",
+                    "sep",
+                    "reproject.**",
+                    "specutils.**",
+                    "regions",
+                    "imutils",
+                    "ccdproc.**",
+                    "astrometry.**",
+                    "emcee",
+                    "corner",
+                    "petrofit.**",
+                    "lenstools.**",
+                    "extinction",
+                    "dustapprox.**",
+                    "galpy.**",
+                    "pynbody.**",
+                    "yt.**",
+                    "pyregion.**",
+                    "aplpy.**",
+                  },
+                },
               },
             },
           },
         },
         marksman = {},
         nixd = {},
-        kotlin_language_server = {},
         tinymist = {
           root_markers = { "typst.toml", ".git" },
           settings = {

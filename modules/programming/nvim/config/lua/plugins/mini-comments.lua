@@ -1,7 +1,7 @@
 return {
   "echasnovski/mini.comment",
   version = false,
-  opt = {
+  opts = {
     ignore_blank_line = true,
     mappings = {
       comment = "tc",

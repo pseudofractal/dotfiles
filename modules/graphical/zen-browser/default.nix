@@ -179,10 +179,8 @@ in {
 
     last_platform_dir="$(sed -n 's/^LastPlatformDir=//p' "$compat_file" | head -n 1)"
     if [ -n "$last_platform_dir" ] && [ "$last_platform_dir" != "$expected_app_dir" ] && [ "$(basename "$last_platform_dir")" != "$(basename "$expected_app_dir")" ]; then
-      echo "warning: Zen profile appdir mismatch detected"
-      echo "warning: profile points to: $last_platform_dir"
-      echo "warning: launcher points to: $expected_app_dir"
-      echo "warning: open Zen via Home Manager desktop entry to keep policies/extensions consistent"
+      sed -i "s|^LastPlatformDir=.*|LastPlatformDir=$expected_app_dir|" "$compat_file"
+      echo "info: updated Zen profile LastPlatformDir to $expected_app_dir"
     fi
   '';
 }

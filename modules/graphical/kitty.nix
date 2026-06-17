@@ -38,6 +38,9 @@ in {
       allow_remote_control = "yes";
       listen_on = "unix:@mykitty";
       shell_integration = "enabled";
+
+      # https://github.com/prismatic-koi/nixos-config/issues/2198
+      auto_reload_config = "-1";
     };
 
     keybindings = {
