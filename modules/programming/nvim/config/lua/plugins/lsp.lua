@@ -40,20 +40,9 @@ return {
           map_lsp_key("<leader>lD", require("fzf-lua").diagnostics_workspace, "Workspace Diagnostics")
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          ---@diagnostic disable-next-line: redefined-local
-          local function client_supports_method(client, method, bufnr)
-            if vim.fn.has("nvim-0.11") == 1 then
-              return client:supports_method(method, bufnr)
-            else
-              return client.supports_method(client, { bufnr = bufnr })
-            end
-          end
 
-          if
-            client
-            and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
-          then
-            local highlight = vim.api.nvim_create_augroup("lsp-highlight", { clear = false })
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+            local highlight = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
             vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
               buffer = event.buf,
               group = highlight,
@@ -73,11 +62,17 @@ return {
             })
           end
 
-          if client and client_supports_method(client, vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map_lsp_key("<leader>th", function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
             end, "Toggle Inlay Hints")
           end
+
+          if client and client.name == "ruff" then
+            client.server_capabilities.hoverProvider = false
+          end
+
+          map_lsp_key("<leader>lc", vim.lsp.codelens.run, "Run CodeLens")
         end,
       })
 
@@ -180,24 +175,7 @@ return {
         virtual_lines = { format = format_virtual_lines, current_line = true },
       })
 
-      local previous_cursor_line = vim.fn.line(".")
-
-      vim.api.nvim_create_autocmd({ "CursorMoved" }, {
-        callback = function()
-          local current_line = vim.fn.line(".")
-
-          -- Check if the cursor has moved to a different line
-          if current_line ~= previous_cursor_line then
-            vim.diagnostic.hide()
-            vim.diagnostic.show()
-          end
-
-          -- Update the last_line variable
-          previous_cursor_line = current_line
-        end,
-      })
-
-      vim.api.nvim_create_autocmd("VimResized", {
+      vim.api.nvim_create_autocmd({ "InsertLeave", "DiagnosticChanged" }, {
         callback = function()
           vim.diagnostic.hide()
           vim.diagnostic.show()
@@ -219,25 +197,21 @@ return {
         end,
       })
 
-      vim.keymap.set("n", "<leader>lc", vim.lsp.codelens.run, {
-        desc = "Run CodeLens",
-      })
-
       vim.lsp.commands["editor.action.showReferences"] = function()
         require("fzf-lua").lsp_references()
       end
       -----  Code Lens
 
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
+
       --- Julia Language Server jetls
-      vim.lsp.config("jetls", {
+      vim.lsp.config("jetls", vim.tbl_deep_extend("force", {}, capabilities, {
         cmd = { "jetls", "serve" },
         filetypes = { "julia" },
         root_markers = { "Project.toml", "Manifest.toml", ".git" },
-      })
+      }))
+      vim.lsp.enable("jetls", false)
       vim.lsp.enable("jetls")
-      vim.lsp.enable("julials", false)
-
-      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       local servers = {
         clangd = {},
@@ -257,7 +231,10 @@ return {
             },
           },
         },
-        -- julials = {},
+        -- julials = {
+        --   filetypes = {"julia"},
+        --   root_markers = { "Project.toml", "Manifest.toml", ".git" },
+        -- },
         ty = {
           settings = {
             ty = {
@@ -324,20 +301,6 @@ return {
         vim.lsp.config(server_name, server_opts)
         vim.lsp.enable(server_name)
       end
-
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("lsp_attach_disable_ruff_hover", { clear = true }),
-        callback = function(args)
-          local client = vim.lsp.get_client_by_id(args.data.client_id)
-          if client == nil then
-            return
-          end
-          if client.name == "ruff" then
-            client.server_capabilities.hoverProvider = false
-          end
-        end,
-        desc = "LSP: Disable hover capability from Ruff",
-      })
     end,
   },
 }
