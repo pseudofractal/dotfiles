@@ -3,17 +3,13 @@
   config,
   pkgs,
   lib,
-  isNixOS,
   ...
 }: let
   sidebarExpandedWidth = config.programs.zen-browser.profiles.main.settings."zen.view.sidebar-expanded.max-width";
   sidebarExpandedWidthPx = "${toString sidebarExpandedWidth}px";
-  nixgl = import ../nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
   wrappedZenTwilightPackage = let
     wrap = pkg:
-      nixgl.maybeWrap {
+      config.dotfiles.graphical.nixgl.maybeWrap {
         package = pkg;
         bin = "zen-twilight";
       };

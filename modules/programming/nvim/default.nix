@@ -7,12 +7,7 @@
     withRuby = true;
     withNodeJs = true;
     withPython3 = true;
-    plugins = with pkgs.vimPlugins; [
-      nvim-treesitter.withAllGrammars
-      (nvim-treesitter-textobjects.overrideAttrs (old: {
-        doCheck = false;
-      }))
-    ];
+    plugins = []; 
   };
 
   home.packages = with pkgs; [

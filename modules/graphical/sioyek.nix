@@ -2,14 +2,8 @@
   pkgs,
   lib,
   config,
-  inputs,
-  isNixOS,
   ...
-}: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-in {
+}: {
   home.packages = with pkgs; [
     # keep-sorted start
     diffpdf
@@ -20,7 +14,7 @@ in {
 
   programs.sioyek = {
     enable = true;
-    package = nixgl.maybeWrap {
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.sioyek;
       bin = "sioyek";
     };

@@ -1,4 +1,9 @@
-{pkgs, ...}: let
+{
+  config,
+  pkgs,
+  ...
+}: let
+  nixgl = config.dotfiles.graphical.nixgl;
   zoomPackage = pkgs.zoom-us.override {
     targetPkgs = p: [
       p.iproute2
@@ -19,5 +24,10 @@
     '';
   };
 in {
-  home.packages = [wrappedZoomPackage];
+  home.packages = [
+    (nixgl.maybeWrap {
+      package = wrappedZoomPackage;
+      bin = "zoom";
+    })
+  ];
 }

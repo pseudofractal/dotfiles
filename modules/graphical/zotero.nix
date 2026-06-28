@@ -3,14 +3,10 @@
   inputs,
   lib,
   pkgs,
-  isNixOS,
   ...
 }: let
   attachmentPath = "${config.home.homeDirectory}/vault/Thesis/papers/";
   bbtCitekeyFormat = "auth.lower + year";
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
 in {
   imports = [inputs.nur-vortriz.homeModules.zotero];
 
@@ -18,7 +14,7 @@ in {
 
   programs.zotero = {
     enable = true;
-    package = nixgl.maybeWrap {
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.zotero;
       bin = "zotero";
     };

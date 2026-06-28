@@ -1,6 +1,6 @@
 # nixGL API in Graphical Modules
 
-This repo uses one shared nixGL helper at `modules/graphical/nixgl-helper.nix`.
+This repo exposes a single `maybeWrap` function via the Home Manager module system at `config.dotfiles.graphical.nixgl.maybeWrap`.
 
 ## Host-level options (user-facing)
 
@@ -20,41 +20,33 @@ Behavior:
 
 ## Module-level API (for app modules)
 
-Import helper in graphical modules:
+Use `config.dotfiles.graphical.nixgl.maybeWrap` directly — no imports needed:
 
 ```nix
-nixgl = import ./nixgl-helper.nix {
-  inherit config lib pkgs inputs isNixOS;
-};
+{ pkgs, config, ... }: {
+  programs.sioyek = {
+    enable = true;
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
+      package = pkgs.sioyek;
+      bin = "sioyek";
+    };
+  };
+}
 ```
 
-Available helpers:
-
-- `nixgl.maybeWrap { package; bin ? null; }`
-- `nixgl.enabled`
-- `nixgl.getProgramName`
-- `nixgl.resolveNixGLPkg`
-
-`maybeWrap` is the one you should use in almost all app modules.
+`maybeWrap` accepts `{ package, bin ? null }` and returns the wrapped (or passthrough) package.
 
 ## Example 1: Simple `programs.*.package` app
 
 ```nix
 {
   pkgs,
-  lib,
   config,
-  inputs,
-  isNixOS,
   ...
-}: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-in {
+}: {
   programs.sioyek = {
     enable = true;
-    package = nixgl.maybeWrap {
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.sioyek;
       bin = "sioyek";
     };
@@ -69,18 +61,11 @@ in {
 ```nix
 {
   pkgs,
-  lib,
   config,
-  inputs,
-  isNixOS,
   ...
 }: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-
   wrappedVesktopPackage = let
-    wrap = pkg: nixgl.maybeWrap {
+    wrap = pkg: config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkg;
       bin = "vesktop";
     };
@@ -105,26 +90,23 @@ in {
 }
 ```
 
-## Example 3: Declarative wrapping for `home.packages`
-
-Use request list when app is installed via `home.packages` instead of `programs.<app>.package`:
+## Example 3: `home.packages` app
 
 ```nix
-{ pkgs, ... }: {
-  home.packages = [ pkgs.iproute2 ];
-
-  dotfiles.graphical.nixgl.requests.home = [
-    {
+{ pkgs, config, ... }: {
+  home.packages = [
+    pkgs.iproute2
+    (config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.mesa-demos;
       bin = "glxinfo";
-    }
+    })
   ];
 }
 ```
 
 ## CARTA note
 
-`modules/graphical/carta.nix` registers CARTA through `dotfiles.graphical.nixgl.requests.home` so it is wrapped automatically on non-NixOS hosts.
+`modules/graphical/carta.nix` uses `config.dotfiles.graphical.nixgl.maybeWrap` to wrap the CARTA launcher on non-NixOS hosts.
 
 - Launch command is `carta`.
 - CARTA is started with a custom browser command so the frontend URL opens in Zen (`zen-twilight`) when available.

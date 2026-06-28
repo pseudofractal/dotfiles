@@ -234,8 +234,7 @@ For Android Home Manager user-space packages, use `hosts/android/home.nix` `home
 For desktop graphical apps that need GL wrapping:
 
 - see `docs/nixgl.md`
-- current generic hook is `dotfiles.graphical.nixgl.requests.home`
-- some `programs.*.package` apps still use manual local wrapped-package pattern
+- use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in any graphical module
 
 ## Verification Commands
 

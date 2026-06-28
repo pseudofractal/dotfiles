@@ -2,14 +2,8 @@
   pkgs,
   lib,
   config,
-  inputs,
-  isNixOS,
   ...
 }: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-
   fixedVivaldi = pkgs.symlinkJoin {
     name = "vivaldi-fixed";
     paths = [pkgs.vivaldi];
@@ -23,7 +17,7 @@
   };
 in {
   home.packages = [
-    (nixgl.maybeWrap {
+    (config.dotfiles.graphical.nixgl.maybeWrap {
       package = fixedVivaldi;
       bin = "vivaldi";
     })

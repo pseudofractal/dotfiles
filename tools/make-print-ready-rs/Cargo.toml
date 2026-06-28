@@ -7,16 +7,30 @@ edition = "2021"
 name = "make-print-ready"
 path = "src/main.rs"
 
+[[bench]]
+name = "binarize"
+harness = false
+
 [dependencies]
 anyhow = "1.0"
 catppuccin = "2"
 clap = { version = "4.5", features = ["derive"] }
+fast-srgb8 = "1.0"
 indicatif = "0.17"
 lopdf = "0.35"
 pdfium-render = "0.8"
-image = "0.25"
+image = { version = "0.25", default-features = false, features = ["png"] }
 imageproc = "0.25"
 palette = "0.7"
 printpdf = { version = "0.8", features = ["png"] }
+rayon = "1.10"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

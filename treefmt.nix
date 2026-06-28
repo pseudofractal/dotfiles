@@ -1,4 +1,12 @@
-{pkgs, ...}: {
+{pkgs, ...}: let
+  jlfmt = pkgs.writeShellScriptBin "jlfmt" ''
+    export JULIA_LOAD_PATH="~/.julia/environments/formatter"
+    exec ${pkgs.julia}/bin/julia -e '
+      using JuliaFormatter
+      exit(JuliaFormatter.main(vcat(["--inplace"], ARGS)))
+    ' "$@"
+  '';
+in {
   projectRootFile = "flake.nix";
 
   programs = {
@@ -31,5 +39,11 @@
     taplo.enable = true;
     yamlfmt.enable = true;
     typstyle.enable = true;
+  };
+
+  settings.formatter.julia = {
+    command = "${jlfmt}/bin/jlfmt";
+    options = [];
+    includes = ["*.jl"];
   };
 }

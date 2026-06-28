@@ -2,17 +2,11 @@
   pkgs,
   lib,
   config,
-  inputs,
-  isNixOS,
   ...
 }: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-
   wrappedVesktopPackage = let
     wrap = pkg:
-      nixgl.maybeWrap {
+      config.dotfiles.graphical.nixgl.maybeWrap {
         package = pkg;
         bin = "vesktop";
       };

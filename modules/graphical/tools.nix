@@ -1,12 +1,13 @@
-{pkgs, ...}: {
-  home.packages = with pkgs; [
-    iproute2
-  ];
-
-  dotfiles.graphical.nixgl.requests.home = [
-    {
+{
+  pkgs,
+  config,
+  ...
+}: {
+  home.packages = [
+    pkgs.iproute2
+    (config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.mesa-demos;
       bin = "glxinfo";
-    }
+    })
   ];
 }

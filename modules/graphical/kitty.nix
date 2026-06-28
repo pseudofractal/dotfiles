@@ -2,17 +2,11 @@
   pkgs,
   lib,
   config,
-  inputs,
-  isNixOS,
   ...
-}: let
-  nixgl = import ./nixgl-helper.nix {
-    inherit config lib pkgs inputs isNixOS;
-  };
-in {
+}: {
   programs.kitty = {
     enable = true;
-    package = nixgl.maybeWrap {
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.kitty;
       bin = "kitty";
     };

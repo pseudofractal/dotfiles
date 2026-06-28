@@ -77,10 +77,10 @@
     };
   };
 in {
-  dotfiles.graphical.nixgl.requests.home = [
-    {
+  home.packages = [
+    (config.dotfiles.graphical.nixgl.maybeWrap {
       package = cartaPackage;
       bin = "carta";
-    }
+    })
   ];
 }

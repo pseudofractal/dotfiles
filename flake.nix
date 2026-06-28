@@ -86,7 +86,6 @@
         extraSpecialArgs = {
           inherit inputs hostname;
           isAndroid = false;
-          isLinux = true;
           isNixOS = false;
         };
         modules = [
@@ -118,7 +117,6 @@
             home-manager.extraSpecialArgs = {
               inherit inputs hostname system;
               isAndroid = true;
-              isLinux = false;
               isNixOS = false;
             };
             home-manager.config = ./hosts/android/home.nix;
