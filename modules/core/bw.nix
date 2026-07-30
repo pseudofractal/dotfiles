@@ -7,8 +7,8 @@
   sessionFile = "bw/session";
   cacheDir = config.xdg.cacheHome;
   sessionPath = "${cacheDir}/${sessionFile}";
-  sopsClientId = config.sops.placeholder.bw_client_id;
-  sopsClientSecret = config.sops.placeholder.bw_client_secret;
+  sopsClientId = config.sops.secrets.bw_client_id.path;
+  sopsClientSecret = config.sops.secrets.bw_client_secret.path;
 in {
   sops.secrets = {
     bw_client_id = {};
