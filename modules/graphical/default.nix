@@ -7,9 +7,10 @@
     # keep-sorted start
     ./carta.nix
     ./kitty.nix
+    ./new-prism.nix
     ./nixgl.nix
     ./packet.nix
-    ./prismlauncher.nix
+    #./prism-launcher.nix
     ./sioyek.nix
     ./tools.nix
     ./vesktop.nix

@@ -1,5 +1,5 @@
 return {
   "echasnovski/mini.statusline",
-  version = false,
+  version = "0.17.*",
   opts = {},
 }

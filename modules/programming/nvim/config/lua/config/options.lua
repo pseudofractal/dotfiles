@@ -1,10 +1,9 @@
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 vim.opt.mouse = "a"
 vim.opt.showmode = false
 
-vim.o.number = true
-vim.o.relativenumber = true
-vim.o.encoding = "utf-8"
+vim.opt.number = true
+vim.opt.relativenumber = true
 
 vim.schedule(function()
   vim.o.clipboard = "unnamedplus"
@@ -16,7 +15,6 @@ vim.opt.tabstop = 2
 vim.opt.softtabstop = 2
 
 vim.opt.smarttab = true
-vim.opt.smartindent = true
 vim.opt.autoindent = true
 vim.opt.breakindent = true
 
@@ -34,7 +32,6 @@ vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 vim.opt.scrolloff = 15
--- vim.opt.cmdheight = 0
 
 vim.api.nvim_create_autocmd("TextYankPost", {
   desc = "Highlight when yanking text",

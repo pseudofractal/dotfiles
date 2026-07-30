@@ -1,7 +1,7 @@
 return {
   "ibhagwan/fzf-lua",
-  dependencies = { "echasnovski/mini.icons" },
   opts = {
+    register_ui_select = true,
     winopts = {
       preview = {
         layout = "vertical",

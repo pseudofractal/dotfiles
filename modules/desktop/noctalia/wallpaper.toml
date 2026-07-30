@@ -1,0 +1,12 @@
+[wallpaper]
+enabled = true
+directory = "/home/pseudofractal/dotfiles/pictures/wallpapers"
+
+[wallpaper.default]
+path = "/home/pseudofractal/dotfiles/pictures/wallpapers/wallpaper.jpg"
+
+[wallpaper.last]
+path = "/home/pseudofractal/dotfiles/pictures/wallpapers/wallpaper.jpg"
+
+[wallpaper.monitors.eDP-1]
+path = "/home/pseudofractal/dotfiles/pictures/wallpapers/wallpaper.jpg"

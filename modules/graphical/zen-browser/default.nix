@@ -5,7 +5,7 @@
   lib,
   ...
 }: let
-  sidebarExpandedWidth = config.programs.zen-browser.profiles.main.settings."zen.view.sidebar-expanded.max-width";
+  sidebarExpandedWidth = 280;
   sidebarExpandedWidthPx = "${toString sidebarExpandedWidth}px";
   wrappedZenTwilightPackage = let
     wrap = pkg:

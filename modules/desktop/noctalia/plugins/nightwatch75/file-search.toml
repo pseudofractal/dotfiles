@@ -1,0 +1,3 @@
+[plugin_settings."nightwatch75/file-search"]
+exclude_dirs = ".git, node_modules, .cache, .venv, store"
+max_results = 100

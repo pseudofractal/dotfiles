@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{config, pkgs, lib, ...}: {
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
@@ -26,6 +26,14 @@
   # Bat replaces cat
   programs.bat.enable = true;
 
+  # Only build bat cache on first run — it auto-generates on first use anyway
+  home.activation.batCache = lib.mkForce (lib.hm.dag.entryAfter ["linkGeneration"] ''
+    if [ ! -f "${config.xdg.cacheHome}/bat/syntaxes.bin" ]; then
+      export XDG_CACHE_HOME=${lib.escapeShellArg config.xdg.cacheHome}
+      run ${lib.getExe pkgs.bat} cache --build
+    fi
+  '');
+
   # Eza replaces ls
   programs.eza = {
     enable = true;
@@ -40,7 +48,10 @@
 
     # For secret management
     age
+    bitwarden-cli
     sops
+    # For cloud backups
+    rclone
     # Prefer uutils-provided core commands from the Home Manager profile.
     uutils-coreutils-noprefix
     # keep-sorted end

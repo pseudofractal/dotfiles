@@ -6,14 +6,24 @@
       desc = "Enter the child directory, or open the file";
     }
     {
-      on = "f";
-      run = "plugin jump-to-char";
-      desc = "Jump to char";
+      on = ["g" "m"];
+      run = "plugin gvfs -- jump-to-device --automount";
+      desc = "Jump to mounted device";
     }
     {
       on = "M";
       run = "plugin mount";
       desc = "Mount";
+    }
+    {
+      on = "P";
+      run = "plugin gvfs -- select-then-mount";
+      desc = "Mount device via GVFS (MTP/SMB/SFTP)";
+    }
+    {
+      on = ["M" "u"];
+      run = "plugin gvfs -- select-then-unmount --eject";
+      desc = "Unmount and eject device";
     }
     {
       on = "F";

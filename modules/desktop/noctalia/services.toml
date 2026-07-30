@@ -1,0 +1,20 @@
+[calendar]
+enabled = true
+refresh_minutes = 15
+
+[calendar.account.personal_google]
+type = "google"
+name = "Personal"
+
+[calendar.account.work_google]
+type = "google"
+name = "Work"
+
+[location]
+auto_locate = true
+
+[weather]
+enabled = true
+refresh_minutes = 30
+unit = "metric"
+effects = true

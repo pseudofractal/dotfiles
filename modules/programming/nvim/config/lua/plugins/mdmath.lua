@@ -1,8 +1,6 @@
 return {
   "Thiago4532/mdmath.nvim",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-  },
+  ft = "markdown",
   keys = {
     { "<leader>me", "<cmd>MdMath enable<cr>", desc = "Enable Markdown Math" },
     { "<leader>md", "<cmd>MdMath disable<cr>", desc = "Disable Markdown Math" },

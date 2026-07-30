@@ -34,14 +34,14 @@ return {
         end,
       })
 
-      vim.keymap.set("n", "<Enter>", function()
+      vim.keymap.set("n", "<C-Space>", function()
         vim.cmd("normal! v")
         vim.treesitter.select("parent")
       end, { desc = "Treesitter: start selection at node" })
-      vim.keymap.set("v", "<Enter>", function()
+      vim.keymap.set("v", "<C-Space>", function()
         vim.treesitter.select("parent")
       end, { desc = "Treesitter: expand to parent node" })
-      vim.keymap.set({ "n", "v" }, "<Backspace>", function()
+      vim.keymap.set({ "n", "v" }, "<BS>", function()
         vim.treesitter.select("child")
       end, { desc = "Treesitter: shrink to child node" })
     end,

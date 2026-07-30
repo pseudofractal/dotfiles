@@ -1,67 +1,115 @@
 {
   config,
-  lib,
-  pkgs,
   inputs,
   isNixOS,
+  lib,
+  pkgs,
   ...
 }: let
   cfg = config.dotfiles.graphical.nixgl;
+
   enabled = cfg.enable && !isNixOS;
   system = pkgs.stdenv.hostPlatform.system;
 
-  getProgramName = pkg: bin:
+  nixGLPackage = let
+    packages = inputs.nixgl.packages.${system};
+  in
+    if builtins.hasAttr cfg.package packages
+    then builtins.getAttr cfg.package packages
+    else
+      throw ''
+        dotfiles.graphical.nixgl.package "${cfg.package}"
+        is not available for system "${system}".
+      '';
+
+  executableName = package: bin:
     if bin != null
     then bin
-    else if (lib.getName pkg) == "mesa-demos"
-    then "glxinfo"
-    else if (lib.getName pkg) == "zoom-us"
-    then "zoom"
-    else (pkg.meta.mainProgram or (lib.getName pkg));
+    else package.meta.mainProgram or (lib.getName package);
 
-  resolveNixGLPkg = let
-    nixGLPackages = inputs.nixgl.packages.${system};
-  in
-    if builtins.hasAttr cfg.package nixGLPackages
-    then builtins.getAttr cfg.package nixGLPackages
-    else throw "dotfiles.graphical.nixgl.package `${cfg.package}` is not available for `${system}`";
-
-  wrapPackage = nixGLPkg: pkg: bin: let
-    programName = getProgramName pkg bin;
-    binPath = "${pkg}/bin/${programName}";
+  wrapPackage = {
+    package,
+    bin ? null,
+  }: let
+    program = executableName package bin;
+    executable = lib.getExe' package program;
   in
     pkgs.symlinkJoin {
-      name = "${lib.getName pkg}-nixgl";
-      paths = [pkg];
-      nativeBuildInputs = [pkgs.makeWrapper];
+      name = "${lib.getName package}-nixgl";
+
+      paths = [package];
+
+      nativeBuildInputs = [
+        pkgs.makeWrapper
+      ];
+
+      # postBuild = ''
+      #   rm -f "$out/bin/${program}"
+      #
+      #   makeWrapper ${lib.getExe' nixGLPackage "nixGL"} \
+      #     "$out/bin/${program}" \
+      #     --add-flags "${executable}"
+      # '';
       postBuild = ''
-        rm -f $out/bin/${programName}
-        makeWrapper ${lib.getExe' nixGLPkg "nixGL"} $out/bin/${programName} --add-flags ${binPath}
+          rm -f "$out/bin/${program}"
+
+          cat > "$out/bin/${program}" <<EOF
+        #!${pkgs.runtimeShell}
+        echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH" >&2
+        exec ${lib.getExe' nixGLPackage "nixGL"} ${executable} "\$@"
+        EOF
+
+          chmod +x "$out/bin/${program}"
       '';
     };
 
   maybeWrap = {
     package,
     bin ? null,
-  }:
-    if enabled
-    then wrapPackage resolveNixGLPkg package bin
-    else package;
+  }: let
+    wrapped =
+      if enabled
+      then
+        wrapPackage {
+          inherit package bin;
+        }
+      else package;
+  in
+    wrapped
+    // lib.optionalAttrs (package ? override) {
+      override = args:
+        maybeWrap {
+          package = package.override args;
+          inherit bin;
+        };
+    };
 in {
   options.dotfiles.graphical.nixgl = {
-    enable = lib.mkEnableOption "nixGL wrapping for graphical packages";
+    enable = lib.mkEnableOption "Wrap graphical applications with nixGL on non-NixOS hosts";
 
     package = lib.mkOption {
       type = lib.types.str;
       default = "nixGLDefault";
-      example = "nixGLIntel";
-      description = "Attribute name under inputs.nixgl.packages.<system> used for wrapping.";
+      example = "nixGLNvidia";
+      description = ''
+        Attribute under inputs.nixgl.packages.<system> used to wrap
+        graphical applications.
+      '';
     };
 
     maybeWrap = lib.mkOption {
       type = lib.types.raw;
       readOnly = true;
-      description = "Function to conditionally wrap a package with nixGL. Usage: maybeWrap { package = pkgs.foo; bin = \"foo\"; }";
+      description = ''
+        Conditionally wraps a package with nixGL.
+
+        Example:
+
+          config.dotfiles.graphical.nixgl.maybeWrap {
+            package = pkgs.sioyek;
+            bin = "sioyek";
+          }
+      '';
     };
   };
 

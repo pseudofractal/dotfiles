@@ -7,7 +7,8 @@
     withRuby = true;
     withNodeJs = true;
     withPython3 = true;
-    plugins = []; 
+    plugins = [];
+    extraWrapperArgs = [ "--set" "JULIA_NUM_THREADS" "4" ]; 
   };
 
   home.packages = with pkgs; [
@@ -30,6 +31,7 @@
     astro-language-server
     biome
     clang-tools
+    harper
     lua-language-server
     marksman
     nixd

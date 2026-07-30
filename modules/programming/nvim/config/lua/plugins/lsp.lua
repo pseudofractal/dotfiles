@@ -175,20 +175,9 @@ return {
         virtual_lines = { format = format_virtual_lines, current_line = true },
       })
 
-      vim.api.nvim_create_autocmd({ "InsertLeave", "DiagnosticChanged" }, {
-        callback = function()
-          vim.diagnostic.hide()
-          vim.diagnostic.show()
-        end,
-      })
-
-      ----------------------------- DIAGNOSTICS OVER
-
-      --- Code Lens
       vim.lsp.codelens.enable(true)
 
       vim.api.nvim_create_autocmd({
-        "BufEnter",
         "CursorHold",
         "InsertLeave",
       }, {
@@ -197,23 +186,99 @@ return {
         end,
       })
 
-      vim.lsp.commands["editor.action.showReferences"] = function()
-        require("fzf-lua").lsp_references()
-      end
-      -----  Code Lens
-
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      --- Julia Language Server jetls
       vim.lsp.config("jetls", vim.tbl_deep_extend("force", {}, capabilities, {
-        cmd = { "jetls", "serve" },
+        cmd = {
+          "jetls",
+          "serve",
+          "--clientProcessId",
+          vim.fn.getpid(),
+        },
         filetypes = { "julia" },
-        root_markers = { "Project.toml", "Manifest.toml", ".git" },
+        root_markers = { "Project.toml", ".git" },
+        settings = {
+          jetls = {
+            full_analysis = {
+              debounce = 2.0,
+              auto_instantiate = true,
+            },
+            diagnostic = {
+              enabled = true,
+              all_files = true,
+              allow_unused_underscore = true,
+            },
+            code_lens = {
+              references = true,
+              testrunner = true,
+            },
+            inlay_hint = {
+              block_end = { enabled = true, min_lines = 15 },
+              types = { enabled = true },
+            },
+          },
+        },
+        init_options = {
+          n_analysis_workers = 4,
+        },
       }))
-      vim.lsp.enable("jetls", false)
       vim.lsp.enable("jetls")
 
       local servers = {
+        harper_ls = {
+          filetypes = {
+            "c",
+            "cpp",
+            "javascript",
+            "javascriptreact",
+            "julia",
+            "markdown",
+            "python",
+            "quarto",
+            "rmd",
+            "rust",
+            "tex",
+            "text",
+            "typescript",
+            "typescriptreact",
+            "typst",
+          },
+          settings = {
+            ["harper-ls"] = {
+              diagnosticSeverity = "hint",
+              dialect = "American",
+              maxFileLength = 120000,
+              userDictPath = vim.fn.expand("~/dotfiles/misc/harper/dictionary.txt"),
+              workspaceDictPath = ".harper-dictionary.txt",
+              excludePatterns = {
+                "**/node_modules/**",
+                "**/vendor/**",
+                "**/dist/**",
+                "**/build/**",
+                "**/target/**",
+                "**/.git/**",
+                "**/*.lock",
+                "**/CHANGELOG.*",
+                "**/TODO.*",
+                "**/.env*",
+                "**/.gitignore",
+              },
+              linters = {
+                SpellCheck = true,
+                SpelledNumbers = false,
+                AnA = true,
+                SentenceCapitalization = true,
+                UnclosedQuotes = true,
+                WrongQuotes = false,
+                LongSentences = true,
+                RepeatedWords = true,
+                Spaces = true,
+                Matcher = true,
+                CorrectNumberSuffix = true,
+              },
+            },
+          },
+        },
         clangd = {},
         biome = {},
         astro = {
@@ -231,10 +296,6 @@ return {
             },
           },
         },
-        -- julials = {
-        --   filetypes = {"julia"},
-        --   root_markers = { "Project.toml", "Manifest.toml", ".git" },
-        -- },
         ty = {
           settings = {
             ty = {
@@ -280,6 +341,9 @@ return {
           },
         },
         marksman = {},
+        copilot = {
+          cmd = { "copilot-language-server", "--stdio" },
+        },
         nixd = {},
         tinymist = {
           root_markers = { "typst.toml", ".git" },

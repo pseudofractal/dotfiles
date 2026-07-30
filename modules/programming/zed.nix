@@ -12,6 +12,7 @@
     "catppuccin"
     "catppuccin-icons"
     "fish"
+    "harper"
     "julia"
     "latex"
     "lua"
@@ -58,6 +59,7 @@ in {
       # keep-sorted start
       alejandra
       astro-language-server
+      harper
       kdePackages.qtdeclarative
       keep-sorted
       kotlin-language-server
@@ -144,6 +146,33 @@ in {
 
           kotlin-language-server.binary = {
             path = lib.getExe pkgs.kotlin-language-server;
+          };
+
+          harper-ls = {
+            binary = {
+              path = "${pkgs.harper}/bin/harper-ls";
+            };
+            settings = {
+              "harper-ls" = {
+                userDictPath = "~/dotfiles/misc/harper/dictionary.txt";
+              diagnosticSeverity = "hint";
+                dialect = "American";
+                maxFileLength = 120000;
+                excludePatterns = [
+                  "**/node_modules/**"
+                  "**/vendor/**"
+                  "**/dist/**"
+                  "**/build/**"
+                  "**/target/**"
+                  "**/.git/**"
+                  "**/*.lock"
+                  "**/CHANGELOG.*"
+                  "**/TODO.*"
+                  "**/.env*"
+                  "**/.gitignore"
+                ];
+              };
+            };
           };
         };
     };

@@ -1,0 +1,89 @@
+[bar.main]
+position = "top"
+thickness = 40
+scale = 1.25
+radius = 12
+padding = 14
+margin_ends = 0
+background_opacity = 0
+
+capsule = true
+capsule_thickness = 0.75
+capsule_border = "outline"
+capsule_opacity = 0.75
+capsule_padding = 5
+widget_spacing = 5
+
+start = ["launcher", "taskbar"]
+center = ["media", "clock", "control-center"]
+end = [
+  "tray",
+  "notifications",
+  "network",
+  "bluetooth",
+  "volume",
+  "battery",
+  "session",
+]
+
+[widget.battery]
+color = "tertiary"
+
+[widget.bluetooth]
+color = "on_surface_variant"
+
+[widget.clock]
+format = "{:%H:%M} ∘ {:%a %b %e}"
+tooltip_format = "{:%A, %B %e, %Y} ∘ {:%H:%M:%S}"
+
+[widget.control-center]
+capsule = true
+capsule_opacity = 0.0
+capsule_padding = 0
+capsule_radius = 20
+custom_image = "/home/pseudofractal/dotfiles/pictures/profile/transparent.png"
+scale = 1.75
+
+
+[widget.media]
+hide_when_no_media = true
+max_length = 300
+min_length = 100
+title_scroll = "on_hover"
+
+[widget.network]
+show_label = false
+
+[widget.notifications]
+hide_when_no_unread = true
+icon_color = "error"
+
+[widget.sysmon]
+color = "on_surface_variant"
+display = "text"
+
+[widget.taskbar]
+focused_color = "tertiary"
+group_by_workspace = true
+hide_empty_workspaces = true
+inactive_opacity = 0.75
+occupied_color = "on_surface_variant"
+workspace_group_capsule = false
+workspace_label_placement = "inside"
+
+[widget.tray]
+detached_panel = true
+drawer = true
+drawer_item_size = 20.0
+icon_color = "primary"
+
+[widget.volume]
+color = "secondary"
+
+[widget.workspaces]
+empty_color = "on_primary"
+focused_color = "tertiary"
+hide_when_empty = true
+max_label_chars = 8
+occupied_color = "on_surface"
+style = "focus_hint"

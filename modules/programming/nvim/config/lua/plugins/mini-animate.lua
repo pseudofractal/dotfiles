@@ -1,1 +1,1 @@
-return { "echasnovski/mini.animate", version = false }
+return { "echasnovski/mini.animate", version = "0.17.*" }

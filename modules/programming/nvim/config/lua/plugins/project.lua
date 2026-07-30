@@ -1,6 +1,8 @@
 return {
   "ahmedkhalf/project.nvim",
-  opt = {
-    patterns = { ".git", "Makefile", "package.json", "Cargo.toml", "uv.lock" },
-  },
+  config = function()
+    require("project_nvim").setup({
+      patterns = { ".git", "Makefile", "package.json", "Cargo.toml", "uv.lock" },
+    })
+  end,
 }

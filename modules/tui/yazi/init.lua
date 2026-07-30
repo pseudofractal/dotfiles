@@ -1,5 +1,6 @@
 require("starship"):setup()
 require("git"):setup()
+require("gvfs"):setup()
 
 require("custom-shell"):setup({
 	history_path = "default",

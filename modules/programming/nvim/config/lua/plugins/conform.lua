@@ -16,14 +16,6 @@ return {
       formatters_by_ft = {
         ["*"] = { "treefmt" },
       },
-      formatters = {
-        treefmt = {
-          require_cwd = false,
-          cwd = function()
-            return vim.fn.getcwd()
-          end,
-        },
-      },
       format_on_save = function(bufnr)
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return

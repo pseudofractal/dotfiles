@@ -1,0 +1,23 @@
+[shell]
+font_family = "Maple Mono NF CN"
+avatar_path = "/home/pseudofractal/dotfiles/pictures/profile/transparent.png"
+launch_apps_as_systemd_services = true
+settings_show_advanced = true
+corner_radius_scale = 1.0
+niri_overview_type_to_launch_enabled = true
+middle_click_opens_widget_settings = false
+show_location = true
+
+[shell.panel]
+transparency_mode = "soft"
+launcher_placement = "centered"
+control_center_placement = "attached"
+session_placement = "attached"
+
+[shell.launcher]
+categories = true
+show_icons = true
+sort_by_usage = true
+
+[shell.launcher.providers.calculator]
+prefix = "="

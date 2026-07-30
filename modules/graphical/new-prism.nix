@@ -4,13 +4,16 @@
   ...
 }: let
   dataDir = "${config.xdg.dataHome}/PrismLauncher";
+
   themeName = "Catppuccin Mocha";
   themeDir = "${dataDir}/themes/${themeName}";
+
   jsonFormat = pkgs.formats.json {};
 
   themeJson = jsonFormat.generate "prismlauncher-catppuccin-mocha-theme.json" {
     name = themeName;
     widgets = "Fusion";
+
     colors = {
       # keep-sorted start
       AlternateBase = "#1e1e2e";
@@ -30,6 +33,7 @@
       fadeColor = "#6c7086";
       # keep-sorted end
     };
+
     logColors = {
       # keep-sorted start
       Debug = "#a6e3a1";
@@ -46,16 +50,16 @@
     QToolTip {
       color: #cdd6f4;
       background-color: #313244;
-      border: 1px solid #313244
+      border: 1px solid #313244;
     }
   '';
 
-  # Bypass Nix's wrapper to use system NVIDIA GL drivers directly.
-  # Nix's LD_LIBRARY_PATH excludes /usr/lib which breaks GLX on non-NixOS.
   wrappedPrismLauncher = let
     unwrapped = builtins.head pkgs.prismlauncher.paths;
-    nixLibs = pkgs.lib.makeLibraryPath [
+
+    runtimeLibs = pkgs.lib.makeLibraryPath [
       unwrapped
+
       # keep-sorted start
       pkgs.alsa-lib
       pkgs.flite
@@ -82,17 +86,45 @@
       pkgs.vulkan-loader
       # keep-sorted end
     ];
+
+    javaPaths = pkgs.lib.makeSearchPath "bin/java" [
+      pkgs.jdk8
+      pkgs.jdk11
+      pkgs.jdk17
+      pkgs.jdk21
+      pkgs.jdk25
+    ];
   in
-    pkgs.writeShellScriptBin "prismlauncher" ''
-      export LD_LIBRARY_PATH=${nixLibs}''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:/usr/lib:/usr/lib64
-      export QT_PLUGIN_PATH=${pkgs.qt6.qtbase}/lib/qt-6/plugins''${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}
-      export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
-      exec ${unwrapped}/bin/prismlauncher "$@"
-    '';
+    pkgs.symlinkJoin {
+      name = "prismlauncher";
+
+      paths = [pkgs.prismlauncher];
+
+      nativeBuildInputs = [pkgs.makeWrapper];
+
+      postBuild = ''
+                rm -f "$out/bin/prismlauncher"
+
+                cat >"$out/bin/prismlauncher" <<EOF
+        #!${pkgs.runtimeShell}
+
+        export LD_LIBRARY_PATH="${runtimeLibs}"''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:/usr/lib:/usr/lib64
+        export QT_PLUGIN_PATH="${pkgs.qt6.qtbase}/lib/qt-6/plugins"''${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}
+        export PRISMLAUNCHER_JAVA_PATHS="${javaPaths}"
+
+        exec ${unwrapped}/bin/prismlauncher "\$@"
+        EOF
+
+                chmod +x "$out/bin/prismlauncher"
+      '';
+    };
 in {
+  home.packages = [ pkgs.mcaselector ];
+
   programs.prismlauncher = {
     enable = true;
     package = wrappedPrismLauncher;
+
     settings = {
       # keep-sorted start
       ApplicationTheme = themeName;

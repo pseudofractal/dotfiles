@@ -19,6 +19,7 @@ return {
       { "<leader>L", group = "Language" },
       { "<leader>Lp", group = "Python" },
       { "<leader>x", group = "Diagnostics" },
+      { "<leader>a", group = "AI" },
       { "z", group = "Code Folding" },
     },
   },

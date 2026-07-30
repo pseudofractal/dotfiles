@@ -1,0 +1,13 @@
+GEO
+GW
+Interferometer
+KAGRA
+LALSuite
+LALWaveforms
+PSD
+TAMA
+Termux
+Welch's
+aLIGO
+periodogram
+waveforms

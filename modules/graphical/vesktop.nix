@@ -19,6 +19,10 @@
 in {
   catppuccin.vesktop.enable = true;
 
+  home.packages = with pkgs; [
+    overlayed
+  ];
+
   programs.vesktop = {
     enable = true;
     package = wrappedVesktopPackage;

@@ -42,6 +42,16 @@ in {
   home.packages = [refreshScript];
 
   home.activation.zenFetchCatppuccinUserstyles = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    stamp_file="$HOME/.cache/zen-catppuccin-userstyles-stamp"
+    if [ -f "$stamp_file" ]; then
+      last_run=$(cat "$stamp_file")
+      today=$(date +%Y%m%d)
+      if [ "$last_run" = "$today" ]; then
+        echo "info: already fetched today; skipping Catppuccin Stylus import bundle refresh"
+        exit 0
+      fi
+    fi
+
     is_online() {
       if command -v ping >/dev/null 2>&1; then
         if ping -c 1 -W 1 1.1.1.1 >/dev/null 2>&1 || ping -c 1 -w 1 1.1.1.1 >/dev/null 2>&1; then
@@ -60,6 +70,8 @@ in {
     if ! ${lib.getExe refreshScript}; then
       echo "warning: failed to refresh Catppuccin Stylus import bundle"
       echo "warning: run zen-refresh-catppuccin-userstyles when network is available"
+    else
+      date +%Y%m%d > "$stamp_file"
     fi
   '';
 }

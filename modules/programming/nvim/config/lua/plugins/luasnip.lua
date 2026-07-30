@@ -10,6 +10,6 @@ return {
       updateevents = "TextChanged,TextChangedI",
     })
 
-    require("luasnip.loaders.from_lua").lazy_load({ paths = "~/.config/nvim/snippets" })
+    require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets" })
   end,
 }

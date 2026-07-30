@@ -1,9 +1,8 @@
 {pkgs, ...}: let
-  jlfmt = pkgs.writeShellScriptBin "jlfmt" ''
-    export JULIA_LOAD_PATH="~/.julia/environments/formatter"
-    exec ${pkgs.julia}/bin/julia -e '
-      using JuliaFormatter
-      exit(JuliaFormatter.main(vcat(["--inplace"], ARGS)))
+  runicfmt = pkgs.writeShellScriptBin "runicfmt" ''
+    exec ${pkgs.julia}/bin/julia --project="~/.julia/environments/apps/Runic" -e '
+      using Runic
+      exit(Runic.main(vcat(["--inplace"], ARGS)))
     ' "$@"
   '';
 in {
@@ -42,7 +41,7 @@ in {
   };
 
   settings.formatter.julia = {
-    command = "${jlfmt}/bin/jlfmt";
+    command = "${runicfmt}/bin/runicfmt";
     options = [];
     includes = ["*.jl"];
   };

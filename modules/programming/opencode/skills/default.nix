@@ -17,21 +17,50 @@
     rev = "209390194c85b3466259853417eeac81ea4f0976";
     hash = "sha256-e7FQELopdQw6zvu2sQoatcazFQtudpC2JR4Gu5MmXI8=";
   };
+  ponytail-skills = pkgs.fetchFromGitHub {
+    owner = "DietrichGebert";
+    repo = "ponytail";
+    rev = "16f29800fd2681bdf24f3eb4ccffe38be3baec6b";
+    hash = "sha256-Y7d4s7uqjH6IbEXhqAiQ+yaxr6iiGcv2X64LuMtG1T8=";
+  };
+  j13z-svelte-essentials = pkgs.fetchFromGitHub {
+    owner = "j13z";
+    repo = "j13z-svelte-essentials";
+    rev = "7902fa32399e3ab5aa07b6121bd19e285fa9dde3";
+    hash = "sha256-5UmuvV5X9BvGhmgXviodLj7C4ROSGe3zhpR1oRVCqbg=";
+  };
+  ag-opencode-skills = pkgs.fetchFromGitHub {
+    owner = "harshahosur81";
+    repo = "ag-opencode-skills";
+    rev = "a2265b428dce31e5f1a85c06f91ad0d6e9cf14cc";
+    hash = "sha256-yUjoUmdG3ZnlPVW4eKxlrwA67ejeOZdq/y3Zoy++Zuo=";
+  };
+  cloudflare-skills = pkgs.fetchFromGitHub {
+    owner = "cloudflare";
+    repo = "skills";
+    rev = "70215303d44a81a0db3219428f4825b604fc6061";
+    hash = "sha256-3aVvQoM/n7MOkYg0j+yfP+6Pkqf8oB8ycVS2M2umuNU=";
+  };
 in {
   programs.opencode.skills = {
     # keep-sorted start
     "aeon" = "${scientific-skills}/skills/aeon";
+    "agents-sdk" = "${cloudflare-skills}/skills/agents-sdk";
     "astropy" = "${scientific-skills}/skills/astropy";
     "autoskill" = "${scientific-skills}/skills/autoskill";
     "citation-management" = "${scientific-skills}/skills/citation-management";
+    "cloudflare" = "${cloudflare-skills}/skills/cloudflare";
+    "cloudflare-email-service" = "${cloudflare-skills}/skills/cloudflare-email-service";
+    "cloudflare-one" = "${cloudflare-skills}/skills/cloudflare-one";
+    "cloudflare-one-migrations" = "${cloudflare-skills}/skills/cloudflare-one-migrations";
     "dask" = "${scientific-skills}/skills/dask";
     "database-lookup" = "${scientific-skills}/skills/database-lookup";
     "docx" = "${scientific-skills}/skills/docx";
+    "durable-objects" = "${cloudflare-skills}/skills/durable-objects";
     "exa-search" = "${scientific-skills}/skills/exa-search";
     "experimental-design" = "${scientific-skills}/skills/experimental-design";
     "exploratory-data-analysis" = "${scientific-skills}/skills/exploratory-data-analysis";
     "fluidsim" = "${scientific-skills}/skills/fluidsim";
-    "frontend-design" = ./frontend-design.md;
     "generate-image" = "${scientific-skills}/skills/generate-image";
     "get-available-resources" = "${scientific-skills}/skills/get-available-resources";
     "grill-me" = "${matt-pocock-skills}/grill-me";
@@ -72,6 +101,7 @@ in {
     "parallel-web" = "${scientific-skills}/skills/parallel-web";
     "pdf" = "${scientific-skills}/skills/pdf";
     "peer-review" = "${scientific-skills}/skills/peer-review";
+    "ponytail" = "${ponytail-skills}/skills/ponytail";
     "polars" = "${scientific-skills}/skills/polars";
     "pptx" = "${scientific-skills}/skills/pptx";
     "pptx-posters" = "${scientific-skills}/skills/pptx-posters";
@@ -82,6 +112,7 @@ in {
     "research-grants" = "${scientific-skills}/skills/research-grants";
     "research-lookup" = "${scientific-skills}/skills/research-lookup";
     "rowan" = "${scientific-skills}/skills/rowan";
+    "sandbox-sdk" = "${cloudflare-skills}/skills/sandbox-sdk";
     "scholar-evaluation" = "${scientific-skills}/skills/scholar-evaluation";
     "scientific-brainstorming" = "${scientific-skills}/skills/scientific-brainstorming";
     "scientific-critical-thinking" = "${scientific-skills}/skills/scientific-critical-thinking";
@@ -91,24 +122,31 @@ in {
     "scientific-writing" = "${scientific-skills}/skills/scientific-writing";
     "scikit-learn" = "${scientific-skills}/skills/scikit-learn";
     "seaborn" = "${scientific-skills}/skills/seaborn";
+    "shadcn-svelte" = "${j13z-svelte-essentials}/agent-skills/src/shadcn-svelte";
     "shap" = "${scientific-skills}/skills/shap";
     "simpy" = "${scientific-skills}/skills/simpy";
     "stable-baselines3" = "${scientific-skills}/skills/stable-baselines3";
     "statistical-analysis" = "${scientific-skills}/skills/statistical-analysis";
     "statistical-power" = "${scientific-skills}/skills/statistical-power";
     "statsmodels" = "${scientific-skills}/skills/statsmodels";
+    "svelte-authoring" = "${j13z-svelte-essentials}/agent-skills/src/svelte-authoring";
+    "svelte-review" = "${j13z-svelte-essentials}/agent-skills/src/svelte-review";
     "sympy" = "${scientific-skills}/skills/sympy";
+    "tailwind-design-system" = "${ag-opencode-skills}/skills/frontend/tailwind-design-system";
     "tdd" = "${matt-pocock-skills}/tdd";
     "timesfm-forecasting" = "${scientific-skills}/skills/timesfm-forecasting";
     "torch-geometric" = "${scientific-skills}/skills/torch-geometric";
     "transformers" = "${scientific-skills}/skills/transformers";
+    "turnstile-spin" = "${cloudflare-skills}/skills/turnstile-spin";
     "umap-learn" = "${scientific-skills}/skills/umap-learn";
     "vaex" = "${scientific-skills}/skills/vaex";
     "venue-templates" = "${scientific-skills}/skills/venue-templates";
-    "web-fetch" = ./web-fetch.md;
+    "web-perf" = "${cloudflare-skills}/skills/web-perf";
     "what-if-oracle" = "${scientific-skills}/skills/what-if-oracle";
     "whitespace" = "${julia-skills}/whitespace";
     "write-a-skill" = "${matt-pocock-skills}/write-a-skill";
+    "workers-best-practices" = "${cloudflare-skills}/skills/workers-best-practices";
+    "wrangler" = "${cloudflare-skills}/skills/wrangler";
     "xlsx" = "${scientific-skills}/skills/xlsx";
     "zarr-python" = "${scientific-skills}/skills/zarr-python";
     # keep-sorted end
