@@ -16,11 +16,12 @@
       # External Modules from Flake Inputs
       inputs.sops-nix.homeManagerModules.sops
       inputs.catppuccin.homeModules.catppuccin
-      inputs.vicinae.homeManagerModules.default
 
       # My packages
     ]
     ++ lib.optionals (!isAndroid) [
+      inputs.vicinae.homeManagerModules.default
+      ./cli/vicinae.nix
       ./graphical
       ./desktop
     ];

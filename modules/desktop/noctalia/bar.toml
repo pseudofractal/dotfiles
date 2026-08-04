@@ -14,17 +14,29 @@ capsule_opacity = 0.75
 capsule_padding = 5
 widget_spacing = 5
 
-start = ["launcher", "taskbar"]
-center = ["media", "clock", "control-center"]
+start = ["session", "group:taskgroup", "pomodoro", "notes"]
+center = ["lyrics", "clock", "control-center", "phone"]
 end = [
-  "tray",
   "notifications",
   "network",
   "bluetooth",
+  "cat",
   "volume",
   "battery",
-  "session",
+  "tray",
 ]
+
+[[bar.main.capsule_group]]
+border = "outline"
+enabled = true
+fill = "surface_variant"
+id = "taskgroup"
+members = [ "taskbar" ]
+opacity = 0.75
+padding = 5.0
+
+[widget.pomodoro]
+type = "thepunkoff/pomodoro:widget"
 
 [widget.battery]
 color = "tertiary"
@@ -33,7 +45,7 @@ color = "tertiary"
 color = "on_surface_variant"
 
 [widget.clock]
-format = "{:%H:%M} ∘ {:%a %b %e}"
+format = "{:%H:%M} ∘ {:%a %b %d}"
 tooltip_format = "{:%A, %B %e, %Y} ∘ {:%H:%M:%S}"
 
 [widget.control-center]
@@ -44,12 +56,17 @@ capsule_radius = 20
 custom_image = "/home/pseudofractal/dotfiles/pictures/profile/transparent.png"
 scale = 1.75
 
+[widget.phone]
+type = "icefish/phone-connect:bar"
 
-[widget.media]
-hide_when_no_media = true
-max_length = 300
-min_length = 100
-title_scroll = "on_hover"
+[widget.lyrics]
+type = "h465855hgg/lyrics:lyrics"
+show_artist = false
+show_cover = true
+show_glyph = false
+
+[widget.notes]
+type = "noctalia/notes:notes"
 
 [widget.network]
 show_label = false

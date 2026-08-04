@@ -54,6 +54,8 @@
     }
   '';
 
+  # Prism needs the host GL libraries on non-NixOS; keep this custom launcher
+  # separate from the generic nixGL wrapper. See docs/nixgl.md.
   wrappedPrismLauncher = let
     unwrapped = builtins.head pkgs.prismlauncher.paths;
 

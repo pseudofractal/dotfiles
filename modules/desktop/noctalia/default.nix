@@ -15,14 +15,15 @@
   ];
 
   pluginFiles = [
-    ./plugins/plugins.toml
+    ./plugins/DotNetRob/cat.toml
     ./plugins/noctalia/timer.toml
-    ./plugins/nightwatch75/file-search.toml
+    ./plugins/plugins.toml
   ];
 
   allToml = lib.concatMapStringsSep "\n" readToml (coreFiles ++ pluginFiles);
 in {
   imports = [
+    ./lrc_tty.nix
     inputs.noctalia.homeModules.default
   ];
 

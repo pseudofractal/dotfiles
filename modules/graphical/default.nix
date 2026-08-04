@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}: {
+{ ... }: {
   imports = [
     # keep-sorted start
     ./carta.nix

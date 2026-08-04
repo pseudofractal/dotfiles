@@ -7,6 +7,7 @@ LALWaveforms
 PSD
 TAMA
 Termux
+Vicinae
 Welch's
 aLIGO
 periodogram

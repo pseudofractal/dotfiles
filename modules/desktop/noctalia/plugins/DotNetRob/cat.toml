@@ -1,0 +1,6 @@
+[widget.cat]
+type = "dotnetrob/cat:cat"
+show_cpu_percent = true
+cat_color_mode = "custom"
+poll_interval = 1
+run_threshold = 50

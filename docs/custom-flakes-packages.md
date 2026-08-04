@@ -234,7 +234,8 @@ For Android Home Manager user-space packages, use `hosts/android/home.nix` `home
 For desktop graphical apps that need GL wrapping:
 
 - see `docs/nixgl.md`
-- use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in any graphical module
+- generally use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
+- Prism Launcher is a documented exception because its active wrapper must preserve host GL library paths; see `docs/nixgl.md#prism-launcher-exception`
 
 ## Verification Commands
 

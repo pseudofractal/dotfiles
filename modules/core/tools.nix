@@ -1,4 +1,10 @@
-{config, pkgs, lib, ...}: {
+{
+  config,
+  pkgs,
+  lib,
+  isAndroid,
+  ...
+}: {
   programs.direnv = {
     enable = true;
     nix-direnv.enable = true;
@@ -43,17 +49,21 @@
     extraOptions = ["--group-directories-first" "--header"];
   };
 
-  home.packages = with pkgs; [
-    # keep-sorted start
+  home.packages = with pkgs;
+    [
+      # keep-sorted start
 
-    # For secret management
-    age
-    bitwarden-cli
-    sops
-    # For cloud backups
-    rclone
-    # Prefer uutils-provided core commands from the Home Manager profile.
-    uutils-coreutils-noprefix
-    # keep-sorted end
-  ];
+      # For secret management
+      age
+      bitwarden-cli
+      sops
+      # For cloud backups
+      rclone
+      # Prefer uutils-provided core commands from the Home Manager profile.
+      uutils-coreutils-noprefix
+      # keep-sorted end
+    ]
+    ++ lib.optionals (!isAndroid) [
+      pkgs.wl-mirror
+    ];
 }

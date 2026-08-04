@@ -1,2 +1,3 @@
 [control_center]
-sidebar = "compact"
+sidebar = "full"
+sidebar_section = "full"

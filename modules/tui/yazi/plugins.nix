@@ -1,5 +1,10 @@
-{pkgs, ...}: {
-  programs.yazi.plugins = {
+{
+  isAndroid,
+  lib,
+  pkgs,
+  ...
+}: {
+  programs.yazi.plugins = lib.mkIf (!isAndroid) {
     # keep-sorted start
     bunny = pkgs.yaziPlugins.bunny;
     custom-shell = pkgs.yaziPlugins.custom-shell;

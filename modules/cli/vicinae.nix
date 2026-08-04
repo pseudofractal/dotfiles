@@ -25,6 +25,8 @@
       inherit name rev hash;
     };
 in {
+  home.packages = [pkgs.hyprpicker];
+
   programs.vicinae = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
@@ -42,12 +44,9 @@ in {
       "github"
       "wiktionary"
       "kaomojis"
+      "bitwarden-vault"
     ] ++ [
-      (raycastExt {
-        name = "bitwarden";
-        rev = "f861181076b0abcede91ee7f9dacc71641a62a7b";
-        hash = "sha256-IFlA/ccMVfMsB2OgzXk7BmyIMmsfkxVa/Gt2rWMxrgs=";
-      })
+        # For future Raycast extensions.
     ];
 
     settings = {

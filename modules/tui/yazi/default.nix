@@ -1,5 +1,7 @@
 {
   config,
+  isAndroid,
+  lib,
   pkgs,
   inputs,
   ...
@@ -64,7 +66,7 @@
 
   home.packages = [pkgs.xdg-terminal-exec];
 
-  xdg.portal = {
+  xdg.portal = lib.mkIf (!isAndroid) {
     enable = true;
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
@@ -76,10 +78,12 @@
     };
   };
 
-  xdg.configFile."xdg-desktop-portal-termfilechooser/config".text = ''
-    [filechooser]
-    cmd=${pkgs.xdg-desktop-portal-termfilechooser}/share/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
-    default_dir=$HOME
-    env=TERMCMD=kitty
-  '';
+  xdg.configFile."xdg-desktop-portal-termfilechooser/config" = lib.mkIf (!isAndroid) {
+    text = ''
+      [filechooser]
+      cmd=${pkgs.xdg-desktop-portal-termfilechooser}/share/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
+      default_dir=$HOME
+      env=TERMCMD=kitty
+    '';
+  };
 }

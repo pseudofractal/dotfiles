@@ -110,3 +110,26 @@ in {
 
 - Launch command is `carta`.
 - CARTA is started with a custom browser command so the frontend URL opens in Zen (`zen-twilight`) when available.
+
+## Prism Launcher Exception
+
+Prism Launcher is an intentional exception to the usual `maybeWrap` pattern.
+The active module is `modules/graphical/new-prism.nix`; it builds a custom
+launcher instead of passing `pkgs.prismlauncher` through `maybeWrap`. That
+launcher preserves Prism's Qt plugin path and Java search path, and adds the
+host `/usr/lib` and `/usr/lib64` directories needed by the current non-NixOS
+GL setup before executing Prism's unwrapped binary.
+
+`modules/graphical/prism-launcher.nix` is an older, inactive implementation
+that uses the generic wrapper and should not replace the active module without
+retesting Prism's GL behavior. Layering `maybeWrap` around the active package
+would change the launch and library-resolution order, so it is not part of the
+default configuration.
+
+The normal desktop entry uses `prismlauncher %U`, which resolves the managed
+profile command through `PATH`, just like a terminal launch. Prism-generated
+instance shortcuts can record a separate executable path, so they should be
+inspected independently if they stop using the active wrapper.
+Noctalia is configured to launch applications as user systemd services, so its
+environment should be checked separately if it cannot resolve the profile
+command.
