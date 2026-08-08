@@ -23,7 +23,7 @@ function gco --description 'Git commit with custom date and time'
     end
 
     if test $use_random -eq 1
-        set -l hour   (random 9 22)
+        set -l hour (random 9 22)
         set -l minute (random 0 59)
         set -l second (random 0 59)
         set time (printf "%02d:%02d:%02d" $hour $minute $second)
@@ -39,4 +39,3 @@ function gco --description 'Git commit with custom date and time'
     env GIT_AUTHOR_DATE="$datetime" GIT_COMMITTER_DATE="$datetime" \
         git commit -m "$msg" --date="$datetime"
 end
-

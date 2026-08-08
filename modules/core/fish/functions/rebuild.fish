@@ -12,7 +12,7 @@ function rebuild --description "Rebuild the system configuration based on the cu
     echo (set_color cyan)"Moving to $dotfiles_dir..."(set_color normal)
     builtin cd "$dotfiles_dir"
 
-    if contains -- "--commit" $argv
+    if contains -- --commit $argv
         git add -A
         set -l msg (read -P "Commit message: ")
         if test -n "$msg"

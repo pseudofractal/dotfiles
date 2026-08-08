@@ -6,10 +6,9 @@
 }: let
   cfg = config.dotfiles.backup;
 
-  mkRcloneCmd = name: opts:
-    let
-      expandedSource = lib.replaceStrings ["~"] [config.home.homeDirectory] opts.sourcePath;
-    in
+  mkRcloneCmd = name: opts: let
+    expandedSource = lib.replaceStrings ["~"] [config.home.homeDirectory] opts.sourcePath;
+  in
     toString (
       [
         "${pkgs.rclone}/bin/rclone"
@@ -108,18 +107,18 @@ in {
     programs.fish.functions =
       lib.mapAttrs' (
         name: opts:
-        lib.nameValuePair "backup-${name}" {
-          body = ''
-            echo (set_color cyan)"Starting backup: ${name}"(set_color normal)
-            ${mkRcloneCmd name opts}
-            or begin
-              echo (set_color red)"Backup failed: ${name}"(set_color normal)
-              return 1
-            end
-            echo (set_color green)"Backup complete: ${name}"(set_color normal)
-          '';
-          description = "Manually trigger rclone backup for ${name}";
-        }
+          lib.nameValuePair "backup-${name}" {
+            body = ''
+              echo (set_color cyan)"Starting backup: ${name}"(set_color normal)
+              ${mkRcloneCmd name opts}
+              or begin
+                echo (set_color red)"Backup failed: ${name}"(set_color normal)
+                return 1
+              end
+              echo (set_color green)"Backup complete: ${name}"(set_color normal)
+            '';
+            description = "Manually trigger rclone backup for ${name}";
+          }
       )
       cfg.entries;
   };

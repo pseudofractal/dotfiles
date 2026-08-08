@@ -9,16 +9,16 @@
 set -gx PYENV_ROOT "$HOME/.pyenv"
 
 # Default Application Exporters
-set -gx EDITOR "nvim"
-set -gx READER "sioyek"
-set -gx VISUAL "code"
-set -gx TERMINAL "kitty"
-set -gx BROWSER "zen-twilight"
-set -gx VIDEO "mpv"
-set -gx IMAGE "imv"
-set -gx COLORTERM "truecolor"
-set -gx OPENER "xdg-open"
-set -gx PAGER "bat"
+set -gx EDITOR nvim
+set -gx READER sioyek
+set -gx VISUAL code
+set -gx TERMINAL kitty
+set -gx BROWSER zen-twilight
+set -gx VIDEO mpv
+set -gx IMAGE imv
+set -gx COLORTERM truecolor
+set -gx OPENER xdg-open
+set -gx PAGER bat
 
 # lf Variable Exporters
 set -gx LF_BOOKMARK_PATH "$HOME/.config/lf/bookmark" # LF Bookmarks

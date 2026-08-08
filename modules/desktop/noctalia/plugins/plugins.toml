@@ -1,5 +1,11 @@
 [plugins]
-enabled = [ "dotnetrob/cat", "h465855hgg/lyrics", "noctalia/notes", "thepunkoff/pomodoro", "icefish/phone-connect" ]
+enabled = [
+  "dotnetrob/cat",
+  "h465855hgg/lyrics",
+  "noctalia/notes",
+  "thepunkoff/pomodoro",
+  "icefish/phone-connect",
+]
 
 [[plugins.source]]
 name = "official"

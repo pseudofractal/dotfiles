@@ -37,17 +37,19 @@ in {
       enable = true;
       autoStart = true;
     };
-    extensions = map mkExt [
-      "process-manager"
-      "niri"
-      "nix"
-      "github"
-      "wiktionary"
-      "kaomojis"
-      "bitwarden-vault"
-    ] ++ [
+    extensions =
+      map mkExt [
+        "process-manager"
+        "niri"
+        "nix"
+        "github"
+        "wiktionary"
+        "kaomojis"
+        "bitwarden-vault"
+      ]
+      ++ [
         # For future Raycast extensions.
-    ];
+      ];
 
     settings = {
       close_on_focus_loss = true;

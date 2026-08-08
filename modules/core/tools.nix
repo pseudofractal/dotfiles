@@ -56,9 +56,9 @@
       # For secret management
       age
       bitwarden-cli
-      sops
       # For cloud backups
       rclone
+      sops
       # Prefer uutils-provided core commands from the Home Manager profile.
       uutils-coreutils-noprefix
       # keep-sorted end

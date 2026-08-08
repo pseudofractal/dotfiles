@@ -10,7 +10,7 @@ function minerva
         echo -e (set_color yellow)"Checking .gitignore for .contents.txt"(set_color normal)
         if not grep -q -E "^\s*\\.contents\.txt\$" "$mnemosyne_git_root/.gitignore"
             echo -e (set_color green)"Adding .contents.txt to .gitignore"(set_color normal)
-            echo ".contents.txt" >> "$mnemosyne_git_root/.gitignore"
+            echo ".contents.txt" >>"$mnemosyne_git_root/.gitignore"
         else
             echo -e (set_color blue)".contents.txt already in .gitignore"(set_color normal)
         end
@@ -35,13 +35,13 @@ function minerva
         return 1
     end
 
-    echo "$mnemosyne_project_name" > $mnemosyne_contents_file
+    echo "$mnemosyne_project_name" >$mnemosyne_contents_file
     echo (set_color yellow)"Appending tree output..."(set_color normal)
     if not command -s tree >/dev/null 2>&1
         echo -e (set_color red)"Error: 'tree' command not found. Please install it."(set_color normal)
         return 1
     end
-    tree -a -I '.git|.contents.txt' . >> $mnemosyne_contents_file
+    tree -a -I '.git|.contents.txt' . >>$mnemosyne_contents_file
     echo -e (set_color yellow)"Appending PDF file contents..."(set_color normal)
 
     for mnemosyne_file in (string escape (find . -type f -name "*.pdf"))
@@ -64,17 +64,17 @@ function minerva
             echo -e (set_color red)"Error: 'pdftotext' command not found. Please install it (part of poppler-utils or xpdf)." (set_color normal)
             return 1
         end
-        
-        echo "____XXX_____" >> $mnemosyne_contents_file
-        echo "______" >> $mnemosyne_contents_file
-        echo "{FILE NAME}: $mnemosyne_relative_path" >> $mnemosyne_contents_file
-        echo "_____" >> $mnemosyne_contents_file
-        echo "File contents" >> $mnemosyne_contents_file
-       
-        pdftotext "$mnemosyne_file" - >> $mnemosyne_contents_file
 
-        echo "__________" >> $mnemosyne_contents_file
-        echo "___XXX_____" >> $mnemosyne_contents_file
+        echo ____XXX_____ >>$mnemosyne_contents_file
+        echo ______ >>$mnemosyne_contents_file
+        echo "{FILE NAME}: $mnemosyne_relative_path" >>$mnemosyne_contents_file
+        echo _____ >>$mnemosyne_contents_file
+        echo "File contents" >>$mnemosyne_contents_file
+
+        pdftotext "$mnemosyne_file" - >>$mnemosyne_contents_file
+
+        echo __________ >>$mnemosyne_contents_file
+        echo ___XXX_____ >>$mnemosyne_contents_file
     end
 
     echo -e (set_color green)"Finished creating .contents file for project: "(set_color normal)$mnemosyne_project_name

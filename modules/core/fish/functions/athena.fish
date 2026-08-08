@@ -6,6 +6,6 @@ function athena --description 'Read books'
     cd "$current_dir"
 
     if test -n "$selected_file"
-        nohup sioyek --new-window "$vault_dir/$selected_file" > /dev/null 2>&1 &
+        nohup sioyek --new-window "$vault_dir/$selected_file" >/dev/null 2>&1 &
     end
 end

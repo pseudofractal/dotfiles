@@ -42,7 +42,7 @@ function git
                 set file_size_bytes (stat -L -c %s "$file_path" 2>/dev/null)
                 if test "$file_size_bytes" -gt "$size_limit_bytes"
                     if not grep -Fxq -- "$repo_relative_path" $gitignore_path
-                        echo $repo_relative_path >> $gitignore_path
+                        echo $repo_relative_path >>$gitignore_path
                         set newly_ignored_paths $newly_ignored_paths $repo_relative_path
                     end
                 end

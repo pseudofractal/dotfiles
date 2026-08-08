@@ -11,6 +11,8 @@
     ' "$@"
   '';
 in {
+  home.sessionVariables.TREEFMT_NO_CACHE = "true";
+
   imports = [
     # keep-sorted start
     ./nvim
@@ -21,8 +23,8 @@ in {
   home.packages = with pkgs; [
     # keep-sorted start
     devenv
-    runicfmt
     numbat
+    runicfmt
     treefmtEval.config.build.wrapper
     # keep-sorted end
   ];

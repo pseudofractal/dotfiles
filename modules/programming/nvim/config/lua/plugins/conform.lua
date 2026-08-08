@@ -1,5 +1,6 @@
 return {
   "stevearc/conform.nvim",
+  event = { "BufWritePre" },
   keys = {
     {
       "<leader>cf",
@@ -16,11 +17,21 @@ return {
       formatters_by_ft = {
         ["*"] = { "treefmt" },
       },
+      formatters = {
+        treefmt = {
+          args = { "--no-cache", "$FILENAME" },
+          cwd = require("conform.util").root_file({ ".git/config" }),
+          require_cwd = true,
+          condition = function(_, ctx)
+            return vim.fn.fnamemodify(ctx.filename, ":t") ~= "secrets.yaml"
+          end,
+        },
+      },
       format_on_save = function(bufnr)
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return
         end
-        return { timeout_ms = 500, lsp_format = "fallback" }
+        return { timeout_ms = 5000, lsp_format = "fallback" }
       end,
     })
 

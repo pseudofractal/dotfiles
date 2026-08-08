@@ -101,8 +101,8 @@ in {
     "parallel-web" = "${scientific-skills}/skills/parallel-web";
     "pdf" = "${scientific-skills}/skills/pdf";
     "peer-review" = "${scientific-skills}/skills/peer-review";
-    "ponytail" = "${ponytail-skills}/skills/ponytail";
     "polars" = "${scientific-skills}/skills/polars";
+    "ponytail" = "${ponytail-skills}/skills/ponytail";
     "pptx" = "${scientific-skills}/skills/pptx";
     "pptx-posters" = "${scientific-skills}/skills/pptx-posters";
     "pymc" = "${scientific-skills}/skills/pymc";
@@ -144,9 +144,9 @@ in {
     "web-perf" = "${cloudflare-skills}/skills/web-perf";
     "what-if-oracle" = "${scientific-skills}/skills/what-if-oracle";
     "whitespace" = "${julia-skills}/whitespace";
-    "write-a-skill" = "${matt-pocock-skills}/write-a-skill";
     "workers-best-practices" = "${cloudflare-skills}/skills/workers-best-practices";
     "wrangler" = "${cloudflare-skills}/skills/wrangler";
+    "write-a-skill" = "${matt-pocock-skills}/write-a-skill";
     "xlsx" = "${scientific-skills}/skills/xlsx";
     "zarr-python" = "${scientific-skills}/skills/zarr-python";
     # keep-sorted end

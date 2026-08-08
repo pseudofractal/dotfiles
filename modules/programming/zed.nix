@@ -42,11 +42,36 @@
     name = "treefmt-stdin";
     runtimeInputs = with pkgs; [coreutils treefmtEval.config.build.wrapper];
     text = ''
-      tmpfile=$(mktemp "''${1:+.''${1##*.}}")
-      cat > "''$tmpfile"
-      treefmt "''$tmpfile"
-      cat "''$tmpfile"
-      rm -f "''$tmpfile"
+      buffer_path="''${1:?buffer path is required}"
+      if [ "''${buffer_path##*/}" = "secrets.yaml" ]; then
+        cat
+        exit 0
+      fi
+
+      buffer_dir=$(dirname -- "$buffer_path")
+      root="$buffer_dir"
+      while [ "$root" != "/" ] && [ ! -e "$root/.git" ]; do
+        parent=$(dirname -- "$root")
+        [ "$parent" = "$root" ] && break
+        root="$parent"
+      done
+
+      if [ ! -e "$root/.git" ]; then
+        cat
+        exit 0
+      fi
+
+      filename="''${buffer_path##*/}"
+      case "$filename" in
+        *.*) suffix=".''${filename##*.}" ;;
+        *) suffix="" ;;
+      esac
+
+      tmpfile=$(mktemp "$buffer_dir/treefmt-stdin.XXXXXX$suffix")
+      trap 'rm -f -- "$tmpfile"' EXIT
+      cat > "$tmpfile"
+      (cd "$root" && TREEFMT_NO_CACHE=true treefmt "$tmpfile")
+      cat "$tmpfile"
     '';
   };
 in {
@@ -155,7 +180,7 @@ in {
             settings = {
               "harper-ls" = {
                 userDictPath = "~/dotfiles/misc/harper/dictionary.txt";
-              diagnosticSeverity = "hint";
+                diagnosticSeverity = "hint";
                 dialect = "American";
                 maxFileLength = 120000;
                 excludePatterns = [

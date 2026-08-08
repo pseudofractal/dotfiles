@@ -17,14 +17,18 @@ return {
       preset = "super-tab",
       ["<Tab>"] = {
         function(cmp)
-          if cmp.is_menu_visible() then return cmp.select_and_accept() end
+          if cmp.is_menu_visible() then
+            return cmp.select_and_accept()
+          end
           local ghost = vim.fn["copilot#GetDisplayedSuggestion"]()
           if ghost and type(ghost.text) == "string" and ghost.text ~= "" then
             return vim.fn["copilot#Accept"]()
           end
         end,
         "snippet_forward",
-        function() return require("sidekick").nes_jump_or_apply() end,
+        function()
+          return require("sidekick").nes_jump_or_apply()
+        end,
         "fallback",
       },
       ["<C-l>"] = {
@@ -35,7 +39,9 @@ return {
           end
         end,
         "snippet_forward",
-        function() return require("sidekick").nes_jump_or_apply() end,
+        function()
+          return require("sidekick").nes_jump_or_apply()
+        end,
         "fallback",
       },
       ["<CR>"] = { "accept", "fallback" },

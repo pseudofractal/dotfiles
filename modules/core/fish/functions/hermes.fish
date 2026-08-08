@@ -10,13 +10,13 @@ function hermes --description "Opener of all trades"
         set -l mime_type (file -b --mime-type "$selected_file")
         set -l opener (xdg-mime query default "$mime_type")
         if test -z "$opener"
-            set opener "Unknown"
+            set opener Unknown
         end
         echo "File Name: $file_name"
         echo "MIME Type: $mime_type"
         echo "Opener: $opener"
         read -l -P "Open with $opener? (Y/n): " -n 1 -s confirm
-        if test "$confirm" = "" -o "$confirm" = "y" -o "$confirm" = "Y"
+        if test "$confirm" = "" -o "$confirm" = y -o "$confirm" = Y
             xdg-open "$selected_file"
         else
             echo "File not opened."

@@ -90,7 +90,7 @@
       exec ${unwrapped}/bin/prismlauncher "$@"
     '';
 in {
-  home.packages = [ pkgs.mcaselector ];
+  home.packages = [pkgs.mcaselector];
 
   programs.prismlauncher = {
     enable = true;

@@ -188,40 +188,43 @@ return {
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      vim.lsp.config("jetls", vim.tbl_deep_extend("force", {}, capabilities, {
-        cmd = {
-          "jetls",
-          "serve",
-          "--clientProcessId",
-          vim.fn.getpid(),
-        },
-        filetypes = { "julia" },
-        root_markers = { "Project.toml", ".git" },
-        settings = {
-          jetls = {
-            full_analysis = {
-              debounce = 2.0,
-              auto_instantiate = true,
-            },
-            diagnostic = {
-              enabled = true,
-              all_files = true,
-              allow_unused_underscore = true,
-            },
-            code_lens = {
-              references = true,
-              testrunner = true,
-            },
-            inlay_hint = {
-              block_end = { enabled = true, min_lines = 15 },
-              types = { enabled = true },
+      vim.lsp.config(
+        "jetls",
+        vim.tbl_deep_extend("force", {}, capabilities, {
+          cmd = {
+            "jetls",
+            "serve",
+            "--clientProcessId",
+            vim.fn.getpid(),
+          },
+          filetypes = { "julia" },
+          root_markers = { "Project.toml", ".git" },
+          settings = {
+            jetls = {
+              full_analysis = {
+                debounce = 2.0,
+                auto_instantiate = true,
+              },
+              diagnostic = {
+                enabled = true,
+                all_files = true,
+                allow_unused_underscore = true,
+              },
+              code_lens = {
+                references = true,
+                testrunner = true,
+              },
+              inlay_hint = {
+                block_end = { enabled = true, min_lines = 15 },
+                types = { enabled = true },
+              },
             },
           },
-        },
-        init_options = {
-          n_analysis_workers = 4,
-        },
-      }))
+          init_options = {
+            n_analysis_workers = 4,
+          },
+        })
+      )
       vim.lsp.enable("jetls")
 
       local servers = {

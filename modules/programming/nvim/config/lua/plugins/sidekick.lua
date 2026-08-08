@@ -27,18 +27,24 @@ return {
     },
     {
       "]n",
-      function() require("sidekick.nes").jump() end,
+      function()
+        require("sidekick.nes").jump()
+      end,
       mode = "n",
       desc = "Jump to NES",
     },
     {
       "<leader>aa",
-      function() require("sidekick.cli").toggle() end,
+      function()
+        require("sidekick.cli").toggle()
+      end,
       desc = "Sidekick Toggle CLI",
     },
     {
       "<leader>as",
-      function() require("sidekick.cli").select() end,
+      function()
+        require("sidekick.cli").select()
+      end,
       desc = "Sidekick Select CLI",
     },
   },

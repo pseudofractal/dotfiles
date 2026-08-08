@@ -6,24 +6,59 @@
     ' "$@"
   '';
 in {
-  projectRootFile = "flake.nix";
+  projectRootFile = ".git/config";
+  settings.excludes = ["secrets.yaml"];
 
   programs = {
     alejandra.enable = true;
+    clang-format.enable = true;
+    fish_indent.enable = true;
+    gofmt.enable = true;
+    google-java-format.enable = true;
     keep-sorted.enable = true;
+    ktfmt.enable = true;
     shfmt = {
       enable = true;
       indent_size = 2;
     };
+    qmlformat.enable = true;
+    sql-formatter.enable = true;
     stylua.enable = true;
+    texfmt.enable = true;
     biome = {
       enable = true;
       formatCommand = "format";
+      # The pinned treefmt-nix schema predates Biome's markup support.
+      validate.enable = false;
+      includes = [
+        "*.astro"
+        "*.cjs"
+        "*.css"
+        "*.cts"
+        "*.d.cts"
+        "*.d.mts"
+        "*.d.ts"
+        "*.html"
+        "*.js"
+        "*.json"
+        "*.jsonc"
+        "*.jsx"
+        "*.mjs"
+        "*.mts"
+        "*.svelte"
+        "*.ts"
+        "*.tsx"
+        "*.vue"
+      ];
       settings = {
         formatter = {
           indentStyle = "space";
           indentWidth = 2;
           lineWidth = 100;
+        };
+        html = {
+          experimentalFullSupportEnabled = true;
+          formatter.enabled = true;
         };
         javascript.formatter = {
           quoteStyle = "double";
@@ -39,6 +74,8 @@ in {
     yamlfmt.enable = true;
     typstyle.enable = true;
   };
+
+  settings.formatter.rustfmt.options = ["--config" "tab_spaces=2"];
 
   settings.formatter.julia = {
     command = "${runicfmt}/bin/runicfmt";

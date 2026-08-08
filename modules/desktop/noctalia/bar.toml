@@ -31,7 +31,7 @@ border = "outline"
 enabled = true
 fill = "surface_variant"
 id = "taskgroup"
-members = [ "taskbar" ]
+members = ["taskbar"]
 opacity = 0.75
 padding = 5.0
 

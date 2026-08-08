@@ -8,7 +8,7 @@
     withNodeJs = true;
     withPython3 = true;
     plugins = [];
-    extraWrapperArgs = [ "--set" "JULIA_NUM_THREADS" "4" ]; 
+    extraWrapperArgs = ["--set" "JULIA_NUM_THREADS" "4"];
   };
 
   home.packages = with pkgs; [
