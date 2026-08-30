@@ -8,7 +8,7 @@
 }: let
   cfg = config.dotfiles.graphical.nixgl;
 
-  enabled = cfg.enable && !isNixOS;
+  nixGLEnabled = cfg.enable && !isNixOS;
   system = pkgs.stdenv.hostPlatform.system;
 
   nixGLPackage = let
@@ -22,17 +22,17 @@
         is not available for system "${system}".
       '';
 
-  executableName = package: bin:
+  getProgramName = package: bin:
     if bin != null
     then bin
     else package.meta.mainProgram or (lib.getName package);
 
-  wrapPackage = {
+  wrapWithNixGL = {
     package,
     bin ? null,
   }: let
-    program = executableName package bin;
-    executable = lib.getExe' package program;
+    programName = getProgramName package bin;
+    programExecutable = lib.getExe' package programName;
   in
     pkgs.symlinkJoin {
       name = "${lib.getName package}-nixgl";
@@ -43,23 +43,11 @@
         pkgs.makeWrapper
       ];
 
-      # postBuild = ''
-      #   rm -f "$out/bin/${program}"
-      #
-      #   makeWrapper ${lib.getExe' nixGLPackage "nixGL"} \
-      #     "$out/bin/${program}" \
-      #     --add-flags "${executable}"
-      # '';
       postBuild = ''
-          rm -f "$out/bin/${program}"
-
-          cat > "$out/bin/${program}" <<EOF
-        #!${pkgs.runtimeShell}
-        echo "LD_LIBRARY_PATH=\$LD_LIBRARY_PATH" >&2
-        exec ${lib.getExe' nixGLPackage "nixGL"} ${executable} "\$@"
-        EOF
-
-          chmod +x "$out/bin/${program}"
+        rm -f "$out/bin/${programName}"
+        makeWrapper ${lib.getExe' nixGLPackage "nixGL"} \
+          "$out/bin/${programName}" \
+          --add-flags ${lib.escapeShellArg programExecutable}
       '';
     };
 
@@ -67,15 +55,15 @@
     package,
     bin ? null,
   }: let
-    wrapped =
-      if enabled
+    wrappedPackage =
+      if nixGLEnabled
       then
-        wrapPackage {
+        wrapWithNixGL {
           inherit package bin;
         }
       else package;
   in
-    wrapped
+    wrappedPackage
     // lib.optionalAttrs (package ? override) {
       override = args:
         maybeWrap {

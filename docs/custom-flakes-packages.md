@@ -235,14 +235,15 @@ For desktop graphical apps that need GL wrapping:
 
 - see `docs/nixgl.md`
 - generally use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
-- Prism Launcher is a documented exception because its active wrapper must preserve host GL library paths; see `docs/nixgl.md#prism-launcher-exception`
+- Prism Launcher is a documented exception because its active wrapper must preserve host GL library paths; see `docs/nixgl.md#prism-launcher`
+- `maybeWrap` preserves package-native wrappers and `.override` behavior; do not substitute an unwrapped package
 
 ## Verification Commands
 
 ### Desktop (Arch HM)
 
 ```bash
-nix eval .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
+nix eval --impure .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
 nix build .#homeConfigurations.pseudofractal.activationPackage --impure
 home-manager switch --flake . --impure
 ```

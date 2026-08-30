@@ -1,101 +1,36 @@
-# nixGL API in Graphical Modules
+# nixGL In Graphical Modules
 
-This repo exposes a single `maybeWrap` function via the Home Manager module system at `config.dotfiles.graphical.nixgl.maybeWrap`.
+The graphical module exposes `config.dotfiles.graphical.nixgl.maybeWrap` for
+applications that need host OpenGL libraries on non-NixOS systems.
 
-## Host-level options (user-facing)
+## Host Configuration
 
-Set these once per host, usually in `hosts/<host>/default.nix`:
+Configure nixGL once per host, usually in `hosts/<host>/default.nix`:
 
 ```nix
 dotfiles.graphical.nixgl = {
   enable = true;
-  package = "nixGLDefault"; # e.g. nixGLIntel, nixGLNvidia
+  package = "nixGLDefault";
 };
 ```
 
-Behavior:
+Set `package` to another package exposed by the nixGL input when required,
+such as `nixGLIntel` or `nixGLNvidia`.
 
-- wrapping applies only when `enable = true` and host is non-NixOS
-- on NixOS, packages are returned unwrapped automatically
+When enabled, graphical packages are wrapped only on non-NixOS hosts. On
+NixOS, they are returned unchanged.
 
-## Module-level API (for app modules)
+`nixGLDefault` detects NVIDIA hardware by reading `/proc`, so commands that
+evaluate the complete Home Manager configuration need `--impure` on hosts
+using that package.
 
-Use `config.dotfiles.graphical.nixgl.maybeWrap` directly — no imports needed:
+## Module API
 
-```nix
-{ pkgs, config, ... }: {
-  programs.sioyek = {
-    enable = true;
-    package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkgs.sioyek;
-      bin = "sioyek";
-    };
-  };
-}
-```
-
-`maybeWrap` accepts `{ package, bin ? null }` and returns the wrapped (or passthrough) package.
-
-## Example 1: Simple `programs.*.package` app
-
-```nix
-{
-  pkgs,
-  config,
-  ...
-}: {
-  programs.sioyek = {
-    enable = true;
-    package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkgs.sioyek;
-      bin = "sioyek";
-    };
-  };
-}
-```
-
-## Example 2: More involved app (`vesktop`)
-
-`programs.vesktop` internally calls `.override` on `package`, so keep override capability when wrapping.
-
-```nix
-{
-  pkgs,
-  config,
-  ...
-}: let
-  wrappedVesktopPackage = let
-    wrap = pkg: config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkg;
-      bin = "vesktop";
-    };
-    base = pkgs.vesktop;
-  in
-    (wrap base)
-    // {
-      override = args: wrap (base.override args);
-    };
-in {
-  catppuccin.vesktop.enable = true;
-
-  programs.vesktop = {
-    enable = true;
-    package = wrappedVesktopPackage;
-    settings = {
-      arRPC = true;
-      checkUpdates = false;
-      minimizeToTray = true;
-    };
-  };
-}
-```
-
-## Example 3: `home.packages` app
+Call the helper directly from a graphical module:
 
 ```nix
 { pkgs, config, ... }: {
   home.packages = [
-    pkgs.iproute2
     (config.dotfiles.graphical.nixgl.maybeWrap {
       package = pkgs.mesa-demos;
       bin = "glxinfo";
@@ -104,32 +39,79 @@ in {
 }
 ```
 
-## CARTA note
+The helper accepts `{ package, bin ? null }`:
 
-`modules/graphical/carta.nix` uses `config.dotfiles.graphical.nixgl.maybeWrap` to wrap the CARTA launcher on non-NixOS hosts.
+- `package` is the package to install.
+- `bin` selects the executable when the package contains multiple programs.
+- Omitting `bin` uses `meta.mainProgram`, falling back to the package name.
 
-- Launch command is `carta`.
-- CARTA is started with a custom browser command so the frontend URL opens in Zen (`zen-twilight`) when available.
+The helper wraps the package's exported executable with nixGL and retains the
+package's own wrapper, resources, and `.override` interface. Do not replace a
+package with its unwrapped variant unless its complete runtime environment is
+being recreated deliberately.
 
-## Prism Launcher Exception
+## Package Overrides
 
-Prism Launcher is an intentional exception to the usual `maybeWrap` pattern.
-The active module is `modules/graphical/new-prism.nix`; it builds a custom
-launcher instead of passing `pkgs.prismlauncher` through `maybeWrap`. That
-launcher preserves Prism's Qt plugin path and Java search path, and adds the
-host `/usr/lib` and `/usr/lib64` directories needed by the current non-NixOS
-GL setup before executing Prism's unwrapped binary.
+Packages that are overridden by a consuming Home Manager module can use the
+helper directly. The helper reapplies itself after an override:
 
-`modules/graphical/prism-launcher.nix` is an older, inactive implementation
-that uses the generic wrapper and should not replace the active module without
-retesting Prism's GL behavior. Layering `maybeWrap` around the active package
-would change the launch and library-resolution order, so it is not part of the
-default configuration.
+```nix
+{ pkgs, config, ... }: {
+  programs.vesktop = {
+    enable = true;
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
+      package = pkgs.vesktop;
+      bin = "vesktop";
+    };
+    vencord.useSystem = true;
+  };
+}
+```
 
-The normal desktop entry uses `prismlauncher %U`, which resolves the managed
-profile command through `PATH`, just like a terminal launch. Prism-generated
-instance shortcuts can record a separate executable path, so they should be
-inspected independently if they stop using the active wrapper.
-Noctalia is configured to launch applications as user systemd services, so its
-environment should be checked separately if it cannot resolve the profile
-command.
+## Prism Launcher
+
+Prism Launcher is intentionally not passed through `maybeWrap`. Its active
+implementation is `modules/graphical/prism-launcher.nix`.
+
+The module retains Prism's package data but launches the unwrapped executable
+with the environment normally supplied by the nixpkgs wrapper. It includes
+the Qt plugin and QML paths, SVG and image-format plugins, runtime utilities,
+Java search paths, package data paths, and host `/usr/lib` and `/usr/lib64`
+paths required by the non-NixOS graphics setup.
+
+It also sets `NIX_LAUNCHER_WRAPPER`, allowing Prism-generated instance
+launchers to use the managed executable rather than a stale direct path.
+
+Prism's `InstanceDir` must be an absolute path because Prism does not expand
+`~` in its configuration. The current configuration uses
+`/home/pseudofractal/Games/prismlauncher` through
+`config.home.homeDirectory`.
+
+Prism themes use Home Manager's native
+`programs.prismlauncher.themes` option. Do not route this package through
+`maybeWrap`, since doing so changes the library-resolution order needed by
+the custom non-NixOS launcher.
+
+## Verification
+
+```bash
+nix fmt -- --ci
+nix flake check --no-build
+nix eval --impure .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
+nix build --impure --no-link .#homeConfigurations.pseudofractal.activationPackage
+home-manager switch --flake . --impure
+```
+
+## Troubleshooting
+
+If Prism icons are missing, verify that the active launcher exposes the
+`qtsvg` and `qtimageformats` plugin directories. Prism logs should show
+`Icon themes initialized` and `Instance icons initialized` during startup.
+
+If Prism loads no instances, inspect `InstanceDir` in
+`~/.local/share/PrismLauncher/prismlauncher.cfg`. A literal `~/...` path is
+resolved below Prism's data directory rather than the user's home directory.
+
+If a generic wrapped application fails to start, check that the requested
+`bin` exists and that the original package executable is being called after
+the nixGL wrapper.

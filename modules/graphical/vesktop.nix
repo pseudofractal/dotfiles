@@ -1,22 +1,8 @@
 {
   pkgs,
-  lib,
   config,
   ...
-}: let
-  wrappedVesktopPackage = let
-    wrap = pkg:
-      config.dotfiles.graphical.nixgl.maybeWrap {
-        package = pkg;
-        bin = "vesktop";
-      };
-    base = pkgs.vesktop;
-  in
-    (wrap base)
-    // {
-      override = args: wrap (base.override args);
-    };
-in {
+}: {
   catppuccin.vesktop.enable = true;
 
   home.packages = with pkgs; [
@@ -25,7 +11,10 @@ in {
 
   programs.vesktop = {
     enable = true;
-    package = wrappedVesktopPackage;
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
+      package = pkgs.vesktop;
+      bin = "vesktop";
+    };
 
     settings = {
       arRPC = true;

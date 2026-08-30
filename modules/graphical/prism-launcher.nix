@@ -3,71 +3,169 @@
   pkgs,
   ...
 }: let
-  dataDir = "${config.xdg.dataHome}/PrismLauncher";
   themeName = "Catppuccin Mocha";
-  themeDir = "${dataDir}/themes/${themeName}";
+  prismLauncherPackage = let
+    prismLauncherUnwrapped = pkgs.prismlauncher-unwrapped;
 
-  jsonFormat = pkgs.formats.json {};
+    runtimeLibraryPath = pkgs.lib.makeLibraryPath [
+      prismLauncherUnwrapped
 
-  themeJson = jsonFormat.generate "prismlauncher-catppuccin-mocha-theme.json" {
-    name = themeName;
-    widgets = "Fusion";
+      # keep-sorted start
+      pkgs.alsa-lib
+      pkgs.flite
+      pkgs.gamemode
+      pkgs.gcc.cc.lib
+      pkgs.glfw3-minecraft
+      pkgs.libGL
+      pkgs.libdecor
+      pkgs.libjack2
+      pkgs.libpulseaudio
+      pkgs.libusb1
+      pkgs.libx11
+      pkgs.libxcursor
+      pkgs.libxext
+      pkgs.libxrandr
+      pkgs.libxxf86vm
+      pkgs.openal
+      pkgs.pipewire
+      pkgs.qt6.qtbase
+      pkgs.qt6.qtdeclarative
+      pkgs.qt6.qtimageformats
+      pkgs.qt6.qtsvg
+      pkgs.qt6.qtwayland
+      pkgs.udev
+      pkgs.vulkan-loader
+      pkgs.wayland
+      # keep-sorted end
+    ];
 
-    colors = {
-      AlternateBase = "#1e1e2e";
-      Base = "#181825";
-      BrightText = "#bac2de";
-      Button = "#313244";
-      ButtonText = "#cdd6f4";
-      Highlight = "#94e2d5";
-      HighlightedText = "#1e1e2e";
-      Link = "#94e2d5";
-      Text = "#cdd6f4";
-      ToolTipBase = "#dee5fc";
-      ToolTipText = "#dee5fc";
-      Window = "#1e1e2e";
-      WindowText = "#bac2de";
-      fadeAmount = 0.5;
-      fadeColor = "#6c7086";
+    qtPluginPaths = pkgs.lib.makeSearchPath "lib/qt-6/plugins" [
+      pkgs.qt6.qtbase
+      pkgs.qt6.qtdeclarative
+      pkgs.qt6.qtimageformats
+      pkgs.qt6.qtsvg
+      pkgs.qt6.qtwayland
+    ];
+
+    qtQmlImportPaths = pkgs.lib.makeSearchPath "lib/qt-6/qml" [
+      pkgs.qt6.qtdeclarative
+      pkgs.qt6.qtwayland
+    ];
+
+    runtimeProgramPath = pkgs.lib.makeBinPath [
+      pkgs.pciutils
+      pkgs.xrandr
+    ];
+
+    javaSearchPath = pkgs.lib.makeSearchPath "bin/java" [
+      pkgs.jdk8
+      pkgs.jdk11
+      pkgs.jdk17
+      pkgs.jdk21
+      pkgs.jdk25
+    ];
+
+    prismLauncherScript = pkgs.writeShellScriptBin "prismlauncher" ''
+      if [ -n "$LD_LIBRARY_PATH" ]; then
+        export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH"
+      else
+        export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64"
+      fi
+      if [ -n "$PATH" ]; then
+        export PATH="${runtimeProgramPath}:$PATH"
+      else
+        export PATH="${runtimeProgramPath}"
+      fi
+      if [ -n "$QT_PLUGIN_PATH" ]; then
+        export QT_PLUGIN_PATH="${qtPluginPaths}:$QT_PLUGIN_PATH"
+      else
+        export QT_PLUGIN_PATH="${qtPluginPaths}"
+      fi
+      if [ -n "$NIXPKGS_QT6_QML_IMPORT_PATH" ]; then
+        export NIXPKGS_QT6_QML_IMPORT_PATH="${qtQmlImportPaths}:$NIXPKGS_QT6_QML_IMPORT_PATH"
+      else
+        export NIXPKGS_QT6_QML_IMPORT_PATH="${qtQmlImportPaths}"
+      fi
+      if [ -n "$XDG_DATA_DIRS" ]; then
+        export XDG_DATA_DIRS="${pkgs.prismlauncher}/share:/usr/local/share:/usr/share:$XDG_DATA_DIRS"
+      else
+        export XDG_DATA_DIRS="${pkgs.prismlauncher}/share:/usr/local/share:/usr/share"
+      fi
+      export PRISMLAUNCHER_JAVA_PATHS="${javaSearchPath}"
+      export NIX_LAUNCHER_WRAPPER="$0"
+
+      exec ${prismLauncherUnwrapped}/bin/prismlauncher "$@"
+    '';
+  in
+    pkgs.symlinkJoin {
+      name = "prismlauncher";
+
+      paths = [pkgs.prismlauncher];
+
+      postBuild = ''
+        rm -f "$out/bin/prismlauncher"
+        ln -s ${prismLauncherScript}/bin/prismlauncher "$out/bin/prismlauncher"
+      '';
     };
-
-    logColors = {
-      Debug = "#a6e3a1";
-      Error = "#f38ba8";
-      Fatal = "#181825";
-      FatalHighlight = "#f38ba8";
-      Launcher = "#cba6f7";
-      Warning = "#f9e2af";
-    };
-  };
-
-  themeCss = pkgs.writeText "prismlauncher-catppuccin-mocha-theme.css" ''
-    QToolTip {
-      color: #cdd6f4;
-      background-color: #313244;
-      border: 1px solid #313244;
-    }
-  '';
-
-  prismlauncher = config.dotfiles.graphical.nixgl.maybeWrap {
-    package = pkgs.prismlauncher;
-    bin = "prismlauncher";
-  };
 in {
+  home.packages = [pkgs.mcaselector];
+
   programs.prismlauncher = {
     enable = true;
-    package = prismlauncher;
+    package = prismLauncherPackage;
 
     settings = {
+      # keep-sorted start
       ApplicationTheme = themeName;
       InstSortMode = "Name";
+      InstanceDir = "${config.home.homeDirectory}/Games/prismlauncher";
       MaxMemAlloc = 4096;
       MinMemAlloc = 2048;
       ShowConsole = true;
+      # keep-sorted end
+    };
+
+    themes.${themeName} = {
+      theme = {
+        name = themeName;
+        widgets = "Fusion";
+        colors = {
+          # keep-sorted start
+          AlternateBase = "#1e1e2e";
+          Base = "#181825";
+          BrightText = "#bac2de";
+          Button = "#313244";
+          ButtonText = "#cdd6f4";
+          Highlight = "#94e2d5";
+          HighlightedText = "#1e1e2e";
+          Link = "#94e2d5";
+          Text = "#cdd6f4";
+          ToolTipBase = "#dee5fc";
+          ToolTipText = "#dee5fc";
+          Window = "#1e1e2e";
+          WindowText = "#bac2de";
+          fadeAmount = 0.5;
+          fadeColor = "#6c7086";
+          # keep-sorted end
+        };
+        logColors = {
+          # keep-sorted start
+          Debug = "#a6e3a1";
+          Error = "#f38ba8";
+          Fatal = "#181825";
+          FatalHighlight = "#f38ba8";
+          Launcher = "#cba6f7";
+          Warning = "#f9e2af";
+          # keep-sorted end
+        };
+      };
+      style = ''
+        QToolTip {
+          color: #cdd6f4;
+          background-color: #313244;
+          border: 1px solid #313244;
+        }
+      '';
     };
   };
-
-  xdg.dataFile."${themeDir}/resources/.keep".text = "";
-  xdg.dataFile."${themeDir}/theme.json".source = themeJson;
-  xdg.dataFile."${themeDir}/themeStyle.css".source = themeCss;
 }
