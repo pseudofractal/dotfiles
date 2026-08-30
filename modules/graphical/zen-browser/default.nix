@@ -7,18 +7,6 @@
 }: let
   sidebarExpandedWidth = 280;
   sidebarExpandedWidthPx = "${toString sidebarExpandedWidth}px";
-  wrappedZenTwilightPackage = let
-    wrap = pkg:
-      config.dotfiles.graphical.nixgl.maybeWrap {
-        package = pkg;
-        bin = "zen-twilight";
-      };
-    base = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.twilight;
-  in
-    (wrap base)
-    // {
-      override = args: wrap (base.override args);
-    };
   mozlz4a = lib.getExe pkgs.mozlz4a;
   jq = lib.getExe pkgs.jq;
   sessionsFile = "${config.xdg.configHome}/zen/main/zen-sessions.jsonlz4";
@@ -37,7 +25,7 @@ in {
 
   programs.zen-browser = {
     enable = true;
-    package = wrappedZenTwilightPackage;
+    nixGL.enable = true;
     configPath = ".config/zen";
     profiles.main = {
       id = 0;

@@ -29,7 +29,7 @@ in {
 
   programs.noctalia = {
     enable = true;
-    validateConfig = false;
+    checkConfig = false;
     settings = allToml;
   };
 }

@@ -20,7 +20,7 @@ Current status:
 Runtime notes:
 
 - Requires PDFium to be loadable (`libpdfium.so`).
-- In Nix, this is provided by `pdfium-binaries`; wrapper/env should expose it.
+- In Nix, this is provided by `pdfium`; wrapper/env should expose it.
 - You can also set `PDFIUM_DYNAMIC_LIB_PATH=/path/to/libpdfium.so` manually.
 
 Current focus remaining:
