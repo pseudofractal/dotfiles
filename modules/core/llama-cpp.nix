@@ -24,7 +24,6 @@
           ctx_size=4096
           batch_size=512
           ubatch_size=128
-          extra_args=()
           ;;
         balanced)
           model_path="${modelDir}/qwen2.5-coder-3b-q4_k_m.gguf"
@@ -32,7 +31,6 @@
           ctx_size=4096
           batch_size=512
           ubatch_size=128
-          extra_args=()
           ;;
         smart)
           model_path="${modelDir}/Mellum2-12B-A2.5B-Instruct-Q4_K_M.gguf"
@@ -40,7 +38,6 @@
           ctx_size=2048
           batch_size=128
           ubatch_size=32
-          extra_args=()
           ;;
         *)
           echo "No model selected. Run: llama-model <model filename>" >&2
@@ -63,8 +60,7 @@
          --batch-size "$batch_size" \
          --ubatch-size "$ubatch_size" \
          --flash-attn on \
-         --n-gpu-layers "$gpu_layers" \
-         "''${extra_args[@]}"
+         --n-gpu-layers "$gpu_layers"
     '';
   };
 

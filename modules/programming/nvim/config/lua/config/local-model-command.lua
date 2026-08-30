@@ -18,9 +18,6 @@ local function restart_editors(model)
         if health.code == 0 then
           vim.schedule(function()
             vim.cmd("CursortabRestart")
-            if vim.fn.exists(":NextEditRestart") == 2 then
-              vim.cmd("NextEditRestart")
-            end
             vim.notify("Local model ready: " .. model)
           end)
         elseif attempt < 60 then
