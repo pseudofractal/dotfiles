@@ -66,7 +66,13 @@
     ];
 
     prismLauncherScript = pkgs.writeShellScriptBin "prismlauncher" ''
-      if [ -n "$LD_LIBRARY_PATH" ]; then
+      if [ "''${__GLX_VENDOR_LIBRARY_NAME:-}" = "nvidia" ] || [ "''${__NV_PRIME_RENDER_OFFLOAD:-}" = "1" ]; then
+        unset GBM_BACKENDS_PATH
+        unset LIBGL_DRIVERS_PATH
+        unset LIBVA_DRIVERS_PATH
+        unset __EGL_VENDOR_LIBRARY_FILENAMES
+        export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      elif [ -n "$LD_LIBRARY_PATH" ]; then
         export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH"
       else
         export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64"

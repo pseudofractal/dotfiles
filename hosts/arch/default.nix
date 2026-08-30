@@ -18,7 +18,7 @@
 
   dotfiles.graphical.nixgl = {
     enable = true;
-    package = "nixGLDefault";
+    package = "nixGLIntel";
   };
 
   programs.home-manager.enable = true;

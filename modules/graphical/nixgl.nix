@@ -33,6 +33,16 @@
   }: let
     programName = getProgramName package bin;
     programExecutable = lib.getExe' package programName;
+    programLauncher = pkgs.writeShellScript "${programName}-nixgl-launcher" ''
+      if [ "''${__GLX_VENDOR_LIBRARY_NAME:-}" = "nvidia" ] || [ "''${__NV_PRIME_RENDER_OFFLOAD:-}" = "1" ]; then
+        unset GBM_BACKENDS_PATH
+        unset LIBGL_DRIVERS_PATH
+        unset LIBVA_DRIVERS_PATH
+        unset __EGL_VENDOR_LIBRARY_FILENAMES
+        export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib:/usr/lib64"
+      fi
+      exec ${programExecutable} "$@"
+    '';
   in
     pkgs.symlinkJoin {
       name = "${lib.getName package}-nixgl";
@@ -45,9 +55,9 @@
 
       postBuild = ''
         rm -f "$out/bin/${programName}"
-        makeWrapper ${lib.getExe' nixGLPackage "nixGL"} \
+        makeWrapper ${lib.getExe nixGLPackage} \
           "$out/bin/${programName}" \
-          --add-flags ${lib.escapeShellArg programExecutable}
+          --add-flags ${lib.escapeShellArg programLauncher}
       '';
     };
 

@@ -237,15 +237,16 @@ For desktop graphical apps that need GL wrapping:
 - generally use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
 - Prism Launcher is a documented exception because its active wrapper must preserve host GL library paths; see `docs/nixgl.md#prism-launcher`
 - `maybeWrap` preserves package-native wrappers and `.override` behavior; do not substitute an unwrapped package
+- On hybrid ASUS laptops, use the Mesa backend for normal launches and `switcherooctl launch -g 1 ...` for explicit NVIDIA offload
 
 ## Verification Commands
 
 ### Desktop (Arch HM)
 
 ```bash
-nix eval --impure .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
-nix build .#homeConfigurations.pseudofractal.activationPackage --impure
-home-manager switch --flake . --impure
+nix eval .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
+nix build .#homeConfigurations.pseudofractal.activationPackage
+home-manager switch --flake .
 ```
 
 ### Android (Nix-on-Droid)

@@ -10,19 +10,21 @@ Configure nixGL once per host, usually in `hosts/<host>/default.nix`:
 ```nix
 dotfiles.graphical.nixgl = {
   enable = true;
-  package = "nixGLDefault";
+  package = "nixGLIntel";
 };
 ```
 
-Set `package` to another package exposed by the nixGL input when required,
-such as `nixGLIntel` or `nixGLNvidia`.
+`nixGLIntel` is nixGL's Mesa wrapper and supports the AMD iGPU despite its
+name. It is the stable default for the hybrid ASUS host in this repository.
+Set `package` to another package exposed by the nixGL input when required.
 
 When enabled, graphical packages are wrapped only on non-NixOS hosts. On
 NixOS, they are returned unchanged.
 
-`nixGLDefault` detects NVIDIA hardware by reading `/proc`, so commands that
-evaluate the complete Home Manager configuration need `--impure` on hosts
-using that package.
+The generic wrapper preserves NVIDIA offload variables from the host. Normal
+launches use Mesa/AMD; `switcherooctl launch -g 1 ...` selects the host NVIDIA
+libraries for an explicit offload launch. This keeps GPU selection under
+`supergfxctl` and `switcherooctl` rather than in a Home Manager generation.
 
 ## Module API
 
@@ -49,6 +51,16 @@ The helper wraps the package's exported executable with nixGL and retains the
 package's own wrapper, resources, and `.override` interface. Do not replace a
 package with its unwrapped variant unless its complete runtime environment is
 being recreated deliberately.
+
+For the discrete GPU in Hybrid mode:
+
+```bash
+switcherooctl list
+switcherooctl launch -g 1 glxinfo -B
+```
+
+The second command should report the NVIDIA renderer. Without `-g 1`, the
+same command should report the AMD renderer.
 
 ## Package Overrides
 
@@ -97,9 +109,9 @@ the custom non-NixOS launcher.
 ```bash
 nix fmt -- --ci
 nix flake check --no-build
-nix eval --impure .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
-nix build --impure --no-link .#homeConfigurations.pseudofractal.activationPackage
-home-manager switch --flake . --impure
+nix eval .#homeConfigurations.pseudofractal.config.home.packages --apply builtins.length
+nix build --no-link .#homeConfigurations.pseudofractal.activationPackage
+home-manager switch --flake .
 ```
 
 ## Troubleshooting
@@ -114,4 +126,6 @@ resolved below Prism's data directory rather than the user's home directory.
 
 If a generic wrapped application fails to start, check that the requested
 `bin` exists and that the original package executable is being called after
-the nixGL wrapper.
+the nixGL wrapper. For NVIDIA offload failures, verify that the launch was
+started with `switcherooctl launch -g 1` and that the dGPU is available in the
+current `supergfxctl` mode.
