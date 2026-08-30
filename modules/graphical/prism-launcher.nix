@@ -66,16 +66,30 @@
     ];
 
     prismLauncherScript = pkgs.writeShellScriptBin "prismlauncher" ''
-      if [ "''${__GLX_VENDOR_LIBRARY_NAME:-}" = "nvidia" ] || [ "''${__NV_PRIME_RENDER_OFFLOAD:-}" = "1" ]; then
+      gfxMode=""
+      if command -v supergfxctl >/dev/null 2>&1; then
+        gfxMode="$(supergfxctl --get 2>/dev/null || true)"
+      fi
+      if [ "$gfxMode" = "Hybrid" ]; then
         unset GBM_BACKENDS_PATH
         unset LIBGL_DRIVERS_PATH
         unset LIBVA_DRIVERS_PATH
         unset __EGL_VENDOR_LIBRARY_FILENAMES
+        export __GLX_VENDOR_LIBRARY_NAME=nvidia
+        export __NV_PRIME_RENDER_OFFLOAD=1
+        export __VK_LAYER_NV_optimus=NVIDIA_only
+        export VK_LOADER_DRIVERS_SELECT='*nvidia*'
         export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-      elif [ -n "$LD_LIBRARY_PATH" ]; then
-        export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH"
       else
-        export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64"
+        unset __GLX_VENDOR_LIBRARY_NAME
+        unset __NV_PRIME_RENDER_OFFLOAD
+        unset __VK_LAYER_NV_optimus
+        unset VK_LOADER_DRIVERS_SELECT
+        if [ -n "$LD_LIBRARY_PATH" ]; then
+          export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64:$LD_LIBRARY_PATH"
+        else
+          export LD_LIBRARY_PATH="${runtimeLibraryPath}:/usr/lib:/usr/lib64"
+        fi
       fi
       if [ -n "$PATH" ]; then
         export PATH="${runtimeProgramPath}:$PATH"

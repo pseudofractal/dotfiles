@@ -21,10 +21,10 @@ Set `package` to another package exposed by the nixGL input when required.
 When enabled, graphical packages are wrapped only on non-NixOS hosts. On
 NixOS, they are returned unchanged.
 
-The generic wrapper preserves NVIDIA offload variables from the host. Normal
-launches use Mesa/AMD; `switcherooctl launch -g 1 ...` selects the host NVIDIA
-libraries for an explicit offload launch. This keeps GPU selection under
-`supergfxctl` and `switcherooctl` rather than in a Home Manager generation.
+The generic wrapper queries `supergfxctl --get` when the application starts.
+`Integrated` uses Mesa/AMD, while `Hybrid` uses the internal NVIDIA GPU through
+the host PRIME libraries. GPU selection stays under `supergfxctl` rather than
+in a Home Manager generation.
 
 ## Module API
 
@@ -52,15 +52,16 @@ package's own wrapper, resources, and `.override` interface. Do not replace a
 package with its unwrapped variant unless its complete runtime environment is
 being recreated deliberately.
 
-For the discrete GPU in Hybrid mode:
+To verify the selected GPU:
 
 ```bash
-switcherooctl list
-switcherooctl launch -g 1 glxinfo -B
+supergfxctl --get
+glxinfo -B
 ```
 
-The second command should report the NVIDIA renderer. Without `-g 1`, the
-same command should report the AMD renderer.
+`Integrated` should report the AMD renderer. `Hybrid` should report the
+internal NVIDIA renderer for wrapped applications. `AsusEgpu` is reserved for
+an attached XG Mobile and is not used as an internal-GPU mode here.
 
 ## Package Overrides
 
@@ -126,6 +127,5 @@ resolved below Prism's data directory rather than the user's home directory.
 
 If a generic wrapped application fails to start, check that the requested
 `bin` exists and that the original package executable is being called after
-the nixGL wrapper. For NVIDIA offload failures, verify that the launch was
-started with `switcherooctl launch -g 1` and that the dGPU is available in the
-current `supergfxctl` mode.
+the nixGL wrapper. For NVIDIA failures, verify that the current
+`supergfxctl` mode is `Hybrid` and that the internal dGPU is available.
