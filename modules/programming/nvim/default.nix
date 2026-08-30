@@ -1,4 +1,9 @@
-{pkgs, ...}: {
+{
+  isAndroid,
+  lib,
+  pkgs,
+  ...
+}: {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -8,7 +13,9 @@
     withNodeJs = true;
     withPython3 = true;
     plugins = [];
-    extraWrapperArgs = ["--set" "JULIA_NUM_THREADS" "4"];
+    extraWrapperArgs =
+      ["--set" "JULIA_NUM_THREADS" "4"]
+      ++ lib.optionals (!isAndroid) ["--set" "LLAMA_LOCAL_ENABLE" "1"];
   };
 
   home.packages = with pkgs; [
@@ -18,6 +25,7 @@
     fzf
     gcc
     gnumake
+    go
     nodejs
     python3
     ripgrep

@@ -3,21 +3,40 @@
   lib,
   config,
   ...
-}: {
+}: let
+  okular = config.dotfiles.graphical.nixgl.maybeWrap {
+    package = pkgs.kdePackages.okular;
+    bin = "okular";
+  };
+  sioyek = config.dotfiles.graphical.nixgl.maybeWrap {
+    package = pkgs.sioyek;
+    bin = "sioyek";
+  };
+  detachedSioyek = pkgs.symlinkJoin {
+    name = "sioyek-detached";
+    paths = [sioyek];
+    postBuild = ''
+      rm -f "$out/bin/sioyek"
+      cat > "$out/bin/sioyek" <<EOF
+      #!${pkgs.runtimeShell}
+      exec ${pkgs.util-linux}/bin/setsid -f ${lib.getExe' sioyek "sioyek"} "\$@" </dev/null >/dev/null 2>&1
+      EOF
+      chmod +x "$out/bin/sioyek"
+    '';
+  };
+in {
   home.packages = with pkgs; [
     # keep-sorted start
     diffpdf
     ghostscript
+    okular
     pdfarranger
     # keep-sorted end
   ];
 
   programs.sioyek = {
     enable = true;
-    package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkgs.sioyek;
-      bin = "sioyek";
-    };
+    package = detachedSioyek;
     config = {
       "ui_font" = "Maple Mono NF CN";
       "status_bar_font_size" = "16";

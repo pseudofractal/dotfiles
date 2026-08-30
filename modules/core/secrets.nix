@@ -8,6 +8,7 @@
   secretMap = {
     github_token = "GITHUB_PERSONAL_ACCESS_TOKEN";
     figma_key = "FIGMA_API_KEY";
+    mercury_token = "MERCURY_AI_TOKEN";
     wifi_password = "WIFI_PASSWORD";
     annas_archive_token_password = "ANNAS_ARCHIVE_TOKEN";
   };

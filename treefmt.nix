@@ -67,7 +67,10 @@ in {
         css.formatter.indentStyle = "space";
       };
     };
-    mdformat.enable = true;
+    mdformat = {
+      enable = true;
+      plugins = ps: [ps.mdformat-myst];
+    };
     rustfmt.enable = true;
     ruff-format.enable = true;
     taplo.enable = true;

@@ -1,12 +1,14 @@
+local localSources = {}
+if vim.env.LLAMA_LOCAL_ENABLE == "1" then
+  localSources = { "cursortab" }
+end
+
 return {
   "saghen/blink.cmp",
   dependencies = {
     "L3MON4D3/LuaSnip",
-    "fang2hou/blink-copilot",
     "erooke/blink-cmp-latex",
     "MahanRahmati/blink-nerdfont.nvim",
-    "github/copilot.vim",
-    "folke/sidekick.nvim",
   },
   version = "1.*",
 
@@ -17,47 +19,83 @@ return {
       preset = "super-tab",
       ["<Tab>"] = {
         function(cmp)
-          if cmp.is_menu_visible() then
-            return cmp.select_and_accept()
+          local ok, cursortab = pcall(require, "cursortab")
+          if ok and cursortab.accept() then
+            return true
           end
-          local ghost = vim.fn["copilot#GetDisplayedSuggestion"]()
-          if ghost and type(ghost.text) == "string" and ghost.text ~= "" then
-            return vim.fn["copilot#Accept"]()
+          if cmp.is_ghost_text_visible() then
+            return cmp.accept({ index = cmp.get_selected_item_idx() or 1 })
+          end
+          if cmp.is_menu_visible() then
+            return cmp.accept()
           end
         end,
         "snippet_forward",
-        function()
-          return require("sidekick").nes_jump_or_apply()
+        "fallback",
+      },
+      ["<Down>"] = {
+        function(cmp)
+          return cmp.select_next({ auto_insert = false, on_ghost_text = true })
+        end,
+        "fallback",
+      },
+      ["<Up>"] = {
+        function(cmp)
+          return cmp.select_prev({ auto_insert = false, on_ghost_text = true })
+        end,
+        "fallback",
+      },
+      ["<Right>"] = {
+        function(cmp)
+          return cmp.select_next({ auto_insert = false, on_ghost_text = true })
+        end,
+        "fallback",
+      },
+      ["<Left>"] = {
+        function(cmp)
+          return cmp.select_prev({ auto_insert = false, on_ghost_text = true })
+        end,
+        "fallback",
+      },
+      ["<S-Right>"] = {
+        function(cmp)
+          return cmp.select_next({ auto_insert = false, on_ghost_text = true })
         end,
         "fallback",
       },
       ["<C-l>"] = {
-        function(cmp)
-          local ghost = vim.fn["copilot#GetDisplayedSuggestion"]()
-          if ghost and type(ghost.text) == "string" and ghost.text ~= "" then
-            return vim.fn["copilot#Accept"]()
-          end
-        end,
         "snippet_forward",
-        function()
-          return require("sidekick").nes_jump_or_apply()
-        end,
         "fallback",
       },
-      ["<CR>"] = { "accept", "fallback" },
+      ["<CR>"] = { "fallback" },
     },
     signature = { enabled = true },
-    completion = { documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } } },
+    completion = {
+      documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } },
+      list = {
+        selection = {
+          preselect = false,
+          auto_insert = false,
+        },
+        cycle = {
+          from_bottom = true,
+          from_top = true,
+        },
+      },
+    },
     fuzzy = { implementation = "prefer_rust" },
     sources = {
-      default = { "lazydev", "lsp", "latex", "path", "copilot", "buffer", "snippets" },
+      default = vim.list_extend(
+        vim.list_extend({ "lazydev", "lsp", "latex", "path" }, localSources),
+        { "buffer", "snippets" }
+      ),
       providers = {
-        copilot = {
-          name = "copilot",
-          module = "blink-copilot",
-          score_offset = -100,
+        cursortab = {
+          name = "CursorTab",
+          module = "cursortab.blink",
           async = true,
-          opts = { max_completions = 2, max_attempts = 5 },
+          timeout_ms = 5000,
+          score_offset = 50,
         },
         lazydev = {
           name = "LazyDev",

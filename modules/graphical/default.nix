@@ -2,9 +2,11 @@
   imports = [
     # keep-sorted start
     ./carta.nix
+    ./gimp-inkscape.nix
     ./kitty.nix
     ./new-prism.nix
     ./nixgl.nix
+    ./office.nix
     ./packet.nix
     #./prism-launcher.nix
     ./sioyek.nix

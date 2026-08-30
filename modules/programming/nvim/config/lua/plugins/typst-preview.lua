@@ -4,7 +4,7 @@ return {
   version = "1.*",
   opts = {
     invert_colors = "never",
-    open_cmd = 'chromium --app=%s --profile-directory="Typst Preview" --class typst-preview',
+    open_cmd = 'chromium --app=%s --profile-directory="Typst Preview" --class typst-preview >/dev/null 2>&1 &',
     port = 4269,
     get_root = function(path_of_main_file)
       local bufnr = vim.fn.bufnr(path_of_main_file)

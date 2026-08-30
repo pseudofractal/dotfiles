@@ -5,7 +5,7 @@ return {
     {
       "<leader>cf",
       function()
-        require("conform").format({ lsp_format = "fallback" })
+        require("conform").format({ async = true, lsp_format = "fallback" })
       end,
       desc = "Format the current buffer",
     },
@@ -27,11 +27,12 @@ return {
           end,
         },
       },
-      format_on_save = function(bufnr)
+      notify_on_error = true,
+      format_after_save = function(bufnr)
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return
         end
-        return { timeout_ms = 5000, lsp_format = "fallback" }
+        return { lsp_format = "fallback" }
       end,
     })
 

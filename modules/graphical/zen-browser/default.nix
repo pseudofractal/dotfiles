@@ -49,6 +49,9 @@ in {
       settings = {
         "devtools.chrome.enabled" = true;
         "devtools.debugger.remote-enabled" = true;
+        "font.name.monospace.x-western" = "Maple Mono NF CN";
+        "font.name.sans-serif.x-western" = "Maple Mono NF CN";
+        "font.name.serif.x-western" = "Maple Mono NF CN";
         "webgl.disabled" = false;
         "webgl.enable-webgl2" = true;
         "webgl.force-enabled" = true;
@@ -62,10 +65,6 @@ in {
           min-width: ${sidebarExpandedWidthPx} !important;
           max-width: ${sidebarExpandedWidthPx} !important;
           inline-size: ${sidebarExpandedWidthPx} !important;
-        }
-
-        * {
-          font-family: "Maple Mono" !important;
         }
       '';
     };

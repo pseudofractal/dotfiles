@@ -5,6 +5,7 @@
     ./kensaku.nix
     ./make-print-ready.nix
     ./mnemosyne.nix
+    ./pandoc.nix
     # keep-sorted end
   ];
 }

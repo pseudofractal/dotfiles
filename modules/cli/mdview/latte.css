@@ -1,0 +1,135 @@
+:root {
+  --base: #eff1f5;
+  --mantle: #e6e9ef;
+  --crust: #dce0e8;
+  --text: #4c4f69;
+  --subtext: #6c6f85;
+  --surface: #ccd0da;
+  --surface-alt: #e6e9ef;
+  --overlay: #9ca0b0;
+  --blue: #1e66f5;
+  --teal: #179299;
+  --green: #40a02b;
+  --yellow: #df8e1d;
+  --peach: #fe640b;
+  --red: #d20f39;
+  --mauve: #8839ef;
+}
+
+html {
+  background: var(--base);
+}
+
+body {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  color: var(--text);
+  background: var(--base);
+  font-family: system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--mauve);
+  line-height: 1.25;
+}
+
+h1 {
+  border-bottom: 2px solid var(--surface);
+  padding-bottom: 0.4rem;
+}
+
+a {
+  color: var(--blue);
+}
+
+blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 1rem;
+  color: var(--subtext);
+  border-left: 4px solid var(--teal);
+  background: var(--mantle);
+}
+
+code,
+pre {
+  font-family: ui-monospace, monospace;
+}
+
+code {
+  padding: 0.15rem 0.3rem;
+  color: var(--red);
+  background: var(--mantle);
+  border-radius: 0.25rem;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  color: var(--text);
+  background: var(--crust);
+  border: 1px solid var(--surface);
+  border-radius: 0.5rem;
+}
+
+pre code {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--surface);
+  text-align: left;
+}
+
+th {
+  color: var(--text);
+  background: var(--surface-alt);
+}
+
+hr {
+  border: 0;
+  border-top: 2px solid var(--surface);
+}
+
+img {
+  max-width: 100%;
+}
+
+section.footnotes {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  color: var(--subtext);
+  font-size: 0.95rem;
+  border-top: 1px solid var(--surface);
+}
+
+.footnote-ref,
+.footnote-back {
+  text-decoration: none;
+}
+
+.footnote-back {
+  margin-left: 0.35rem;
+}
+
+input[type="checkbox"] {
+  margin: 0 0.45rem 0 0;
+  accent-color: var(--blue);
+  vertical-align: middle;
+}

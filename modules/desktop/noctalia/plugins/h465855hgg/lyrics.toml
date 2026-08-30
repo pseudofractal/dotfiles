@@ -1,0 +1,9 @@
+[plugin_settings."h465855hgg/lyrics"]
+display_mode = "toggle"
+lyrics_offset_ms = 1500
+karaoke_enabled = false
+animation = "none"
+gradient = false
+scroll_mode = "static"
+padding_left = 0
+padding_right = 0

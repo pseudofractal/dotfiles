@@ -15,8 +15,10 @@ return {
       "saghen/blink.cmp",
     },
     config = function()
+      local lsp_attach_group = vim.api.nvim_create_augroup("lsp-attach", { clear = true })
+
       vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("lsp-attach", { clear = true }),
+        group = lsp_attach_group,
         callback = function(event)
           local map_lsp_key = function(keys, func, desc, mode)
             mode = mode or "n"
@@ -42,7 +44,8 @@ return {
           local client = vim.lsp.get_client_by_id(event.data.client_id)
 
           if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
-            local highlight = vim.api.nvim_create_augroup("lsp-highlight", { clear = true })
+            local highlight =
+              vim.api.nvim_create_augroup("lsp-highlight-" .. event.buf .. "-" .. client.id, { clear = true })
             vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
               buffer = event.buf,
               group = highlight,
@@ -54,10 +57,10 @@ return {
               callback = vim.lsp.buf.clear_references,
             })
             vim.api.nvim_create_autocmd("LspDetach", {
-              group = vim.api.nvim_create_augroup("lsp-detach", { clear = true }),
+              group = vim.api.nvim_create_augroup("lsp-detach-" .. event.buf .. "-" .. client.id, { clear = true }),
               callback = function(event2)
                 vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds({ group = "lsp-highlight", buffer = event2.buf })
+                vim.api.nvim_clear_autocmds({ group = highlight, buffer = event2.buf })
               end,
             })
           end
@@ -72,7 +75,9 @@ return {
             client.server_capabilities.hoverProvider = false
           end
 
-          map_lsp_key("<leader>lc", vim.lsp.codelens.run, "Run CodeLens")
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, event.buf) then
+            map_lsp_key("<leader>lc", vim.lsp.codelens.run, "Run CodeLens")
+          end
         end,
       })
 
@@ -173,17 +178,6 @@ return {
           },
         } or {},
         virtual_lines = { format = format_virtual_lines, current_line = true },
-      })
-
-      vim.lsp.codelens.enable(true)
-
-      vim.api.nvim_create_autocmd({
-        "CursorHold",
-        "InsertLeave",
-      }, {
-        callback = function()
-          vim.lsp.codelens.refresh()
-        end,
       })
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
@@ -344,9 +338,6 @@ return {
           },
         },
         marksman = {},
-        copilot = {
-          cmd = { "copilot-language-server", "--stdio" },
-        },
         nixd = {},
         tinymist = {
           root_markers = { "typst.toml", ".git" },
