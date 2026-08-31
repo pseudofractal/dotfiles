@@ -131,6 +131,20 @@ in {
     settings = {
       logLevel = "INFO";
       inherit lsp;
+      provider = {
+        "llama.cpp" = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "llama-server (local)";
+          options.baseURL = "http://127.0.0.1:8012/v1";
+          models.local = {
+            name = "Local GGUF model";
+            limit = {
+              context = 4096;
+              output = 4096;
+            };
+          };
+        };
+      };
       plugin = [
         # keep-sorted start
         "@mohak34/opencode-notifier@latest"

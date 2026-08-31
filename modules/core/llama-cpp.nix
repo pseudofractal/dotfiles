@@ -9,6 +9,43 @@
   stateDir = "${config.xdg.stateHome}/llama-cpp";
   selectedModel = "${stateDir}/model";
   llamaCpp = pkgs.llama-cpp.override {cudaSupport = true;};
+  arxivMcpSrc = pkgs.fetchFromGitHub {
+    owner = "takashiishida";
+    repo = "arxiv-latex-mcp";
+    rev = "HEAD";
+    hash = "sha256-kPUCATcZlspS7vl5EiFh18MDvlftMQFi90LXIxjmgbo=";
+  };
+  mcpConfig = pkgs.writeText "llama-mcp.json" (builtins.toJSON {
+    mcpServers = {
+      context7 = {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = ["-y" "mcp-remote" "https://mcp.context7.com/mcp"];
+      };
+      playwright = {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = ["-y" "@playwright/mcp@latest" "--isolated" "--headless"];
+      };
+      web-search = {
+        command = "${pkgs.nodejs}/bin/npx";
+        args = ["-y" "fast-web-search-mcp"];
+      };
+      fetch = {
+        command = "${pkgs.uv}/bin/uvx";
+        args = ["mcp-server-fetch"];
+      };
+      arxiv = {
+        command = "${pkgs.uv}/bin/uv";
+        args = ["run" "--directory" "${arxivMcpSrc}" "server/main.py"];
+        env = {
+          UV_PROJECT_ENVIRONMENT = "${config.home.homeDirectory}/.cache/uv-venvs/arxiv_mcp";
+        };
+      };
+      nix = {
+        command = "${pkgs.mcp-nixos}/bin/mcp-nixos";
+        args = [];
+      };
+    };
+  });
 
   llamaServer = pkgs.writeShellApplication {
     name = "llama-server-selected";
@@ -17,33 +54,12 @@
       set -euo pipefail
 
       model="$(cat ${selectedModel} 2>/dev/null || true)"
-      case "$model" in
-        light)
-          model_path="${modelDir}/qwen2.5-coder-1.5b-q5_k_m.gguf"
-          gpu_layers=999
-          ctx_size=4096
-          batch_size=512
-          ubatch_size=128
-          ;;
-        balanced)
-          model_path="${modelDir}/qwen2.5-coder-3b-q4_k_m.gguf"
-          gpu_layers=999
-          ctx_size=4096
-          batch_size=512
-          ubatch_size=128
-          ;;
-        smart)
-          model_path="${modelDir}/Mellum2-12B-A2.5B-Instruct-Q4_K_M.gguf"
-          gpu_layers=0
-          ctx_size=2048
-          batch_size=128
-          ubatch_size=32
-          ;;
-        *)
-          echo "No model selected. Run: llama-model <model filename>" >&2
-          exit 1
-          ;;
-      esac
+      if [ -z "$model" ] || [[ "$model" == */* ]]; then
+        echo "No valid model selected. Run: llama-model <model filename>" >&2
+        exit 1
+      fi
+
+      model_path="${modelDir}/$model"
 
       if [ ! -f "$model_path" ]; then
         echo "Model file not found: $model_path" >&2
@@ -56,11 +72,14 @@
          --port 8012 \
          --alias local \
          --parallel 1 \
-         --ctx-size "$ctx_size" \
-         --batch-size "$batch_size" \
-         --ubatch-size "$ubatch_size" \
-         --flash-attn on \
-         --n-gpu-layers "$gpu_layers"
+          --ctx-size 4096 \
+          --batch-size 128 \
+          --ubatch-size 32 \
+          --flash-attn on \
+          --n-gpu-layers auto \
+          --ui-config '{"theme":"dark","pasteLongTextToFileLen":0,"renderUserContentAsMarkdown":true}' \
+          --mcp-servers-config "${mcpConfig}" \
+          --tools read_file,file_glob_search,grep_search,exec_shell_command,write_file,edit_file,get_info
     '';
   };
 
@@ -70,16 +89,25 @@
     text = ''
       set -euo pipefail
 
-       case "''${1:-}" in
-         qwen2.5-coder-1.5b-q5_k_m.gguf) model="light" ;;
-         qwen2.5-coder-3b-q4_k_m.gguf) model="balanced" ;;
-         Mellum2-12B-A2.5B-Instruct-Q4_K_M.gguf) model="smart" ;;
-         *)
-           echo "Usage: llama-model <model filename>" >&2
-           echo "Models: qwen2.5-coder-1.5b-q5_k_m.gguf | qwen2.5-coder-3b-q4_k_m.gguf | Mellum2-12B-A2.5B-Instruct-Q4_K_M.gguf" >&2
-           exit 2
-          ;;
-      esac
+       model="''${1:-}"
+       if [ -z "$model" ]; then
+         echo "Usage: llama-model <model filename>" >&2
+         printf 'Available models:\n' >&2
+         for path in "${modelDir}"/*.gguf; do
+           [ -f "$path" ] && printf '  %s\n' "''${path##*/}" >&2
+         done
+         exit 2
+       fi
+
+       if [[ "$model" == */* || "$model" != *.gguf ]]; then
+         echo "Model must be a .gguf filename in ${modelDir}" >&2
+         exit 2
+       fi
+
+       if [ ! -f "${modelDir}/$model" ]; then
+         echo "Model file not found: ${modelDir}/$model" >&2
+         exit 1
+       fi
 
       mkdir -p "${stateDir}"
       printf '%s\n' "$model" > "${selectedModel}"
