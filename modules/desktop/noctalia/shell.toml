@@ -10,7 +10,7 @@ show_location = true
 
 [shell.panel]
 transparency_mode = "soft"
-launcher_placement = "centered"
+launcher_placement = "attached"
 control_center_placement = "attached"
 session_placement = "attached"
 

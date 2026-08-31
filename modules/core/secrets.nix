@@ -16,6 +16,11 @@
   sopsService = config.systemd.user.services.sops-nix;
   sopsCommand = lib.escapeShellArgs (lib.toList sopsService.Service.ExecStart);
 in {
+  services.gnome-keyring = {
+    enable = true;
+    components = ["secrets"];
+  };
+
   sops = {
     defaultSopsFile = ../../secrets.yaml;
     defaultSopsFormat = "yaml";

@@ -5,6 +5,7 @@ enabled = [
   "noctalia/notes",
   "thepunkoff/pomodoro",
   "icefish/phone-connect",
+  "elijaharch/wl-screen-mirror",
 ]
 
 [[plugins.source]]

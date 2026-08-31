@@ -16,7 +16,6 @@
 
   pluginFiles = [
     ./plugins/DotNetRob/cat.toml
-    ./plugins/noctalia/timer.toml
     ./plugins/plugins.toml
   ];
 

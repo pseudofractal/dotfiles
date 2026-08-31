@@ -23,6 +23,7 @@ end = [
   "cat",
   "volume",
   "battery",
+  "mirror",
   "tray",
 ]
 
