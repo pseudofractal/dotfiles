@@ -214,9 +214,6 @@ return {
               },
             },
           },
-          init_options = {
-            n_analysis_workers = 4,
-          },
         })
       )
       vim.lsp.enable("jetls")

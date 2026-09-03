@@ -79,6 +79,7 @@ in {
   };
 
   settings.formatter.rustfmt.options = ["--config" "tab_spaces=2"];
+  settings.formatter.keep-sorted.excludes = ["*.jl"];
 
   settings.formatter.julia = {
     command = "${runicfmt}/bin/runicfmt";

@@ -53,9 +53,6 @@
         "serve"
       ];
       extensions = [".jl"];
-      initialization = {
-        n_analysis_workers = 4;
-      };
     };
 
     "kotlin-ls".command = [(lib.getExe pkgs.kotlin-language-server)];

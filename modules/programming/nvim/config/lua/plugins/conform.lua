@@ -22,6 +22,7 @@ return {
           args = { "--no-cache", "$FILENAME" },
           cwd = require("conform.util").root_file({ ".git/config" }),
           require_cwd = true,
+          stdin = false,
           condition = function(_, ctx)
             return vim.fn.fnamemodify(ctx.filename, ":t") ~= "secrets.yaml"
           end,
@@ -32,7 +33,7 @@ return {
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return
         end
-        return { lsp_format = "fallback" }
+        return { lsp_format = "fallback", timeout_ms = 60000 }
       end,
     })
 
