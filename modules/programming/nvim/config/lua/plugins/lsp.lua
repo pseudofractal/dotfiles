@@ -197,7 +197,7 @@ return {
             jetls = {
               full_analysis = {
                 debounce = 2.0,
-                auto_instantiate = true,
+                auto_instantiate = false,
               },
               diagnostic = {
                 enabled = true,

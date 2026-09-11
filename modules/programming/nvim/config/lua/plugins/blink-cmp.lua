@@ -17,6 +17,7 @@ return {
   opts = {
     keymap = {
       preset = "super-tab",
+      ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
       ["<Tab>"] = {
         function(cmp)
           local ok, cursortab = pcall(require, "cursortab")
@@ -72,6 +73,7 @@ return {
     signature = { enabled = true },
     completion = {
       documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } },
+      menu = { auto_show = true },
       list = {
         selection = {
           preselect = false,
