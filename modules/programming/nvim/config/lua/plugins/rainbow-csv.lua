@@ -1,6 +1,20 @@
 return {
   "cameron-wags/rainbow_csv.nvim",
-  config = true,
+  config = function()
+    vim.g.rcsv_colorlinks = {
+      "SnacksIndent1",
+      "SnacksIndent2",
+      "SnacksIndent3",
+      "SnacksIndent4",
+      "SnacksIndent5",
+      "SnacksIndent6",
+      "SnacksIndent7",
+      "SnacksIndent8",
+      "SnacksIndent9",
+      "SnacksIndent10",
+    }
+    require("rainbow_csv").setup()
+  end,
   ft = {
     "csv",
     "tsv",

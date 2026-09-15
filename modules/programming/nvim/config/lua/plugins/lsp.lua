@@ -26,20 +26,20 @@ return {
           end
 
           map_lsp_key("<leader>cr", vim.lsp.buf.rename, "Rename")
-          map_lsp_key("<leader>ca", require("fzf-lua").lsp_code_actions, "Code Actions")
-          map_lsp_key("<leader>jr", require("fzf-lua").lsp_references, "Goto References")
-          map_lsp_key("<leader>ji", require("fzf-lua").lsp_implementations, "Goto Implementation")
-          map_lsp_key("<leader>jd", require("fzf-lua").lsp_definitions, "Goto Definition")
-          map_lsp_key("<leader>jD", require("fzf-lua").lsp_declarations, "Goto Declaration")
-          map_lsp_key("<leader>jt", require("fzf-lua").lsp_typedefs, "Goto Type Definition")
-          map_lsp_key("<leader>lw", require("fzf-lua").lsp_document_symbols, "Document Symbols")
-          map_lsp_key("<leader>lW", require("fzf-lua").lsp_workspace_symbols, "Workspace Symbols")
-          map_lsp_key("<leader>ll", require("fzf-lua").lsp_live_workspace_symbols, "Live Workspace Symbols")
-          map_lsp_key("<leader>li", require("fzf-lua").lsp_incoming_calls, "Incoming Calls")
-          map_lsp_key("<leader>lo", require("fzf-lua").lsp_outgoing_calls, "Outgoing Calls")
-          map_lsp_key("<leader>lf", require("fzf-lua").lsp_finder, "LSP Finder")
-          map_lsp_key("<leader>ld", require("fzf-lua").diagnostics_document, "Document Diagnostics")
-          map_lsp_key("<leader>lD", require("fzf-lua").diagnostics_workspace, "Workspace Diagnostics")
+          map_lsp_key("<leader>ca", vim.lsp.buf.code_action, "Code Actions")
+          map_lsp_key("<leader>jr", Snacks.picker.lsp_references, "Goto References")
+          map_lsp_key("<leader>ji", Snacks.picker.lsp_implementations, "Goto Implementation")
+          map_lsp_key("<leader>jd", Snacks.picker.lsp_definitions, "Goto Definition")
+          map_lsp_key("<leader>jD", Snacks.picker.lsp_declarations, "Goto Declaration")
+          map_lsp_key("<leader>jt", Snacks.picker.lsp_type_definitions, "Goto Type Definition")
+          map_lsp_key("<leader>lw", Snacks.picker.lsp_symbols, "Document Symbols")
+          map_lsp_key("<leader>lW", Snacks.picker.lsp_workspace_symbols, "Workspace Symbols")
+          map_lsp_key("<leader>ll", Snacks.picker.lsp_workspace_symbols, "Live Workspace Symbols")
+          map_lsp_key("<leader>li", Snacks.picker.lsp_incoming_calls, "Incoming Calls")
+          map_lsp_key("<leader>lo", Snacks.picker.lsp_outgoing_calls, "Outgoing Calls")
+          map_lsp_key("<leader>lf", Snacks.picker.lsp_symbols, "LSP Finder")
+          map_lsp_key("<leader>ld", Snacks.picker.diagnostics_buffer, "Document Diagnostics")
+          map_lsp_key("<leader>lD", Snacks.picker.diagnostics, "Workspace Diagnostics")
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
 
@@ -187,12 +187,17 @@ return {
         vim.tbl_deep_extend("force", {}, capabilities, {
           cmd = {
             "jetls",
+            "--threads=16",
+            "--",
             "serve",
             "--clientProcessId",
             vim.fn.getpid(),
           },
           filetypes = { "julia" },
           root_markers = { "Project.toml", ".git" },
+          init_options = {
+            reuse_native_inference = true,
+          },
           settings = {
             jetls = {
               full_analysis = {

@@ -8,6 +8,12 @@ niri_overview_type_to_launch_enabled = true
 middle_click_opens_widget_settings = false
 show_location = true
 
+[shell.keyboard_layout.custom_labels]
+"English (US)" = "English"
+
+[osd.kinds]
+keyboard_layout = false
+
 [shell.panel]
 transparency_mode = "soft"
 launcher_placement = "attached"

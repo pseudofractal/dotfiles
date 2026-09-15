@@ -8,13 +8,12 @@ return {
   build = "cd server && go build",
   config = function(_, opts)
     require("cursortab").setup(opts)
-    vim.keymap.set("n", "<Tab>", function()
+    vim.keymap.set({ "i", "n" }, "<M-l>", function()
       local ok, cursortab = pcall(require, "cursortab")
-      if ok and cursortab.accept() then
-        return ""
+      if ok then
+        cursortab.accept()
       end
-      return vim.api.nvim_replace_termcodes("<Tab>", true, false, true)
-    end, { expr = true, noremap = true, silent = true })
+    end, { noremap = true, silent = true })
   end,
   opts = {
     keymaps = {

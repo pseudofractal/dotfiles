@@ -20,10 +20,6 @@ return {
       ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
       ["<Tab>"] = {
         function(cmp)
-          local ok, cursortab = pcall(require, "cursortab")
-          if ok and cursortab.accept() then
-            return true
-          end
           if cmp.is_ghost_text_visible() then
             return cmp.accept({ index = cmp.get_selected_item_idx() or 1 })
           end
@@ -31,7 +27,6 @@ return {
             return cmp.accept()
           end
         end,
-        "snippet_forward",
         "fallback",
       },
       ["<Down>"] = {
@@ -70,10 +65,23 @@ return {
       },
       ["<CR>"] = { "fallback" },
     },
+    cmdline = {
+      enabled = true,
+      keymap = {
+        preset = "cmdline",
+        ["<C-space>"] = { "show", "show_documentation", "hide_documentation" },
+      },
+      sources = { "buffer", "cmdline" },
+      completion = { menu = { auto_show = true } },
+    },
     signature = { enabled = true },
     completion = {
       documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } },
-      menu = { auto_show = true },
+      menu = {
+        auto_show = true,
+        border = "rounded",
+        max_height = 10,
+      },
       list = {
         selection = {
           preselect = false,
@@ -98,6 +106,11 @@ return {
           async = true,
           timeout_ms = 5000,
           score_offset = 50,
+        },
+        buffer = {
+          enabled = function()
+            return vim.fn.getcmdtype() ~= ":"
+          end,
         },
         lazydev = {
           name = "LazyDev",

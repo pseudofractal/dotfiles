@@ -45,10 +45,14 @@ in {
         "github"
         "wiktionary"
         "kaomojis"
-        "bitwarden-vault"
+        "bitwarden"
       ]
       ++ [
-        # For future Raycast extensions.
+        (raycastExt {
+          name = "google-translate";
+          rev = "d2edae5a5babf0f8f714071f9cab9cc8e5e590bb";
+          hash = "sha256-CskrY0L1kQBEFcFjkTsncr1RxTVqWou7kfSk+GU66cg=";
+        })
       ];
 
     settings = {

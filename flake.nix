@@ -80,7 +80,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     vicinae-extensions = {
-      url = "github:pseudofractal/extensions";
+      url = "github:vicinaehq/extensions";
       flake = false;
     };
   };

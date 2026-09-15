@@ -1208,15 +1208,15 @@
     "vicinae-extensions": {
       "flake": false,
       "locked": {
-        "lastModified": 1785553438,
-        "narHash": "sha256-N7Wwy19QY6WWfR00Y5VCet8IloOdNb+X5EZjRj8iuhg=",
-        "owner": "pseudofractal",
+        "lastModified": 1788877077,
+        "narHash": "sha256-Os614eK4hYC8l9cECt2zBiQbrdv+9q2AyrliHfiEf5A=",
+        "owner": "vicinaehq",
         "repo": "extensions",
-        "rev": "2e9f98b899bb18d28498dc895e5986f409762d47",
+        "rev": "ee117bc64f341ed71b4a27e311f343b12a75f43d",
         "type": "github"
       },
       "original": {
-        "owner": "pseudofractal",
+        "owner": "vicinaehq",
         "repo": "extensions",
         "type": "github"
       }

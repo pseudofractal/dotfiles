@@ -24,6 +24,19 @@ return {
         callback = function(args)
           local buf = args.buf
           local filetype = args.match
+          if
+            vim.tbl_contains({
+              "csv",
+              "tsv",
+              "csv_semicolon",
+              "csv_whitespace",
+              "csv_pipe",
+              "rfc_csv",
+              "rfc_semicolon",
+            }, filetype)
+          then
+            return
+          end
 
           local language = vim.treesitter.language.get_lang(filetype) or filetype
           if not vim.treesitter.language.add(language) then

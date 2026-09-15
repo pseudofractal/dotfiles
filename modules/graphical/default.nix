@@ -3,6 +3,7 @@
     # keep-sorted start
     ./carta.nix
     ./gimp-inkscape.nix
+    ./ime.nix
     ./kitty.nix
     ./nixgl.nix
     ./office.nix

@@ -1,6 +1,7 @@
 vim.g.have_nerd_font = true
 vim.opt.mouse = "a"
 vim.opt.showmode = false
+vim.opt.cmdheight = 0
 
 vim.opt.number = true
 vim.opt.relativenumber = true
