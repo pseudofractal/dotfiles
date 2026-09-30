@@ -2,6 +2,7 @@
   config,
   pkgs,
   inputs,
+  lib,
   ...
 }: let
   system = pkgs.stdenv.hostPlatform.system;
@@ -55,6 +56,9 @@ in {
 
     settings = {
       close_on_focus_loss = true;
+      # vicinae runs as a systemd unit with a minimal PATH, so give the
+      # Bitwarden (rbw) extension an absolute store path instead of bare "rbw".
+      providers."@bl4zee1g/bitwarden".preferences.rbwPath = lib.getExe pkgs.rbw;
       launcher_window = {
         opacity = 0.95;
         material = "auto";

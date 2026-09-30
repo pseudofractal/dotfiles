@@ -3,12 +3,12 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://niri.cachix.org"
+      "https://niri-nix.cachix.org"
       "https://noctalia.cachix.org"
       "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
     ];
@@ -40,7 +40,10 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
-    niri.url = "github:sodiboo/niri-flake";
+    niri-nix = {
+      url = "git+https://codeberg.org/BANanaD3V/niri-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nix-system-graphics = {
       url = "github:soupglasses/nix-system-graphics";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -116,6 +119,7 @@
         pkgs = import pkgsInput {
           inherit system;
           config.allowUnfree = true;
+          overlays = [inputs.niri-nix.overlays.niri-nix];
         };
         extraSpecialArgs = {
           inherit inputs hostname;

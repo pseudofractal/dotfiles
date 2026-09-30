@@ -1,70 +1,22 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}: let
-  sessionFile = "bw/session";
-  cacheDir = config.xdg.cacheHome;
-  sessionPath = "${cacheDir}/${sessionFile}";
-  sopsClientId = config.sops.secrets.bw_client_id.path;
-  sopsClientSecret = config.sops.secrets.bw_client_secret.path;
-in {
-  sops.secrets = {
-    bw_client_id = {};
-    bw_client_secret = {};
-  };
+{ config, pkgs, ... }: {
+  # rbw manages its own background agent (like ssh-agent): commands
+  # auto-login/unlock as needed, so no refresh timer is required.
+  programs.rbw.enable = true;
 
+  # Kept as a manual fallback; day-to-day vault access is via rbw.
   home.packages = [pkgs.bitwarden-cli];
 
-  systemd.user.services.bw-session = {
-    Unit = {
-      Description = "Refresh Bitwarden session key";
-      After = ["sops-nix.service" "network-online.target"];
-      Wants = ["network-online.target"];
-    };
-    Service = {
-      Type = "oneshot";
-      Environment = [
-        "PATH=${lib.makeBinPath [pkgs.bitwarden-cli pkgs.coreutils pkgs.bash]}"
-      ];
-      ExecStart = pkgs.writeShellScript "bw-refresh-session" ''
-        set -euo pipefail
+  # Email stays encrypted in the repo; everything else is rbw's default
+  # (bitwarden.com, pinentry) with a 24h agent unlock cache.
+  sops.secrets.rbw_email = {};
 
-        BW_CLIENTID="$(cat ${sopsClientId})"
-        BW_CLIENTSECRET="$(cat ${sopsClientSecret})"
-        export BW_CLIENTID BW_CLIENTSECRET
-
-        mkdir -p "$(dirname "${sessionPath}")"
-
-        bw logout 2>/dev/null || true
-        BW_SESSION="$(bw login --apikey --raw 2>/dev/null)" || true
-
-        if [ -n "$BW_SESSION" ]; then
-          echo "$BW_SESSION" > "${sessionPath}"
-        fi
-      '';
+  sops.templates."rbw-config.json" = {
+    path = "${config.xdg.configHome}/rbw/config.json";
+    mode = "0600";
+    content = builtins.toJSON {
+      email = config.sops.placeholder.rbw_email;
+      lock_timeout = 86400;
+      pinentry = "${pkgs.pinentry-tty}/bin/pinentry";
     };
   };
-
-  systemd.user.timers.bw-session = {
-    Unit = {
-      Description = "Periodic Bitwarden session refresh";
-    };
-    Timer = {
-      OnBootSec = "30s";
-      OnUnitActiveSec = "15m";
-      RandomizedDelaySec = "30s";
-    };
-    Install = {
-      WantedBy = ["timers.target"];
-    };
-  };
-
-  programs.fish.interactiveShellInit = ''
-    set -l bw_session_file "${sessionPath}"
-    if test -f "$bw_session_file"
-      set -gx BW_SESSION (string trim < "$bw_session_file")
-    end
-  '';
 }

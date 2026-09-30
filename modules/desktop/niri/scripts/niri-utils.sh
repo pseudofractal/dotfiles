@@ -51,7 +51,7 @@ take_screenshot_with_file() {
 
 handle_gitmoji() {
   local gitmoji_file selected selected_code selected_emoji
-  gitmoji_file="${XDG_CONFIG_HOME:-$HOME/.config}/niri-nix/data/gitmojis.json"
+  gitmoji_file="${XDG_CONFIG_HOME:-$HOME/.config}/niri/gitmojis.json"
   selected="$(jq -r '.[] | .emoji + "  " + .code + " - " + .description' "$gitmoji_file" | wofi -dmenu -i)"
 
   [[ -n "$selected" ]] || return 0

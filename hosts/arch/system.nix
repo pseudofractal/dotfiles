@@ -4,13 +4,14 @@
   ...
 }: let
   system = pkgs.stdenv.hostPlatform.system;
-  niri = inputs.niri.packages.${system}.niri-unstable;
+  niri = inputs.niri-nix.packages.${system}.niri-unstable;
   niriSession = pkgs.runCommand "niri-nix-session" {} ''
     mkdir -p "$out/bin" "$out/share/wayland-sessions"
 
     cat >"$out/bin/niri-nix-session" <<'EOF'
     #!${pkgs.runtimeShell}
-    export NIRI_CONFIG="$HOME/.config/niri-nix/config.kdl"
+    # niri-nix home module writes to $HOME/.config/niri/config.kdl (niri default),
+    # so no NIRI_CONFIG override is needed.
     exec ${niri}/bin/niri-session "$@"
     EOF
     chmod +x "$out/bin/niri-nix-session"

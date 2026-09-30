@@ -30,6 +30,11 @@ else
   grim -g "$geometry" - | catppucinify --stdin --scale 2 >"$tmp"
 fi
 
+# Unfreeze before showing any UI - yad would be hidden behind the wayfreeze overlay
+kill "$freeze_pid" 2>/dev/null || true
+wait "$freeze_pid" 2>/dev/null || true
+freeze_pid=
+
 default="$(date '+%B_%d_%Y__%I-%M-%S_%p')"
 if [[ "$invert" == "true" ]]; then
   default="${default}__inverted"
@@ -47,13 +52,8 @@ name="$(yad --entry \
   --text="" \
   --entry-text="$default" \
   --image="$preview" \
-  --image-on-top \
   --button="Cancel:1" \
   --button="Save:0")" || exit 0
-
-kill "$freeze_pid" 2>/dev/null || true
-wait "$freeze_pid" 2>/dev/null || true
-freeze_pid=
 
 [[ -n "$name" ]] || exit 0
 file="$directory/${name%.png}.png"
