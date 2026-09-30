@@ -21,8 +21,6 @@
     postPatch =
       (old.postPatch or "")
       + ''
-        substituteInPlace im/overrideparser.cpp \
-          --replace-fail "if (!line.empty() || line[0] == '#')" "if (line.empty() || line[0] == '#')"
         substituteInPlace im/engine.cpp \
           --replace-fail 'auto fxName = _("{0} (M17N)", i18nname);' 'auto fxName = i18nname;'
       '';

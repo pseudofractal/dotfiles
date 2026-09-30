@@ -25,7 +25,12 @@ in {
     defaultSopsFile = ../../secrets.yaml;
     defaultSopsFormat = "yaml";
     age.keyFile = "${config.xdg.configHome}/sops/age/keys.txt";
-    secrets = lib.mapAttrs (_: _: {}) secretMap;
+    secrets =
+      (lib.mapAttrs (_: _: {}) secretMap)
+      // {
+        "mail/app-passwords/google/iiser" = {};
+        "mail/app-passwords/google/personal" = {};
+      };
 
     # Android specific adjustments
     defaultSymlinkPath = lib.mkIf isAndroid "${config.xdg.dataHome}/sops/secrets";
