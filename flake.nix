@@ -3,10 +3,12 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://niri.cachix.org"
       "https://noctalia.cachix.org"
       "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
     ];
@@ -38,6 +40,11 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    niri.url = "github:sodiboo/niri-flake";
+    nix-system-graphics = {
+      url = "github:soupglasses/nix-system-graphics";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     lmstudio = {
       url = "github:Daaboulex/lmstudio-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -67,6 +74,10 @@
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    system-manager = {
+      url = "github:numtide/system-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # My Personal Modules
@@ -149,6 +160,11 @@
   in {
     homeConfigurations."pseudofractal" = mkHome {
       hostname = "arch";
+    };
+
+    systemConfigs.arch = inputs.system-manager.lib.makeSystemConfig {
+      modules = [./hosts/arch/system.nix];
+      specialArgs = {inherit inputs;};
     };
 
     nixOnDroidConfigurations."koch" = mkDroid {

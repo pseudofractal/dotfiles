@@ -25,8 +25,6 @@
       inherit name rev hash;
     };
 in {
-  home.packages = [pkgs.hyprpicker];
-
   programs.vicinae = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
