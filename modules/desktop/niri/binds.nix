@@ -48,10 +48,11 @@ in
     "XF86AudioMicMute" = locked [noctalia "msg" "mic-mute"];
     "XF86MonBrightnessUp" = locked [noctalia "msg" "brightness-up" "current" "5"];
     "XF86MonBrightnessDown" = locked [noctalia "msg" "brightness-down" "current" "5"];
+    "XF86Launch3" = app "Toggle Integrated/Hybrid Graphics" [utils "toggle_graphics_mode"];
     "Mod+Shift+N" = locked [noctalia "msg" "nightlight-toggle"];
 
-    "Mod+F6" = app "Screenshot" [utils "screenshot"];
-    "Mod+Shift+F6" = app "Screenshot and Save" [utils "screenshot_with_file"];
+    "Mod+F6" = app "Screenshot to Clipboard" [utils "screenshot"];
+    "Mod+Shift+S" = app "Save Screenshot and Copy" [utils "screenshot_with_file"];
     "Alt+P" = app "Screenshot and Sync To Tab" [syncshot];
     "Alt+Shift+P" = app "Screenshot and Sync To Tab Inverted" [syncshot "true"];
 
@@ -62,6 +63,10 @@ in
     };
 
     "Alt+Tab".focus-window-down-or-top = {};
+    "Mod+P" = {
+      _props.hotkey-overlay-title = "Move Window to Next Monitor";
+      move-window-to-monitor-next = {};
+    };
     "Mod+Up".focus-workspace-up = {};
     "Mod+Down".focus-workspace-down = {};
     "Mod+Left".focus-column-left-or-last = {};

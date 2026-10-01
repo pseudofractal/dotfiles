@@ -38,9 +38,9 @@ in {
       environment = {
         # The screen-mirror extension shells out to bare wl-mirror/wlr-randr
         # (plus which/ps) with no path preferences, and the daemon unit sets
-        # no PATH of its own. The color-picker needs grim/slurp/imagemagick
-        # the same way. FHS fallback covers which/ps/sh on Arch.
-        PATH = "${lib.makeBinPath [pkgs.wl-mirror pkgs.wlr-randr pkgs.grim pkgs.slurp pkgs.imagemagick]}:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
+        # no PATH of its own. Include the Home Manager profile so desktop
+        # entries using bare executable names can launch managed apps.
+        PATH = "${lib.makeBinPath [pkgs.wl-mirror pkgs.wlr-randr pkgs.grim pkgs.slurp pkgs.imagemagick]}:${config.home.profileDirectory}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
       };
     };
     extensions =
@@ -65,8 +65,7 @@ in {
 
     settings = {
       close_on_focus_loss = true;
-      # vicinae runs as a systemd unit with a minimal PATH, so give the
-      # Bitwarden (rbw) extension an absolute store path instead of bare "rbw".
+      # Keep Bitwarden resolution independent of the service PATH.
       providers."@bl4zee1g/bitwarden".preferences.rbwPath = lib.getExe pkgs.rbw;
       launcher_window = {
         opacity = 0.95;

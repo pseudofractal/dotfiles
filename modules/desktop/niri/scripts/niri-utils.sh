@@ -49,6 +49,28 @@ take_screenshot_with_file() {
   wl-copy --type image/png <"$filepath"
 }
 
+toggle_graphics_mode() {
+  local current target output
+  current="$(supergfxctl --get)"
+
+  case "$current" in
+  Integrated) target=Hybrid ;;
+  Hybrid) target=Integrated ;;
+  *)
+    notify-send --urgency=critical "Graphics mode unchanged" \
+      "Current mode is $current; only Integrated and Hybrid may be toggled."
+    return 1
+    ;;
+  esac
+
+  if output="$(supergfxctl --mode "$target" 2>&1)"; then
+    notify-send "Graphics mode: $target" "${output:-Mode change requested.}"
+  else
+    notify-send --urgency=critical "Graphics mode change failed" "$output"
+    return 1
+  fi
+}
+
 case "${1:-}" in
 screenshot)
   take_screenshot
@@ -56,8 +78,11 @@ screenshot)
 screenshot_with_file)
   take_screenshot_with_file
   ;;
+toggle_graphics_mode)
+  toggle_graphics_mode
+  ;;
 *)
-  printf 'usage: %s {screenshot|screenshot_with_file}\n' "$0" >&2
+  printf 'usage: %s {screenshot|screenshot_with_file|toggle_graphics_mode}\n' "$0" >&2
   exit 2
   ;;
 esac

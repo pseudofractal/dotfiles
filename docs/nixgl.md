@@ -19,12 +19,9 @@ name. It is the stable default for the hybrid ASUS host in this repository.
 Set `package` to another package exposed by the nixGL input when required.
 
 When enabled, graphical packages are wrapped only on non-NixOS hosts. On
-NixOS, they are returned unchanged.
-
-The generic wrapper queries `supergfxctl --get` when the application starts.
-`Integrated` uses Mesa/AMD, while `Hybrid` uses the internal NVIDIA GPU through
-the host PRIME libraries. GPU selection stays under `supergfxctl` rather than
-in a Home Manager generation.
+NixOS, they are returned unchanged. Wrapped desktop applications stay on the
+AMD iGPU in both Integrated and Hybrid modes; games and compute workloads can
+opt into the NVIDIA GPU without injecting host libraries into Nix processes.
 
 ## Module API
 
@@ -41,11 +38,13 @@ Call the helper directly from a graphical module:
 }
 ```
 
-The helper accepts `{ package, bin ? null }`:
+The helper accepts `{ package, bin ? null, launcherWrapper ? false }`:
 
 - `package` is the package to install.
 - `bin` selects the executable when the package contains multiple programs.
 - Omitting `bin` uses `meta.mainProgram`, falling back to the package name.
+- `launcherWrapper = true` sets `NIX_LAUNCHER_WRAPPER` to the outer wrapped
+  executable so generated child launchers re-enter nixGL.
 
 The helper wraps the package's exported executable with nixGL and retains the
 package's own wrapper, resources, and `.override` interface. Do not replace a
@@ -59,9 +58,9 @@ supergfxctl --get
 glxinfo -B
 ```
 
-`Integrated` should report the AMD renderer. `Hybrid` should report the
-internal NVIDIA renderer for wrapped applications. `AsusEgpu` is reserved for
-an attached XG Mobile and is not used as an internal-GPU mode here.
+Wrapped applications should report the AMD renderer in both Integrated and
+Hybrid modes. `AsusEgpu` is reserved for an attached XG Mobile and is not used
+as an internal-GPU mode here.
 
 ## Package Overrides
 
@@ -83,17 +82,14 @@ helper directly. The helper reapplies itself after an override:
 
 ## Prism Launcher
 
-Prism Launcher is intentionally not passed through `maybeWrap`. Its active
-implementation is `modules/graphical/prism-launcher.nix`.
+Prism Launcher uses `maybeWrap` around `pkgs.prismlauncher`, preserving its Qt
+wrapper, Java discovery, desktop entry, and game runtime libraries. The outer
+wrapper clears inherited graphics variables and establishes nixGL's Mesa
+stack. Prism's package wrapper then appends its runtime libraries instead of
+replacing that stack with `/run/opengl-driver`.
 
-The module retains Prism's package data but launches the unwrapped executable
-with the environment normally supplied by the nixpkgs wrapper. It includes
-the Qt plugin and QML paths, SVG and image-format plugins, runtime utilities,
-Java search paths, package data paths, and host `/usr/lib` and `/usr/lib64`
-paths required by the non-NixOS graphics setup.
-
-It also sets `NIX_LAUNCHER_WRAPPER`, allowing Prism-generated instance
-launchers to use the managed executable rather than a stale direct path.
+When nixGL wrapping is active, `launcherWrapper = true` makes generated
+instance launchers re-enter the outer wrapper instead of bypassing nixGL.
 
 Prism's `InstanceDir` must be an absolute path because Prism does not expand
 `~` in its configuration. The current configuration uses
@@ -101,9 +97,7 @@ Prism's `InstanceDir` must be an absolute path because Prism does not expand
 `config.home.homeDirectory`.
 
 Prism themes use Home Manager's native
-`programs.prismlauncher.themes` option. Do not route this package through
-`maybeWrap`, since doing so changes the library-resolution order needed by
-the custom non-NixOS launcher.
+`programs.prismlauncher.themes` option.
 
 ## Verification
 
@@ -125,7 +119,12 @@ If Prism loads no instances, inspect `InstanceDir` in
 `~/.local/share/PrismLauncher/prismlauncher.cfg`. A literal `~/...` path is
 resolved below Prism's data directory rather than the user's home directory.
 
+For legacy LWJGL 2 instances, `Could not locate OpenAL library` can indicate a
+stale manually pinned Java runtime. Disable the instance's Java-location
+override or select the current Java 8 exposed by `PRISMLAUNCHER_JAVA_PATHS`.
+
 If a generic wrapped application fails to start, check that the requested
 `bin` exists and that the original package executable is being called after
-the nixGL wrapper. For NVIDIA failures, verify that the current
-`supergfxctl` mode is `Hybrid` and that the internal dGPU is available.
+the nixGL wrapper. For NVIDIA workloads, verify that `supergfxctl` reports
+`Hybrid` and use a dedicated NVIDIA wrapper or apply offload configuration
+inside the child workload; `maybeWrap` clears inherited offload variables.

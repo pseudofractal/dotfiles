@@ -30,32 +30,10 @@
   wrapWithNixGL = {
     package,
     bin ? null,
+    launcherWrapper ? false,
   }: let
     programName = getProgramName package bin;
     programExecutable = lib.getExe' package programName;
-    programLauncher = pkgs.writeShellScript "${programName}-nixgl-launcher" ''
-      gfxMode=""
-      if command -v supergfxctl >/dev/null 2>&1; then
-        gfxMode="$(supergfxctl --get 2>/dev/null || true)"
-      fi
-      if [ "$gfxMode" = "Hybrid" ]; then
-        unset GBM_BACKENDS_PATH
-        unset LIBGL_DRIVERS_PATH
-        unset LIBVA_DRIVERS_PATH
-        unset __EGL_VENDOR_LIBRARY_FILENAMES
-        export __GLX_VENDOR_LIBRARY_NAME=nvidia
-        export __NV_PRIME_RENDER_OFFLOAD=1
-        export __VK_LAYER_NV_optimus=NVIDIA_only
-        export VK_LOADER_DRIVERS_SELECT='*nvidia*'
-        export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib:/usr/lib64"
-      else
-        unset __GLX_VENDOR_LIBRARY_NAME
-        unset __NV_PRIME_RENDER_OFFLOAD
-        unset __VK_LAYER_NV_optimus
-        unset VK_LOADER_DRIVERS_SELECT
-      fi
-      exec ${programExecutable} "$@"
-    '';
   in
     pkgs.symlinkJoin {
       name = "${lib.getName package}-nixgl";
@@ -69,21 +47,34 @@
 
       postBuild = ''
         rm -f "$out/bin/${programName}"
+        # Prevent ambient host/NVIDIA state from replacing nixGL's Mesa stack.
+        wrapperArgs=(
+          --unset LD_LIBRARY_PATH
+          --unset __GLX_VENDOR_LIBRARY_NAME
+          --unset __NV_PRIME_RENDER_OFFLOAD
+          --unset __VK_LAYER_NV_optimus
+          --unset VK_LOADER_DRIVERS_SELECT
+        )
+        ${lib.optionalString launcherWrapper ''
+          wrapperArgs+=(--set NIX_LAUNCHER_WRAPPER "$out/bin/${programName}")
+        ''}
         makeWrapper ${lib.getExe nixGLPackage} \
           "$out/bin/${programName}" \
-          --add-flags ${lib.escapeShellArg programLauncher}
+          "''${wrapperArgs[@]}" \
+          --add-flags ${lib.escapeShellArg programExecutable}
       '';
     };
 
   maybeWrap = {
     package,
     bin ? null,
+    launcherWrapper ? false,
   }: let
     wrappedPackage =
       if nixGLEnabled
       then
         wrapWithNixGL {
-          inherit package bin;
+          inherit package bin launcherWrapper;
         }
       else package;
   in
@@ -92,7 +83,7 @@
       override = args:
         maybeWrap {
           package = package.override args;
-          inherit bin;
+          inherit bin launcherWrapper;
         };
     };
 in {
@@ -120,7 +111,11 @@ in {
           config.dotfiles.graphical.nixgl.maybeWrap {
             package = pkgs.sioyek;
             bin = "sioyek";
+            launcherWrapper = false;
           }
+
+        Set launcherWrapper when generated child launchers must re-enter the
+        outer nixGL wrapper.
       '';
     };
   };

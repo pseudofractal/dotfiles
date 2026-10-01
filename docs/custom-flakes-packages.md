@@ -235,9 +235,9 @@ For desktop graphical apps that need GL wrapping:
 
 - see `docs/nixgl.md`
 - generally use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
-- Prism Launcher is a documented exception because its active wrapper must preserve host GL library paths; see `docs/nixgl.md#prism-launcher`
 - `maybeWrap` preserves package-native wrappers and `.override` behavior; do not substitute an unwrapped package
-- On hybrid ASUS laptops, `maybeWrap` follows `supergfxctl --get`: Integrated uses AMD and Hybrid uses the internal NVIDIA GPU
+- use `launcherWrapper = true` only when generated child launchers must re-enter the outer nixGL wrapper
+- Wrapped desktop applications use the AMD iGPU in both Integrated and Hybrid modes; opt games and compute workloads into NVIDIA explicitly
 
 ## Verification Commands
 
