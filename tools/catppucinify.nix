@@ -1,4 +1,5 @@
-{pkgs}: pkgs.rustPlatform.buildRustPackage {
+{pkgs}:
+pkgs.rustPlatform.buildRustPackage {
   pname = "catppucinify";
   version = "0.1.0";
   src = ./catppucinify-rs;

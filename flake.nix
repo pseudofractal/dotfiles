@@ -40,9 +40,14 @@
     # External Module Sources
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
+    # Built against their own locked nixpkgs (no follows) so their
+    # binary caches (see ~/.config/nix/nix.conf) actually hit.
+    # Following our nixpkgs would rebuild everything from source.
+    # Pinned to their CI revision, not just unlocked, so the store paths
+    # match exactly what their CI pushed to the cache.
     niri-nix = {
-      url = "git+https://codeberg.org/BANanaD3V/niri-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "git+https://codeberg.org/BANanaD3V/niri-nix?rev=926ca86fab82738fd1461b022ee11b4d61b9bf2e";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
     };
     nix-system-graphics = {
       url = "github:soupglasses/nix-system-graphics";
@@ -60,6 +65,10 @@
       url = "github:Vortriz/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Last nixpkgs with firefox-esr-140 (dropped Sep 28 for EOL) and
+    # zotero 10.0.2. Zotero's build scripts abort against ESR 153's
+    # ActorManagerParent. Temporary until upstream adapts zotero.
+    nixpkgs-zotero.url = "github:NixOS/nixpkgs/88c4c23f3d6e5a4116ee19e148df5a0f2004f861";
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -89,12 +98,21 @@
     mnemosyne.url = "github:pseudofractal/mnemosyne";
     shiryoku.url = "github:pseudofractal/shiryoku";
 
+    # No nixpkgs follows here either: vicinae's cachix only serves builds
+    # against their locked nixpkgs, and their source build is currently
+    # broken against ours (gcc15Stdenv vs system numen GLIBCXX skew).
+    # Rev-pinned (not branch) so plain `nix flake lock` can never drift it
+    # off the cached build again.
     vicinae = {
-      url = "github:vicinaehq/vicinae";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:vicinaehq/vicinae/e40f8aeb47e7abb42767db5da5013ffa77d343de";
+      inputs.nixpkgs.url = "github:NixOS/nixpkgs/7a0f122f5090cf4c2ade2a13a0e229d4e19ba71f";
     };
     vicinae-extensions = {
       url = "github:vicinaehq/extensions";
+      flake = false;
+    };
+    vicinae-color-picker = {
+      url = "github:psampir/vicinae-color-picker";
       flake = false;
     };
   };
@@ -119,6 +137,10 @@
         pkgs = import pkgsInput {
           inherit system;
           config.allowUnfree = true;
+          # niri overlay: the compositor MUST build against our nixpkgs so
+          # its Mesa/glibc match /run/opengl-driver. Upstream niri-nix
+          # binaries use older glibc and fail to load the system GBM
+          # backend (MESA-LOADER GLIBC_2.43 error, zero outputs).
           overlays = [inputs.niri-nix.overlays.niri-nix];
         };
         extraSpecialArgs = {
@@ -168,6 +190,7 @@
 
     systemConfigs.arch = inputs.system-manager.lib.makeSystemConfig {
       modules = [./hosts/arch/system.nix];
+      overlays = [inputs.niri-nix.overlays.niri-nix];
       specialArgs = {inherit inputs;};
     };
 

@@ -1,4 +1,8 @@
-{ config, pkgs, ... }: {
+{
+  config,
+  pkgs,
+  ...
+}: {
   # rbw manages its own background agent (like ssh-agent): commands
   # auto-login/unlock as needed, so no refresh timer is required.
   programs.rbw.enable = true;

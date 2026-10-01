@@ -6,7 +6,6 @@ launch_apps_as_systemd_services = true
 settings_show_advanced = true
 corner_radius_scale = 1.0
 niri_overview_type_to_launch_enabled = true
-middle_click_opens_widget_settings = false
 polkit_agent = false
 show_location = true
 

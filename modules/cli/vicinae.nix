@@ -8,8 +8,7 @@
   system = pkgs.stdenv.hostPlatform.system;
   rawPackage = inputs.vicinae.packages.${system}.with-soulver or inputs.vicinae.packages.${system}.default;
   extSrc = name: inputs.vicinae-extensions + "/extensions/${name}";
-  mkExt = name: let
-    src = extSrc name;
+  mkExtFrom = src: name: let
     pkg = builtins.fromJSON (builtins.readFile (src + "/package.json"));
   in
     inputs.vicinae.lib.${system}.mkVicinaeExtension {
@@ -17,6 +16,7 @@
       pname = name;
       version = pkg.version or "0";
     };
+  mkExt = name: mkExtFrom (extSrc name) name;
   raycastExt = {
     name,
     rev,
@@ -35,6 +35,13 @@ in {
     systemd = {
       enable = true;
       autoStart = true;
+      environment = {
+        # The screen-mirror extension shells out to bare wl-mirror/wlr-randr
+        # (plus which/ps) with no path preferences, and the daemon unit sets
+        # no PATH of its own. The color-picker needs grim/slurp/imagemagick
+        # the same way. FHS fallback covers which/ps/sh on Arch.
+        PATH = "${lib.makeBinPath [pkgs.wl-mirror pkgs.wlr-randr pkgs.grim pkgs.slurp pkgs.imagemagick]}:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
+      };
     };
     extensions =
       map mkExt [
@@ -45,6 +52,7 @@ in {
         "wiktionary"
         "kaomojis"
         "bitwarden"
+        "screen-mirror"
       ]
       ++ [
         (raycastExt {
@@ -52,6 +60,7 @@ in {
           rev = "d2edae5a5babf0f8f714071f9cab9cc8e5e590bb";
           hash = "sha256-CskrY0L1kQBEFcFjkTsncr1RxTVqWou7kfSk+GU66cg=";
         })
+        (mkExtFrom inputs.vicinae-color-picker "color-picker")
       ];
 
     settings = {

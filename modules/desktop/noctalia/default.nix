@@ -1,6 +1,8 @@
 {
+  config,
   inputs,
   lib,
+  pkgs,
   ...
 }: let
   readToml = file: builtins.readFile file;
@@ -28,7 +30,10 @@ in {
 
   programs.noctalia = {
     enable = true;
-    checkConfig = false;
+    systemd.enable = true;
+    package = config.dotfiles.graphical.nixgl.maybeWrap {
+      package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    };
     settings = allToml;
   };
 }

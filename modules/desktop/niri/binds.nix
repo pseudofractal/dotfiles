@@ -21,7 +21,11 @@
 
   workspaces = builtins.listToAttrs (
     map (n: {
-      name = "Mod+${if n == 10 then "0" else toString n}";
+      name = "Mod+${
+        if n == 10
+        then "0"
+        else toString n
+      }";
       value.focus-workspace = n;
     }) (lib.range 1 10)
   );
@@ -51,15 +55,7 @@ in
     "Alt+P" = app "Screenshot and Sync To Tab" [syncshot];
     "Alt+Shift+P" = app "Screenshot and Sync To Tab Inverted" [syncshot "true"];
 
-    "Alt+C" = {
-      _props.hotkey-overlay-title = "Color Picker";
-      spawn-sh = "${lib.getExe pkgs.zenity} --color-selection --title 'Color Picker' --color \"$(${lib.getExe pkgs.hyprpicker} -n)\"";
-    };
-    "Alt+V" = {
-      _props.hotkey-overlay-title = "Clipboard History";
-      spawn-sh = "${lib.getExe pkgs.cliphist} list | ${lib.getExe pkgs.wofi} -dmenu | ${lib.getExe pkgs.cliphist} decode | ${lib.getExe' pkgs.wl-clipboard "wl-copy"}";
-    };
-    "Alt+G" = app "Gitmojis" [utils "handle_gitmoji"];
+    "Alt+V" = app "Clipboard History" ["vicinae" "vicinae://launch/clipboard/history"];
     "Alt+Shift+C" = {
       _props.hotkey-overlay-title = "Dynamic Screencast";
       spawn-sh = "niri msg action set-dynamic-cast-window --id $(niri msg --json pick-window | ${lib.getExe pkgs.jq} -r '.id')";

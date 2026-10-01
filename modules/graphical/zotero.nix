@@ -7,6 +7,12 @@
 }: let
   attachmentPath = "${config.home.homeDirectory}/vault/Thesis/papers/";
   bbtCitekeyFormat = "auth.lower + year";
+  # Zotero from the last nixpkgs shipping firefox-esr-140: 10.0.2's build
+  # scripts target ESR 140's ActorManagerParent and abort against ESR 153.
+  pkgsZotero = import inputs.nixpkgs-zotero {
+    system = pkgs.stdenv.hostPlatform.system;
+    config.allowUnfree = true;
+  };
 in {
   imports = [inputs.nur-vortriz.homeModules.zotero];
 
@@ -15,7 +21,7 @@ in {
   programs.zotero = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkgs.zotero;
+      package = pkgsZotero.zotero;
       bin = "zotero";
     };
 

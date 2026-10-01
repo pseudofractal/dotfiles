@@ -13,87 +13,90 @@ in {
 
   wayland.windowManager.niri = {
     enable = true;
+    # Overlay build, not inputs.niri-nix.packages: the compositor shares
+    # /run/opengl-driver with the rest of the system, so its Mesa/glibc
+    # must match. (Upstream binaries silently get zero outputs.)
     package = pkgs.niri-unstable;
     validation.enable = true;
 
-    settings = {
-      input = {
-        keyboard = {
-          repeat-delay = 600;
-          repeat-rate = 25;
-          track-layout = "global";
-        };
-        touchpad = {
-          tap = {};
-          dwt = {};
-          natural-scroll = {};
-          tap-button-map = "left-right-middle";
-          scroll-factor = 0.75;
-        };
-      };
-
-      prefer-no-csd = {};
-      overview.zoom = 0.4;
-
-      layout = {
-        gaps = 2;
-        border = {
-          width = 2;
-          active-gradient._props = {
-            from = "#33ccffee";
-            to = "#00ffffee";
-            angle = 45;
+    settings =
+      {
+        input = {
+          keyboard = {
+            repeat-delay = 600;
+            repeat-rate = 25;
+            track-layout = "global";
           };
-          inactive-color = "#595959aa";
+          touchpad = {
+            tap = {};
+            dwt = {};
+            natural-scroll = {};
+            tap-button-map = "left-right-middle";
+            scroll-factor = 0.75;
+          };
         };
-        focus-ring.off = {};
-        tab-indicator = {
-          hide-when-single-tab = {};
-          gap = -25;
-          width = 15;
-          length._props.total-proportion = 0.1;
-          position = "top";
-          gaps-between-tabs = 4;
-          corner-radius = 3;
+
+        prefer-no-csd = {};
+        overview.zoom = 0.4;
+        debug.honor-xdg-activation-with-invalid-serial = {};
+
+        layout = {
+          gaps = 2;
+          border = {
+            width = 2;
+            active-gradient._props = {
+              from = "#33ccffee";
+              to = "#00ffffee";
+              angle = 45;
+            };
+            inactive-color = "#595959aa";
+          };
+          focus-ring.off = {};
+          tab-indicator = {
+            hide-when-single-tab = {};
+            gap = -25;
+            width = 15;
+            length._props.total-proportion = 0.1;
+            position = "top";
+            gaps-between-tabs = 4;
+            corner-radius = 3;
+          };
+          default-column-width.proportion = 0.5;
+          center-focused-column = "never";
+          always-center-single-column = {};
         };
-        default-column-width.proportion = 0.5;
-        center-focused-column = "never";
-        always-center-single-column = {};
-      };
 
-      hotkey-overlay = {
-        skip-at-startup = {};
-        hide-not-bound = {};
-      };
-
-      binds = import ./binds.nix {
-        inherit lib pkgs noctalia niriUtils syncshotRunner;
-      };
-
-      animations = {
-        exit-confirmation-open-close.off = {};
-        window-close = {
-          duration-ms = 250;
-          curve = "ease-out-quad";
+        hotkey-overlay = {
+          skip-at-startup = {};
+          hide-not-bound = {};
         };
-        window-open = {
-          duration-ms = 250;
-          curve = "ease-out-expo";
+
+        binds = import ./binds.nix {
+          inherit lib pkgs noctalia niriUtils syncshotRunner;
         };
-      };
 
-      cursor = {
-        xcursor-theme = "elementary";
-        xcursor-size = 25;
-      };
+        animations = {
+          exit-confirmation-open-close.off = {};
+          window-close = {
+            duration-ms = 250;
+            curve = "ease-out-quad";
+          };
+          window-open = {
+            duration-ms = 250;
+            curve = "ease-out-expo";
+          };
+        };
 
-      _children = import ./rules.nix {
-        inherit lib pkgs noctalia;
-      };
-    };
+        cursor = {
+          xcursor-theme = "elementary";
+          xcursor-size = 25;
+        };
+        # Repeated top-level nodes (startup, outputs, workspaces, rules).
+      }
+      // (import ./rules.nix {
+        inherit lib pkgs;
+      });
   };
-
-  xdg.configFile."niri/gitmojis.json".source = ./data/gitmojis.json;
 
   xdg.portal = {
     extraPortals = with pkgs; [
@@ -116,24 +119,9 @@ in {
   # units – link them from the package so niri-session / niri.service still work.
   systemd.user.packages = [pkgs.niri-unstable];
 
-  systemd.user.services.cliphist = {
-    Unit = {
-      Description = "Wayland clipboard history";
-      After = ["graphical-session.target"];
-      PartOf = ["graphical-session.target"];
-    };
-    Service = {
-      ExecStart = "${pkgs.wl-clipboard}/bin/wl-paste --watch ${pkgs.cliphist}/bin/cliphist store";
-      Restart = "on-failure";
-    };
-    Install.WantedBy = ["graphical-session.target"];
-  };
-
   home.packages = with pkgs; [
     blueman
-    cliphist
     grim
-    hyprpicker
     imagemagick
     jq
     libnotify
@@ -143,11 +131,9 @@ in {
     slurp
     syncshotRunner
     thunar
+    wev
     wl-clipboard
-    wofi
-    xdg-desktop-portal-gnome
     xwayland-satellite-unstable
     yad
-    zenity
   ];
 }

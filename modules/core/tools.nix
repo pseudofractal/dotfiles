@@ -66,5 +66,6 @@
     ++ lib.optionals (!isAndroid) [
       pkgs.wayfreeze
       pkgs.wl-mirror
+      pkgs.wlr-randr
     ];
 }

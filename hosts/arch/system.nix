@@ -3,8 +3,7 @@
   pkgs,
   ...
 }: let
-  system = pkgs.stdenv.hostPlatform.system;
-  niri = inputs.niri-nix.packages.${system}.niri-unstable;
+  niri = pkgs.niri-unstable;
   niriSession = pkgs.runCommand "niri-nix-session" {} ''
     mkdir -p "$out/bin" "$out/share/wayland-sessions"
 
@@ -44,6 +43,10 @@ in {
     etc."sddm.conf.d/20-niri-nix.conf".text = ''
       [Wayland]
       SessionDir=/run/system-manager/sw/share/wayland-sessions,/usr/local/share/wayland-sessions,/usr/share/wayland-sessions
+    '';
+
+    etc."udev/rules.d/99-low-battery-hibernate.rules".text = ''
+      SUBSYSTEM=="power_supply", ATTR{status}=="Discharging", ATTR{capacity}=="[0-5]", RUN+="/usr/bin/systemctl hibernate"
     '';
   };
 }

@@ -59,6 +59,7 @@
   in
     pkgs.symlinkJoin {
       name = "${lib.getName package}-nixgl";
+      meta.mainProgram = programName;
 
       paths = [package];
 

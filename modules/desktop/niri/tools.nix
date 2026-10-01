@@ -21,12 +21,9 @@ in {
     runtimeInputs = [
       pkgs.coreutils
       pkgs.grim
-      pkgs.jq
-      pkgs.libnotify
       pkgs.slurp
       pkgs.wayfreeze
       pkgs.wl-clipboard
-      pkgs.wofi
     ];
     text = builtins.readFile ./scripts/niri-utils.sh;
   };
