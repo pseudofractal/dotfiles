@@ -351,7 +351,7 @@ in {
 
   programs.notmuch = {
     enable = true;
-    new.tags = [];
+    settings.new.tags = [];
   };
 
   services.lieer.enable = true;
