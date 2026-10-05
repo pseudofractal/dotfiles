@@ -1,4 +1,25 @@
-{pkgs, ...}: {
+{
+  lib,
+  pkgs,
+  ...
+}: let
+  webpOpen = pkgs.writeShellApplication {
+    name = "webp-open";
+    runtimeInputs = with pkgs; [gnugrep imv libwebp mpv];
+    text = ''
+      if (( $# == 0 )); then
+        echo "usage: webp-open FILE..." >&2
+        exit 64
+      fi
+
+      if webpinfo -summary "$1" 2>&1 | grep -q 'Animation: 1'; then
+        exec mpv "$@"
+      else
+        exec imv "$@"
+      fi
+    '';
+  };
+in {
   imports = [
     # keep-sorted start
     ./catppucinify.nix
@@ -26,6 +47,16 @@
     NoDisplay=true
     Categories=Utility;TextEditor;
     MimeType=text/plain;text/markdown;text/x-c;text/x-c++src;text/x-python;text/x-rust;text/x-shellscript;text/css;text/csv;text/xml;application/json;application/javascript;application/x-yaml;application/toml;
+  '';
+
+  xdg.dataFile."applications/webp-open.desktop".text = ''
+    [Desktop Entry]
+    Name=WebP Viewer
+    Exec=${lib.getExe webpOpen} %F
+    Terminal=false
+    Type=Application
+    NoDisplay=true
+    MimeType=image/webp;
   '';
 
   xdg.mimeApps = {
@@ -109,7 +140,7 @@
       "image/svg+xml" = ["imv.desktop"];
       "image/tiff" = ["imv.desktop"];
       "image/vnd.djvu" = ["okularApplication_djvu.desktop"];
-      "image/webp" = ["imv.desktop"];
+      "image/webp" = ["webp-open.desktop"];
       "image/x-fits" = ["org.siril.Siril.desktop"];
       "image/x-pcx" = ["gimp.desktop"];
       "image/x-psd" = ["gimp.desktop"];

@@ -76,7 +76,8 @@ in {
       "mpv"
       "imv"
       "kitty"
-      "neovim"
+      "nchat"
+      "nvim"
       "sioyek"
       "vesktop"
       "^libreoffice-.*$"
@@ -93,7 +94,7 @@ in {
     (rule (ids [
       "kitty"
       "sioyek"
-      "neovim"
+      "nvim"
     ]) [{default-column-display = "tabbed";}])
     (rule (ids ["vesktop"]) [{scroll-factor = 0.4;}])
     {
@@ -114,9 +115,9 @@ in {
           }
         ];
     }
-    (onWorkspace ["sioyek" "neovim"] "Work")
+    (onWorkspace ["sioyek" "nvim"] "Work")
     (onWorkspace ["zen" "yazi" "kitty"] "Utilities")
-    (onWorkspace ["vesktop" "YouTube Music Desktop App"] "Entertainment")
+    (onWorkspace ["nchat" "vesktop" "YouTube Music Desktop App"] "Entertainment")
     (rule
       [
         (match {app-id = "Ds9.tcl";})

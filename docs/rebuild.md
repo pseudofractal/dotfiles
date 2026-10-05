@@ -29,6 +29,16 @@ switch:
 home-manager switch --flake .#pseudofractal -b backup
 ```
 
+`systemd.user.startServices` is `false`, so a switch never starts services
+itself — long oneshot jobs such as Lieer full syncs would otherwise block the
+activation. After switching, start what changed manually, e.g.:
+
+```bash
+systemctl --user start lieer-iiser.timer lieer-personal.timer email-classify-backfill.timer
+```
+
+Running syncs are left undisturbed by a switch.
+
 ## System Manager
 
 System Manager owns the SDDM session entry, `/run/system-manager/sw`,
@@ -82,9 +92,18 @@ breakage difficult to isolate.
 Some inputs are pinned deliberately:
 
 - `vicinae` and its nixpkgs revision match the available binary cache.
+  Following the root nixpkgs would rebuild everything from source, and
+  vicinae's source build is broken against it (gcc15Stdenv vs system numen
+  GLIBCXX skew). Rev-pinned so plain `nix flake lock` can never drift it off
+  the cached build.
 - `niri-nix` provides the overlay used by both Home Manager and System
   Manager. Building niri against the root nixpkgs keeps it compatible with
-  `/run/opengl-driver`.
-- `nixpkgs-zotero` keeps Zotero 10.0.2 on a compatible Firefox ESR release.
-
-The comments in `flake.nix` contain the details behind each pin.
+  `/run/opengl-driver`. Its own nixpkgs input is pinned to the revision its
+  CI pushed to the cache, with no follows, so the store paths match the
+  cached builds exactly.
+- `nixpkgs-zotero` keeps Zotero 10.0.2 on a compatible Firefox ESR release
+  (the last nixpkgs with firefox-esr-140; Zotero's build scripts abort
+  against ESR 153's ActorManagerParent). Temporary until upstream adapts
+  Zotero.
+- `nixpkgs-llama` freezes both llama.cpp servers, so routine nixpkgs updates
+  never trigger a from-source CUDA rebuild.

@@ -23,6 +23,8 @@
 
   programs.home-manager.enable = true;
 
+  systemd.user.startServices = false;
+
   dotfiles.backup = {
     enable = true;
     baseFolder = "backups";

@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   isAndroid,
@@ -8,7 +9,11 @@
   modelDir = "${config.home.homeDirectory}/.local/share/llm-models";
   stateDir = "${config.xdg.stateHome}/llama-cpp";
   selectedModel = "${stateDir}/model";
-  llamaCpp = pkgs.llama-cpp.override {cudaSupport = true;};
+  llamaPkgs = import inputs.nixpkgs-llama {
+    system = pkgs.stdenv.hostPlatform.system;
+    config.allowUnfree = true;
+  };
+  llamaCpp = llamaPkgs.llama-cpp.override {cudaSupport = true;};
   arxivMcpSrc = pkgs.fetchFromGitHub {
     owner = "takashiishida";
     repo = "arxiv-latex-mcp";

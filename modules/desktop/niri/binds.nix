@@ -18,6 +18,30 @@
 
   utils = "${niriUtils}/bin/niri-utils";
   syncshot = "${syncshotRunner}/bin/syncshot-runner";
+  nchatSession = pkgs.writeText "nchat.kitty-session" ''
+    new_tab Whatsapp
+    launch nchat
+    new_tab Email
+    launch aerc
+    focus_tab 0
+  '';
+  projectTabs = pkgs.writeShellApplication {
+    name = "kitty-project-tabs";
+    runtimeInputs = [pkgs.kitty pkgs.zoxide];
+    text = ''
+      if project_dir="$(zoxide query --interactive --)"; then
+        cd -- "$project_dir"
+        kitten @ launch --self --type=tab --cwd="$project_dir" --tab-title Runner --keep-focus
+        kitten @ launch --self --type=tab --cwd="$project_dir" --tab-title Utils --keep-focus
+        exec nvim
+      fi
+      exec "$SHELL"
+    '';
+  };
+  nvimSession = pkgs.writeText "nvim.kitty-session" ''
+    new_tab Code Editor
+    launch ${lib.getExe projectTabs}
+  '';
 
   workspaces = builtins.listToAttrs (
     map (n: {
@@ -38,7 +62,8 @@ in
     "Mod+T" = app "Terminal" ["kitty"];
     "Mod+Shift+E" = app "GUI File Browser" ["thunar"];
     "Mod+E" = app "File Browser" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=yazi" "yazi"];
-    "Mod+C" = app "Code Editor" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=neovim"];
+    "Mod+C" = app "Chat and Email" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=nchat" "--session" "${nchatSession}"];
+    "Mod+N" = app "Code Editor" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=nvim" "--session" "${nvimSession}"];
     "Mod+B" = app "Zen Browser" ["zen-twilight"];
     "Mod+Shift+B".spawn = ["zen-twilight" "--private-window"];
 

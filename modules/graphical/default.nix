@@ -1,8 +1,10 @@
 {...}: {
   imports = [
     # keep-sorted start
+    ./cad.nix
     ./carta.nix
     ./gimp-inkscape.nix
+    ./google-chrome.nix
     ./ime.nix
     ./kitty.nix
     ./nixgl.nix
