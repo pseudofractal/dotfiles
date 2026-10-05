@@ -31,13 +31,18 @@ home-manager switch --flake .#pseudofractal -b backup
 
 `systemd.user.startServices` is `false`, so a switch never starts services
 itself — long oneshot jobs such as Lieer full syncs would otherwise block the
-activation. After switching, start what changed manually, e.g.:
+activation. The `rebuild` shortcut compensates: after a successful Home
+Manager switch it restarts all user timers, so new or changed schedules take
+effect. Restarting a timer only re-arms its schedule; it never runs the job,
+and running syncs are left undisturbed. The shortcut also reprints Home
+Manager's suggested service restarts in yellow at the end of a successful
+switch, so they are not buried in the activation log.
+
+If you switch without `rebuild`, re-arm them manually, e.g.:
 
 ```bash
-systemctl --user start lieer-iiser.timer lieer-personal.timer email-classify-backfill.timer
+systemctl --user restart lieer-iiser.timer lieer-personal.timer email-classify-backfill.timer
 ```
-
-Running syncs are left undisturbed by a switch.
 
 ## System Manager
 
