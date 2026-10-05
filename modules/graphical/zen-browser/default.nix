@@ -9,8 +9,19 @@
   sidebarExpandedWidthPx = "${toString sidebarExpandedWidth}px";
   mozlz4a = lib.getExe pkgs.mozlz4a;
   jq = lib.getExe pkgs.jq;
+  zenBrowserSettings = config.programs.zen-browser;
+  zenUnwrapped = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}."twilight-unwrapped".override {
+    inherit (zenBrowserSettings) policies;
+  };
+  zenRewrapped =
+    (import "${inputs.zen-browser.outPath}/wrap-zen.nix" pkgs.wrapFirefox) zenUnwrapped {
+      icon =
+        if zenBrowserSettings.icon != null
+        then zenBrowserSettings.icon
+        else "zen-twilight";
+    };
   zenTwilightPackage = config.dotfiles.graphical.nixgl.maybeWrap {
-    package = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.twilight;
+    package = zenRewrapped;
     bin = "zen-twilight";
   };
   sessionsFile = "${config.xdg.configHome}/zen/main/zen-sessions.jsonlz4";

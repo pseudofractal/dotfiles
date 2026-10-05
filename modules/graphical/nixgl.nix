@@ -80,11 +80,11 @@
   in
     wrappedPackage
     // lib.optionalAttrs (package ? override) {
-      override = args:
+      override = lib.mirrorFunctionArgs package.override (args:
         maybeWrap {
           package = package.override args;
           inherit bin launcherWrapper;
-        };
+        });
     };
 in {
   options.dotfiles.graphical.nixgl = {
