@@ -100,7 +100,10 @@ Some inputs are pinned deliberately:
   Following the root nixpkgs would rebuild everything from source, and
   vicinae's source build is broken against it (gcc15Stdenv vs system numen
   GLIBCXX skew). Rev-pinned so plain `nix flake lock` can never drift it off
-  the cached build.
+  the cached build. Refresh the rev and its paired nixpkgs together from
+  upstream's lock (currently v0.29.1 on nixpkgs `7a0f122f`); the flake's
+  `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' `vicinae`
+  package is not a substitute.
 - `niri-nix` provides the overlay used by both Home Manager and System
   Manager. Building niri against the root nixpkgs keeps it compatible with
   `/run/opengl-driver`. Its own nixpkgs input is pinned to the revision its

@@ -90,7 +90,7 @@
     shiryoku.url = "github:pseudofractal/shiryoku";
 
     vicinae = {
-      url = "github:vicinaehq/vicinae/e40f8aeb47e7abb42767db5da5013ffa77d343de";
+      url = "github:vicinaehq/vicinae/7f1d1d96ea7ca9b08130962c91d0469df24a1362";
       inputs.nixpkgs.url = "github:NixOS/nixpkgs/7a0f122f5090cf4c2ade2a13a0e229d4e19ba71f";
     };
     vicinae-extensions = {
