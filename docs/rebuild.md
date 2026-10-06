@@ -35,8 +35,8 @@ activation. The `rebuild` shortcut compensates: after a successful Home
 Manager switch it restarts all user timers, so new or changed schedules take
 effect. Restarting a timer only re-arms its schedule; it never runs the job,
 and running syncs are left undisturbed. The shortcut also reprints Home
-Manager's suggested service restarts in yellow at the end of a successful
-switch, so they are not buried in the activation log.
+Manager's suggested service restarts in yellow at the end of a
+successful switch, so they are not buried in the activation log.
 
 If you switch without `rebuild`, re-arm them manually, e.g.:
 
@@ -96,19 +96,20 @@ breakage difficult to isolate.
 
 Some inputs are pinned deliberately:
 
-- `vicinae` and its nixpkgs revision match the available binary cache.
-  Following the root nixpkgs would rebuild everything from source, and
-  vicinae's source build is broken against it (gcc15Stdenv vs system numen
-  GLIBCXX skew). Rev-pinned so plain `nix flake lock` can never drift it off
-  the cached build. Refresh the rev and its paired nixpkgs together from
-  upstream's lock (currently v0.29.1 on nixpkgs `7a0f122f`); the flake's
-  `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' `vicinae`
-  package is not a substitute.
+- `vicinae` must never follow the root nixpkgs: that would rebuild it from
+  source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX
+  skew) and miss `vicinae.cachix.org`. The input floats on upstream `main`
+  with no override, so its nixpkgs always equals upstream's lock — every
+  rev's binary is already cached, updates download instead of compiling.
+  Just `nix flake lock --update-input vicinae` (deprecated alias: `nix flake
+  update vicinae`) and build. The flake's `lib` is also needed for
+  `mkVicinaeExtension`, so nixpkgs' `vicinae` package is not a substitute.
 - `niri-nix` provides the overlay used by both Home Manager and System
   Manager. Building niri against the root nixpkgs keeps it compatible with
-  `/run/opengl-driver`. Its own nixpkgs input is pinned to the revision its
-  CI pushed to the cache, with no follows, so the store paths match the
-  cached builds exactly.
+  `/run/opengl-driver` (upstream prebuilt binaries silently get zero
+  outputs). Its own nixpkgs input is untouched, so it follows upstream's
+  lock; nothing we consume (overlay instantiates with our pkgs, home module
+  uses `self.lib` plus our `package` override) reads that input.
 - `nixpkgs-zotero` keeps Zotero 10.0.2 on a compatible Firefox ESR release
   (the last nixpkgs with firefox-esr-140; Zotero's build scripts abort
   against ESR 153's ActorManagerParent). Temporary until upstream adapts

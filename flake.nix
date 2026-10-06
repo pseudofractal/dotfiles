@@ -42,7 +42,6 @@
     nixgl.url = "github:nix-community/nixGL";
     niri-nix = {
       url = "git+https://codeberg.org/BANanaD3V/niri-nix?rev=926ca86fab82738fd1461b022ee11b4d61b9bf2e";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/4975466d324710c576dc11ad614684e6bd8cad8e";
     };
     nix-system-graphics = {
       url = "github:soupglasses/nix-system-graphics";
@@ -90,8 +89,7 @@
     shiryoku.url = "github:pseudofractal/shiryoku";
 
     vicinae = {
-      url = "github:vicinaehq/vicinae/7f1d1d96ea7ca9b08130962c91d0469df24a1362";
-      inputs.nixpkgs.url = "github:NixOS/nixpkgs/7a0f122f5090cf4c2ade2a13a0e229d4e19ba71f";
+      url = "github:vicinaehq/vicinae";
     };
     vicinae-extensions = {
       url = "github:vicinaehq/extensions";

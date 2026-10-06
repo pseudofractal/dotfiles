@@ -4,15 +4,35 @@
   pkgs,
   ...
 }: let
-  nchatWithPng = pkgs.nchat.overrideAttrs (old: {
-    buildInputs = old.buildInputs ++ [pkgs.libpng];
-  });
+  # nixpkgs (including unstable) is stuck on 5.16.9, whose bundled whatsmeow
+  # client version is rejected by WhatsApp: "Client outdated (405)" ->
+  # websocket never connects -> chats show from cache but nothing syncs.
+  # Track upstream releases directly until nixpkgs catches up. Session keys
+  # live in ~/.config/nchat/profiles and are unaffected by the swap.
+  nchatUpstream = pkgs.stdenv.mkDerivation rec {
+    pname = "nchat";
+    version = "5.19.18";
+    src = pkgs.fetchurl {
+      url = "https://github.com/d99kris/nchat/releases/download/v${version}/nchat-${version}-linux-x86_64-glibc.tar.gz";
+      hash = "sha256-Ize/J9wpScoOfLsjc3mn66GSbJZIVwbplg6192/aN0c=";
+    };
+    nativeBuildInputs = [pkgs.autoPatchelfHook];
+    buildInputs = with pkgs; [stdenv.cc.cc ncurses libpng openssl zlib];
+    installPhase = ''
+      runHook preInstall
+      mkdir -p $out/bin
+      nchat_bin=$(find . -type f -name nchat | head -n 1)
+      install -Dm755 "$nchat_bin" $out/bin/nchat
+      if [ -d share ]; then cp -r share $out/; fi
+      runHook postInstall
+    '';
+  };
 in
   lib.mkIf (!isAndroid) {
     home.packages = with pkgs; [
       (aspellWithDicts (dicts: [dicts.en]))
       libnotify
-      nchatWithPng
+      nchatUpstream
       wl-clipboard
       xdg-utils
     ];

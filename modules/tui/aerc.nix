@@ -431,12 +431,34 @@ in {
     Install.WantedBy = ["timers.target"];
   };
 
+  # Gmail two-way sync is tag-based (lieer pushes tags as labels), so the
+  # default file-deleting D/d and file-moving a/A would only delete local
+  # copies that the next sync re-downloads. Rebind them to tag ops instead:
+  # D/d trashes (+trash -inbox), a/A archives (-inbox), * toggles star
+  # (!flagged <-> STARRED), l opens the label prompt (custom labels sync
+  # both ways). Read/unread already syncs via the unread tag.
   home.file."${config.xdg.configHome}/aerc/binds.conf" = {
     force = true;
     text =
       lib.replaceStrings
-      ["[messages]\n"]
-      ["[messages]\nRd = :read<Enter>\n"]
+      [
+        "[messages]\n"
+        "[view]\n"
+        "D = :delete<Enter>"
+        "d = :choose -o y 'Really delete this message' delete-message<Enter>"
+        "a = :archive flat<Enter>"
+        "A = :unmark -a<Enter>:mark -T<Enter>:archive flat<Enter>"
+        "A = :archive flat<Enter>"
+      ]
+      [
+        "[messages]\nRd = :read<Enter>\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
+        "[view]\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
+        "D = :modify-labels +trash -inbox<Enter>"
+        "d = :modify-labels +trash -inbox<Enter>"
+        "a = :modify-labels -inbox<Enter>"
+        "A = :unmark -a<Enter>:mark -T<Enter>:modify-labels -inbox<Enter>"
+        "A = :modify-labels -inbox<Enter>"
+      ]
       (builtins.readFile "${config.programs.aerc.package}/share/aerc/binds.conf");
   };
 
