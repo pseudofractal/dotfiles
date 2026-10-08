@@ -2,12 +2,11 @@ function gco --description 'Git commit with custom date and time'
     set -l date (env TZ=Asia/Kolkata date "+%Y-%m-%d")
     set -l time (env TZ=Asia/Kolkata date "+%H:%M:%S")
     set -l msg ""
-    set -l use_random 0
 
     for arg in $argv
         switch $arg
             case --random
-                set use_random 1
+                set use_random
             case --help -h
                 echo 'Usage: gco [YYYY-MM-DD] [HH:MM:SS] ["message"] [--random]'
                 return 0
@@ -16,13 +15,15 @@ function gco --description 'Git commit with custom date and time'
                     set date $arg
                 else if string match -rq '^\d{2}:\d{2}:\d{2}$' $arg
                     set time $arg
+                else if test -z "$msg"
+                    set msg $arg
                 else
-                    set msg $msg $arg
+                    set msg "$msg $arg"
                 end
         end
     end
 
-    if test $use_random -eq 1
+    if set -q use_random[1]
         set -l hour (random 9 22)
         set -l minute (random 0 59)
         set -l second (random 0 59)

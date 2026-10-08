@@ -1,12 +1,13 @@
+function __mdview_usage
+    echo "Usage: mdview [--theme latte|mocha] MARKDOWN_FILE"
+end
+
 function mdview --description "Render Markdown and open it in the browser"
     argparse h/help 'theme=' -- $argv
-    if test $status -ne 0
-        echo "Usage: mdview [--theme latte|mocha] MARKDOWN_FILE" >&2
-        return 2
-    end
+    or begin __mdview_usage >&2; return 2; end
 
     if set -q _flag_help
-        echo "Usage: mdview [--theme latte|mocha] MARKDOWN_FILE"
+        __mdview_usage
         return 0
     end
 
@@ -14,37 +15,35 @@ function mdview --description "Render Markdown and open it in the browser"
     if set -q _flag_theme
         set theme $_flag_theme
     end
-    if test "$theme" != latte; and test "$theme" != mocha
-        echo "mdview: theme must be latte or mocha: $theme" >&2
-        return 2
-    end
-
-    if test (count $argv) -ne 1
-        echo "Usage: mdview [--theme latte|mocha] MARKDOWN_FILE" >&2
-        return 2
-    end
-
     set -l config_home ~/.config
     if set -q XDG_CONFIG_HOME; and test -n "$XDG_CONFIG_HOME"
         set config_home "$XDG_CONFIG_HOME"
     end
-    set -l css "$config_home/mdview/$theme.css"
-    if not test -r "$css"
-        echo "mdview: theme stylesheet not found: $css" >&2
-        return 1
+    set -l browser zen-twilight
+    if set -q BROWSER; and test -n "$BROWSER"
+        set browser "$BROWSER"
     end
 
-    set -l input (realpath -- "$argv[1]")
-    if test $status -ne 0; or not test -f "$input"; or not test -r "$input"
+    set -l input ""
+    if test (count $argv) -eq 1
+        set input (realpath -- "$argv[1]" 2>/dev/null)
+    end
+    if test "$theme" != latte; and test "$theme" != mocha
+        echo "mdview: theme must be latte or mocha: $theme" >&2
+        return 2
+    else if test -z "$input"; or not test -f "$input"; or not test -r "$input"
         echo "mdview: readable Markdown file not found: $argv[1]" >&2
+        return 1
+    else if not test -r "$config_home/mdview/$theme.css"
+        echo "mdview: theme stylesheet not found: $config_home/mdview/$theme.css" >&2
+        return 1
+    else if not command -q "$browser"
+        echo "mdview: browser command not found: $browser" >&2
         return 1
     end
 
     set -l temp_dir (mktemp -d)
-    if test $status -ne 0
-        echo "mdview: could not create a temporary directory" >&2
-        return 1
-    end
+    or begin echo "mdview: could not create a temporary directory" >&2; return 1; end
     set -l output "$temp_dir/"(basename "$input" .md)".html"
 
     pandoc \
@@ -54,24 +53,11 @@ function mdview --description "Render Markdown and open it in the browser"
         --highlight-style=pygments \
         --resource-path=(dirname "$input") \
         --embed-resources \
-        --css="$css" \
+        --css="$config_home/mdview/$theme.css" \
         --mathjax="$PANDOC_MATHJAX_URL" \
         --output="$output" \
         "$input"
-    if test $status -ne 0
-        rm -rf "$temp_dir"
-        return 1
-    end
-
-    set -l browser zen-twilight
-    if set -q BROWSER; and test -n "$BROWSER"
-        set browser "$BROWSER"
-    end
-    if not command -q "$browser"
-        echo "mdview: browser command not found: $browser" >&2
-        rm -rf "$temp_dir"
-        return 1
-    end
+    or begin rm -rf "$temp_dir"; return 1; end
 
     nohup "$browser" "$output" >/dev/null 2>&1 &
 end

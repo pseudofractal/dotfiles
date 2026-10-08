@@ -4,7 +4,7 @@ function michi
         return 1
     end
 
-    set fullpath (realpath $argv[1])
+    set -l fullpath (realpath $argv[1])
     echo -n $fullpath | wl-copy
     echo "Copied: $fullpath"
     return 0
