@@ -57,6 +57,9 @@ function rebuild --description "Rebuild the Home Manager or System Manager confi
     end
 
     if test $rebuild_status -eq 0; and test "$run_system" = false; and command -q systemctl
+        # Drop ghosts of retired units (e.g. mbsync.timer) so re-arming stays clean.
+        systemctl --user daemon-reload >/dev/null 2>&1
+        systemctl --user reset-failed >/dev/null 2>&1
         set -l timer_units (systemctl --user list-units --type=timer --all --no-legend --plain 2>/dev/null | string replace -r '\s.*$' '' | string match '*.timer')
         if set -q timer_units[1]
             systemctl --user restart $timer_units

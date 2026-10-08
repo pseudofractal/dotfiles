@@ -12,6 +12,7 @@
     ./packet.nix
     ./prism-launcher.nix
     ./sioyek.nix
+    ./tablet.nix
     ./teams.nix
     ./tools.nix
     ./vesktop.nix

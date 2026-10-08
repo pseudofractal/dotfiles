@@ -131,6 +131,7 @@ in {
       {open-focused = true;}
     ])
     (rule (ids ["dev.noctalia.Noctalia"]) [{open-floating = true;}])
+    (rule [(match {title = "Tablet";})] [{open-fullscreen = true;}])
   ];
 
   layer-rule = [
