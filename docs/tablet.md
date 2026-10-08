@@ -1,5 +1,23 @@
 # Tablet Integration
 
+One command drives every tablet mode (bare `tablet` prints this help):
+
+- `tablet mirror` (`m`) — scrcpy mirror over USB, detached with
+  logging (`~/.local/state/scrcpy.log`); second run stops it cleanly.
+- `tablet input` (`i`) — toggles the Sunshine host (detached,
+  `~/.local/state/sunshine.log`); drive the laptop from the tablet via
+  Moonlight (see §1.2 for client setup and pairing).
+- `tablet files <backend>` (`f`) — mount tablet storage and cd into it:
+  `adb` over USB via MTP/FUSE at `~/.local/mnt/sierpenski` (go-mtpfs:
+  gvfs is not installed on this host, so the gio-mount path used by
+  `phone` has no backend here; needs the `fuse2` system package for
+  `/bin/fusermount`; with the Samsung phone cabled too it filters by adb serial, otherwise mounts the only
+  device), `kdeconnect` over LAN via SFTP (device `Siérpenski`, needs
+  pairing + SFTP enabled in the tablet app), `u`/`unmount` detaches
+  everything, `help` reprints this.
+- `tablet fa` / `tablet fk` — shortcuts for `tablet files adb` /
+  `tablet files kdeconnect`.
+
 Bidirectional integration between the Arch laptop (niri/Wayland) and the
 Samsung Galaxy Tab S10 Lite over a USB cable: the laptop drives the tablet
 as a low-latency screen, and the tablet drives the laptop as a mirrored
@@ -92,11 +110,29 @@ direct-DRM path.
 
 #### Client setup (Moonlight, Play Store, free)
 
-1. USB-cable the tablet, enable USB tethering, and note the PC's tether
-   IP (`ip -4 -brief addr show`).
-2. Moonlight → Add Host Manually → tether IP → enter the shown PIN in
-   Sunshine's web UI (PIN page). Pairing is permanent.
+1. USB-cable the tablet with USB tethering on. The PC-side address is
+   pinned static (`tablet-usb` NetworkManager profile,
+   `10.211.109.100`); verify with `ip -4 -brief addr show enp8s0f4u1`.
+2. Moonlight → Add Host Manually → `10.211.109.100` → enter the shown
+   PIN in Sunshine's web UI (PIN page). Pairing is permanent.
 3. Tap the desktop entry to stream.
+
+#### Pairing hygiene (read this before re-pairing)
+
+Every PIN round appends a row to `named_devices` in
+`~/.config/sunshine/sunshine_state.json` — even for an already-known
+certificate. Duplicate rows poison the trust store: from the second
+identical row on, *no* client verifies and every stream 401s with
+`The client is not authorized`, while pairing itself keeps reporting
+success and piling on more rows (upstream
+[LizardByte/Sunshine#5696](https://github.com/LizardByte/Sunshine/issues/5696)).
+Restarts never fix it; only an empty store does. So: pair exactly once,
+then never delete/re-add the host or enter PINs "just to be sure" —
+restarts, IP changes, and client updates don't invalidate pairing. If a
+401 ever returns, count duplicate certs first; to recover, stop the
+server, back up the state file, empty `named_devices`, start, and do one
+single fast round. `tablet input` warns at startup when duplicates are
+present.
 
 #### Client settings that matter
 

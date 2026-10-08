@@ -6,6 +6,7 @@
     pkgs.sunshine
     pkgs.scrcpy
     pkgs.android-tools
+    pkgs.go-mtpfs
   ];
 
   xdg.dataFile."applications/tablet-mirror.desktop".text = ''
