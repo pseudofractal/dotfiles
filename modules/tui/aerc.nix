@@ -156,7 +156,16 @@
           echo "lieer-sync-${account}: repo locked by another gmi instance; skipping" >&2
           exit 0
         fi
-        gmi sync
+        # Pull first, classify, then push: lieer push skips any message whose
+        # remote historyId is newer than the last pull ("remote has changed,
+        # will not update"), and the following pull then reverts the skipped
+        # local tags. Since push never advances last_historyId, the previous
+        # run's own label uploads (rule-mail tags) already count as "remote
+        # changes" and self-inflict the conflict on the next run's push --
+        # silently un-deleting every D and un-archiving every a. Pulling first
+        # makes last_historyId fresh, so the final push only yields to changes
+        # that genuinely landed remotely mid-run.
+        gmi pull
         ${lib.getExe ruleMail} ${account}
         gmi push
       '';
@@ -263,7 +272,7 @@
         echo "classify-backfill: only $((avail_kb / 1024)) MiB available, keeping 4 GiB buffer; skipping" >&2
         exit 0
       fi
-      classify_and_push() {
+      classify_and_sync() {
         (
           exec 9>"${mailRoot}/$1/.gmi.lock"
           if ! flock -n 9; then
@@ -271,14 +280,18 @@
             exit 0
           fi
           cd "${mailRoot}/$1"
+          # Pull-first for the same reason as lieer-sync: a push with a stale
+          # last_historyId self-conflicts against our own earlier uploads and
+          # gets reverted by the pull, so refresh before classifying/pushing.
+          gmi pull
           ${lib.getExe ruleMail} "$1"
           if ! gmi push; then
             echo "classify-backfill: $1 gmi push failed; will retry on the next run" >&2
           fi
         )
       }
-      classify_and_push iiser
-      classify_and_push personal
+      classify_and_sync iiser
+      classify_and_sync personal
     '';
   };
 in {

@@ -10,7 +10,13 @@ Each account has a Lieer timer firing every 5 minutes:
 
 - `lieer-iiser.service` / `lieer-personal.service` (triggered by matching
   `.timer` units).
-- One run = `gmi sync` (download + upload labels), classify new mail, `gmi push`.
+- One run = `gmi pull` (download labels, refresh history), classify new
+  mail, `gmi push` (upload tag changes). Pull runs first deliberately:
+  lieer skips pushing any message changed remotely since the last pull,
+  and the next pull then reverts the skipped local tags — since push
+  never advances the stored historyId, the previous run's own uploads
+  self-inflict that conflict and silently un-delete/un-archive mail.
+  Genuine mid-run remote edits still win; retry the keybind.
 
 First-time authorization is interactive, once per account:
 
@@ -148,3 +154,8 @@ notmuch tag +flagged -- 'subject: boarding pass* and date:1m..'
   timer tick (or a manual `systemctl --user start`).
 - `notmuch search` needs `NOTMUCH_CONFIG`, exported by default in interactive
   shells.
+- Deletes/archives that never land remotely show up in the service log as
+  `update: remote has changed, will not update: <gid> (add: [...] ...)` —
+  a stale-history conflict (see Sync above), not an auth or API failure.
+  `gmi push -f` forces local tags through at the cost of overwriting
+  concurrent remote edits; normal runs stay non-forced.
