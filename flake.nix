@@ -41,7 +41,7 @@
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
     niri-nix = {
-      url = "git+https://codeberg.org/BANanaD3V/niri-nix?rev=926ca86fab82738fd1461b022ee11b4d61b9bf2e";
+      url = "git+https://codeberg.org/BANanaD3V/niri-nix";
     };
     nix-system-graphics = {
       url = "github:soupglasses/nix-system-graphics";

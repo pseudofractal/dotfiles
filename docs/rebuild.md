@@ -75,7 +75,7 @@ git diff flake.lock
 
 Never a bare `nix flake update`. Moving every input at once makes breakage hard to isolate.
 
-Rev-pinned inputs (`nixpkgs`, `nixpkgs-llama`, `nixpkgs-zotero`, `niri-nix`) don't move with `lock --update-input`; that command is a no-op on a pinned rev. Bump the rev in `flake.nix`, then re-lock that input.
+Rev-pinned inputs (`nixpkgs`, `nixpkgs-llama`, `nixpkgs-zotero`) don't move with `lock --update-input`; that command is a no-op on a pinned rev. Bump the rev in `flake.nix`, then re-lock that input.
 
 Some inputs are pinned on purpose:
 
