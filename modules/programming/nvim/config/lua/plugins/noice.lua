@@ -41,7 +41,7 @@ return {
   end,
   keys = {
     {
-      "<leader>DD",
+      "<leader>uD",
       "<cmd>Noice dismiss<cr>",
       desc = "Dismiss all notifications.",
     },

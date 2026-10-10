@@ -13,7 +13,7 @@ return {
   },
   keys = {
     {
-      "<leader>np",
+      "<leader>op",
       "<cmd>TypstPreviewToggle<cr>",
       desc = "Toggle web typst preview.",
     },

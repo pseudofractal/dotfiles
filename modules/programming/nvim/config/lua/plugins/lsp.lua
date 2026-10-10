@@ -27,11 +27,11 @@ return {
 
           map_lsp_key("<leader>cr", vim.lsp.buf.rename, "Rename")
           map_lsp_key("<leader>ca", vim.lsp.buf.code_action, "Code Actions")
-          map_lsp_key("<leader>jr", Snacks.picker.lsp_references, "Goto References")
-          map_lsp_key("<leader>ji", Snacks.picker.lsp_implementations, "Goto Implementation")
-          map_lsp_key("<leader>jd", Snacks.picker.lsp_definitions, "Goto Definition")
-          map_lsp_key("<leader>jD", Snacks.picker.lsp_declarations, "Goto Declaration")
-          map_lsp_key("<leader>jt", Snacks.picker.lsp_type_definitions, "Goto Type Definition")
+          map_lsp_key("<leader>gr", Snacks.picker.lsp_references, "Goto References")
+          map_lsp_key("<leader>gi", Snacks.picker.lsp_implementations, "Goto Implementation")
+          map_lsp_key("<leader>gd", Snacks.picker.lsp_definitions, "Goto Definition")
+          map_lsp_key("<leader>gD", Snacks.picker.lsp_declarations, "Goto Declaration")
+          map_lsp_key("<leader>gy", Snacks.picker.lsp_type_definitions, "Goto Type Definition")
           map_lsp_key("<leader>lw", Snacks.picker.lsp_symbols, "Document Symbols")
           map_lsp_key("<leader>lW", Snacks.picker.lsp_workspace_symbols, "Workspace Symbols")
           map_lsp_key("<leader>ll", Snacks.picker.lsp_workspace_symbols, "Live Workspace Symbols")
@@ -66,7 +66,7 @@ return {
           end
 
           if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-            map_lsp_key("<leader>th", function()
+            map_lsp_key("<leader>uh", function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
             end, "Toggle Inlay Hints")
           end

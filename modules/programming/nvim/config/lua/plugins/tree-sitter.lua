@@ -47,7 +47,11 @@ return {
       --   end,
       -- })
 
-      vim.keymap.set("n", "<M-Space>", function()
+      vim.keymap.set("n", "<CR>", function()
+        if vim.bo.buftype ~= "" then
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<CR>", true, false, true), "n", false)
+          return
+        end
         vim.cmd("normal! v")
         vim.treesitter.select("parent")
       end, { desc = "Treesitter: start selection at node" })

@@ -3,7 +3,41 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
-    dashboard = { enabled = true },
+    dashboard = {
+      enabled = true,
+      preset = {
+        header = [[
+                      ░█▒█
+        ██     ███░ █████░░
+      ▒███████░██████████░
+  ███▒███████████████████████░
+       ██  ███████████████████░░█░███
+              ███████████████████████
+              ███░█░░███████████████████  ██
+                     ░███████████████████████▒███
+                         ░██████████░███████▒
+                        ░░█████ ░███     ██
+                         █▒█░]],
+        keys = {
+          { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+          { icon = " ", key = "n", desc = "New File", action = ":enew" },
+          { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+          { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+          {
+            icon = " ",
+            key = "c",
+            desc = "Config",
+            action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
+          },
+          { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+        },
+      },
+      sections = {
+        { section = "header" },
+        { section = "keys", gap = 1, padding = 1 },
+        { section = "startup" },
+      },
+    },
     input = {
       enabled = true,
       win = {
@@ -49,14 +83,14 @@ return {
   },
   keys = {
     {
-      "<leader>F",
+      "<leader>fa",
       function()
         Snacks.picker.smart()
       end,
       desc = "All fuzzy finders",
     },
     {
-      "<leader>fr",
+      "<leader>fl",
       function()
         Snacks.picker.resume()
       end,
@@ -91,20 +125,6 @@ return {
       desc = "Find file in GitHub projects",
     },
     {
-      "<leader>fC",
-      function()
-        Snacks.picker.files({ cwd = "~/.config/" })
-      end,
-      desc = "Find file in .config directory",
-    },
-    {
-      "<leader>fc",
-      function()
-        Snacks.picker.files({ cwd = "~/.config/nvim/" })
-      end,
-      desc = "Find file in Neovim config directory",
-    },
-    {
       "<leader>fh",
       function()
         Snacks.picker.help()
@@ -119,18 +139,18 @@ return {
       desc = "Find keymaps",
     },
     {
-      "<leader>/",
+      "<leader>fb",
       function()
         Snacks.picker.grep_buffers()
       end,
-      desc = "Grep current buffer",
+      desc = "Search current buffer",
     },
     {
       "<leader>fg",
       function()
         Snacks.picker.grep()
       end,
-      desc = "Find by grep-ing in project",
+      desc = "Search project with grep",
     },
     {
       "<leader>gb",
@@ -139,9 +159,9 @@ return {
       end,
       desc = "Git branches",
     },
-    { "<leader>n", "<cmd>Noice<cr>", desc = "Notification history" },
+    { "<leader>un", "<cmd>Noice<cr>", desc = "Notification history" },
     {
-      "<leader>st",
+      "<leader>wt",
       function()
         Snacks.terminal()
       end,

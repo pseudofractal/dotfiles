@@ -41,24 +41,6 @@ return {
         end,
         "fallback",
       },
-      ["<Right>"] = {
-        function(cmp)
-          return cmp.select_next({ auto_insert = false, on_ghost_text = true })
-        end,
-        "fallback",
-      },
-      ["<Left>"] = {
-        function(cmp)
-          return cmp.select_prev({ auto_insert = false, on_ghost_text = true })
-        end,
-        "fallback",
-      },
-      ["<S-Right>"] = {
-        function(cmp)
-          return cmp.select_next({ auto_insert = false, on_ghost_text = true })
-        end,
-        "fallback",
-      },
       ["<C-l>"] = {
         "snippet_forward",
         "fallback",

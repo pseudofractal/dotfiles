@@ -32,6 +32,7 @@ return {
           SnacksIndent8 = { fg = colors.teal },
           SnacksIndent9 = { fg = colors.red },
           SnacksIndent10 = { fg = colors.green },
+          SnacksDashboardHeader = { fg = colors.teal },
         }
       end,
     })
