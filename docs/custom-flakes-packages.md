@@ -1,34 +1,31 @@
-# Custom Flakes and Package Placement Guide
+# Adding packages and flake inputs
 
-This guide explains how to add new packages and custom flake inputs in this repo, where to put them, and how to verify the result.
+Where new packages and custom flake inputs go, and how to check the result.
 
-It covers both:
+Two flows: desktop Home Manager (`homeConfigurations.pseudofractal`) and Android/Nix-on-Droid (`nixOnDroidConfigurations.koch`).
 
-- Desktop Home Manager flow (`homeConfigurations.pseudofractal`)
-- Android/Nix-on-Droid flow (`nixOnDroidConfigurations.koch`)
+## Quick start
 
-## Quick Start Cheat Sheet
-
-### Most common: add a normal package (desktop)
+### Most common: a normal desktop package
 
 1. Add it to the right category module (`modules/core|cli|tui|programming|graphical`).
-1. Put it in `home.packages` (or `programs.<name>.enable` if HM module exists).
+1. Put it in `home.packages` (or `programs.<name>.enable` if a Home Manager module exists).
 1. Run:
 
 ```bash
 home-manager switch --flake . --impure
 ```
 
-### Add a package from a custom flake input
+### A package from a custom flake input
 
-1. Add input in `flake.nix`.
+1. Add the input in `flake.nix`.
 1. Lock it:
 
 ```bash
 nix flake lock --update-input myflake
 ```
 
-3. Use it in a module:
+1. Use it in a module:
 
 ```nix
 { pkgs, inputs, ... }: let
@@ -38,34 +35,32 @@ in {
 }
 ```
 
-4. Apply:
+1. Apply:
 
 ```bash
 home-manager switch --flake . --impure
 ```
 
-### Android-only package
+### Android-only packages
 
-- System package: `hosts/android/system.nix` -> `environment.packages`
-- User-space HM package: `hosts/android/home.nix` -> `home.packages`
+- System package: `hosts/android/system.nix` → `environment.packages`
+- User-space HM package: `hosts/android/home.nix` → `home.packages`
 
-### Do / Don't
+### Rules of thumb
 
-- **Do** add shared packages in `modules/*` category modules.
-- **Do** prefer `programs.<name>.enable` when a Home Manager module exists.
-- **Do** keep host files for host-specific or platform-specific differences.
-- **Don't** put shared/common packages directly in `hosts/arch/default.nix` or `hosts/android/home.nix` unless truly host-only.
-- **Don't** skip lock updates after adding a new input.
+- Shared packages go in `modules/*` category modules.
+- Prefer `programs.<name>.enable` when a Home Manager module exists.
+- Host files are for host-specific or platform differences.
+- Don't put shared packages in `hosts/arch/default.nix` or `hosts/android/home.nix` unless they're truly host-only.
+- Don't skip the lock update after adding an input.
 
-## Architecture Overview
+## How it fits together
 
-### 1) Inputs are declared in one place
+### Inputs live in one place
 
 - File: `flake.nix`
 - External sources go under `inputs = { ... };`
-- Repo currently pins key toolchains with `follows` for compatibility.
-
-Example pattern:
+- Key toolchains here pin `follows` for compatibility.
 
 ```nix
 myflake = {
@@ -74,25 +69,25 @@ myflake = {
 };
 ```
 
-### 2) Inputs are threaded into modules
+### Inputs reach modules through the flake
 
 - File: `flake.nix`
-- `outputs = { ... } @ inputs:` captures all inputs.
-- `extraSpecialArgs` passes `inputs` to modules.
+- `outputs = { ... } @ inputs:` grabs every input.
+- `extraSpecialArgs` hands `inputs` to modules.
 
-So in modules, you can use `inputs.<name>...` directly.
+So modules use `inputs.<name>...` directly.
 
-### 3) Module composition
+### Module layout
 
-- Main shared module tree: `modules/default.nix`
-- External Home Manager modules are imported there (for example `inputs.sops-nix.homeManagerModules.sops`).
-- Graphical modules are loaded only on non-Android hosts.
+- Shared tree root: `modules/default.nix`
+- External Home Manager modules get imported there (e.g. `inputs.sops-nix.homeManagerModules.sops`).
+- Graphical modules load only on non-Android hosts.
 
-## Where to Add Packages
+## Where to add packages
 
-Use this decision order:
+In this order:
 
-1. **Shared category module first** (preferred)
+1. Shared category module first (preferred):
 
    - `modules/core/*` for shell/systemwide tools
    - `modules/cli/*` for CLI app groups
@@ -100,24 +95,24 @@ Use this decision order:
    - `modules/programming/*` for dev toolchains/editors
    - `modules/graphical/*` for desktop GUI apps
 
-1. **Use Home Manager program modules when available**
+1. Home Manager program modules when one exists:
 
-   - Prefer `programs.<name>.enable = true;` when the module exists.
-   - Use `programs.<name>.package = ...;` only when you need a custom package source/override.
+   - Prefer `programs.<name>.enable = true;`.
+   - `programs.<name>.package = ...;` only for a custom package source/override.
 
-1. **Use `home.packages` for plain binaries**
+1. `home.packages` for plain binaries:
 
-   - If no dedicated HM module/config is needed, add package to the right category module’s `home.packages`.
+   - No dedicated HM module or config needed: drop the package in the right category module's `home.packages`.
 
-1. **Use host files only for host-specific needs**
+1. Host files only for host-specific needs:
 
    - Desktop host: `hosts/arch/default.nix`
    - Android HM user config: `hosts/android/home.nix`
    - Android system-level packages: `hosts/android/system.nix` (`environment.packages`)
 
-## Add a Custom Flake Input
+## Adding a custom flake input
 
-### Step 1: Declare input in `flake.nix`
+### Declare it in `flake.nix`
 
 ```nix
 inputs = {
@@ -130,20 +125,18 @@ inputs = {
 };
 ```
 
-Notes:
+- `follows` on `nixpkgs` (sometimes `home-manager` too) cuts version skew.
+- Not every flake exposes the same outputs; check its docs/README for supported attrs.
 
-- Use `follows` for `nixpkgs` (and sometimes `home-manager`) when you want to reduce version skew.
-- Not every flake exposes the same outputs; inspect docs/README for supported attrs.
-
-### Step 2: Update lock file
+### Lock it
 
 ```bash
 nix flake lock --update-input myflake
 ```
 
-### Step 3: Consume the input
+### Consume it
 
-Pick one of these patterns.
+One of these patterns.
 
 #### A) Import a Home Manager module from the input
 
@@ -158,7 +151,7 @@ imports = [
 
 #### B) Install a package from the input
 
-In a module (for example `modules/tui/mytool.nix`):
+In a module (e.g. `modules/tui/mytool.nix`):
 
 ```nix
 { pkgs, inputs, ... }: let
@@ -170,28 +163,28 @@ in {
 }
 ```
 
-#### C) Use overlay exported by the input (if provided)
+#### C) Use an overlay from the input (if it ships one)
 
-If an input documents overlays, add that overlay in the right place and then use packages from `pkgs` normally.
+If the input documents overlays, add the overlay in the right place, then use packages from `pkgs` normally.
 
-## End-to-End Examples
+## Examples
 
-### Example 0: Add CARTA from upstream AppImage (when nixpkgs package is unavailable)
+### CARTA from an upstream AppImage (nixpkgs has no package)
 
-If a tool is not in nixpkgs (or missing for your pinned revision), package a pinned upstream asset in a module.
+If a tool is missing from nixpkgs (or from the pinned revision), package a pinned upstream asset in a module.
 
-- Keep `version` and `hash` in one place in the module.
-- Prefer stable release URLs (for reproducibility), not `releases/latest`.
-- For CARTA, use release assets like:
+- Keep `version` and `hash` together in the module.
+- Prefer stable release URLs for reproducibility, not `releases/latest`.
+- For CARTA, release assets like:
   - `carta.AppImage.x86_64.tgz`
   - `carta.AppImage.aarch64.tgz`
-- Add the package through the normal module tree (for CARTA: `modules/graphical/carta.nix`).
+- Add it through the normal module tree (CARTA: `modules/graphical/carta.nix`).
 
-### Example 1: Add a nixpkgs package to desktop GUI stack
+### A nixpkgs package in the desktop GUI stack
 
 1. Create/update a module under `modules/graphical/`.
-1. Add package in `home.packages`.
-1. Ensure module is imported in `modules/graphical/default.nix`.
+1. Add the package in `home.packages`.
+1. Make sure `modules/graphical/default.nix` imports the module.
 
 ```nix
 { pkgs, ... }: {
@@ -201,7 +194,7 @@ If a tool is not in nixpkgs (or missing for your pinned revision), package a pin
 }
 ```
 
-### Example 2: Add a package from a custom input
+### A package from a custom input
 
 ```nix
 { pkgs, inputs, ... }: let
@@ -213,9 +206,9 @@ in {
 }
 ```
 
-### Example 3: Add Android-only package
+### An Android-only package
 
-For system packages on Nix-on-Droid, use `hosts/android/system.nix`:
+System packages on Nix-on-Droid go in `hosts/android/system.nix`:
 
 ```nix
 { pkgs, ... }: {
@@ -227,19 +220,19 @@ For system packages on Nix-on-Droid, use `hosts/android/system.nix`:
 }
 ```
 
-For Android Home Manager user-space packages, use `hosts/android/home.nix` `home.packages`.
+Android Home Manager user-space packages go in `hosts/android/home.nix` `home.packages`.
 
-## Graphical + nixGL Notes
+## GL wrapping
 
-For desktop graphical apps that need GL wrapping:
+Desktop graphical apps that need GL wrapping:
 
 - see `docs/nixgl.md`
-- generally use `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
-- `maybeWrap` preserves package-native wrappers and `.override` behavior; do not substitute an unwrapped package
-- use `launcherWrapper = true` only when generated child launchers must re-enter the outer nixGL wrapper
-- Wrapped desktop applications use the AMD iGPU in both Integrated and Hybrid modes; opt games and compute workloads into NVIDIA explicitly
+- generally `config.dotfiles.graphical.nixgl.maybeWrap { package = ...; bin = ...; }` in graphical modules
+- `maybeWrap` keeps package-native wrappers and `.override` behavior; don't substitute an unwrapped package
+- `launcherWrapper = true` only when generated child launchers must re-enter the outer nixGL wrapper
+- wrapped desktop apps use the AMD iGPU in Integrated and Hybrid both; opt games and compute workloads into NVIDIA explicitly
 
-## Verification Commands
+## Verification
 
 ### Desktop (Arch HM)
 
@@ -257,25 +250,14 @@ nix build .#nixOnDroidConfigurations.koch.activationPackage
 
 ## Troubleshooting
 
-- **Untracked new file not picked up by flake eval**
+- New file invisible to flake eval: untracked files fall outside source filtering, so stage it once before build/switch.
+- Wrong package attr for this system: check the path carries `${system}` where needed.
+- Version skew between flakes: add or fix `inputs.<name>.inputs.nixpkgs.follows = "nixpkgs"`.
+- Pure eval choking on impure deps: this repo's desktop flow is `home-manager switch --flake . --impure`.
 
-  - If a new file is not included in source filtering yet, stage it once before build/switch.
+## Checklist
 
-- **Wrong package attr for current system**
-
-  - Verify package path includes `${system}` where needed.
-
-- **Version skew between flakes**
-
-  - Add or correct `inputs.<name>.inputs.nixpkgs.follows = "nixpkgs"`.
-
-- **Pure eval failures from impure dependencies**
-
-  - Use the repo’s current desktop flow: `home-manager switch --flake . --impure`.
-
-## Maintenance Checklist
-
-- Add input in `flake.nix` with sensible `follows`.
-- Add usage in the correct module category.
-- Avoid putting shared packages directly in host files.
-- Keep docs updated when introducing special package handling patterns.
+- Input in `flake.nix` with sensible `follows`.
+- Usage in the right module category.
+- No shared packages sitting in host files.
+- Docs updated when a new special-handling pattern appears.

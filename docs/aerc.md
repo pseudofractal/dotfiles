@@ -1,23 +1,19 @@
 # aerc
 
-The aerc configuration uses Gmail app passwords. They are stored in `secrets.yaml`
-under `mail.app-passwords.google` and read at runtime from the SOPS-mounted files.
+aerc signs into Gmail with app passwords. They live in `secrets.yaml` under `mail.app-passwords.google`, read at runtime from the SOPS-mounted files.
 
 ## First-time setup
 
-Generate one app password for each account:
+Make one app password per account:
 
 - [IISER account, Google account slot 1](https://myaccount.google.com/apppasswords?authuser=1)
 - [Personal account, Google account slot 0](https://myaccount.google.com/apppasswords?authuser=0)
 
-The links use the account order in your current Google browser session. If the
-wrong account opens, switch accounts first or use the account chooser.
+The links follow the account order in your current Google session. If the wrong account opens, switch first or use the account chooser.
 
-App passwords require 2-Step Verification. If the IISER account does not show
-the option, its Workspace administrator has disabled app passwords and OAuth is
-the only supported route.
+App passwords need 2-Step Verification. If the IISER account hides the option, its Workspace admin disabled app passwords and OAuth is the only way in.
 
-After generating them, add these values to the encrypted file with `sops secrets.yaml`:
+Add them with `sops secrets.yaml`:
 
 ```yaml
 mail:
@@ -27,15 +23,13 @@ mail:
       personal: <personal Gmail app password>
 ```
 
-After saving the encrypted values, rebuild. The app passwords are read directly
-by aerc; no OAuth client or oama configuration is needed.
+Save, rebuild. aerc reads the passwords directly; no OAuth client, no oama.
 
 Then start `aerc`.
 
 ## Keybindings
 
-The packaged default keybindings remain active. Press `?` inside aerc for the
-complete context-specific list.
+The packaged defaults stay active. `?` inside aerc lists everything for the current context.
 
 Global bindings:
 
@@ -111,5 +105,4 @@ Compose and review:
 | `s` / `x`           | Toggle signing / encryption        |
 | `v`                 | Preview                            |
 
-The composer is explicitly configured to use your Home Manager Neovim binary,
-so it loads the configuration under `~/.config/nvim`.
+The composer uses your Home Manager Neovim, so `~/.config/nvim` loads.

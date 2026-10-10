@@ -1,44 +1,30 @@
 # Rebuild notes
 
-Run these commands from the repository root. Both commands include uncommitted
-changes, so the worktree does not need to be clean.
+Run from the repo root. Both commands pick up uncommitted changes, so a clean tree isn't needed.
 
 ## Home Manager
 
-This is the normal rebuild command:
+The normal rebuild:
 
 ```bash
 home-manager switch --flake .#pseudofractal
 ```
 
-The Fish shortcut is `rebuild`. Use `rebuild --system` for System Manager,
-and `rebuild --backup` when Home Manager needs to move an existing file.
+The fish shortcut is `rebuild`. `rebuild --system` does System Manager, `rebuild --backup` tells Home Manager to move an existing file aside instead of refusing.
 
-Use it after changing anything under `modules/` or
-`hosts/arch/default.nix`. This includes packages, dotfiles, user services,
-niri settings, Noctalia, and Vicinae.
+Run it after changing anything under `modules/` or `hosts/arch/default.nix`: packages, dotfiles, user services, niri settings, Noctalia, Vicinae.
 
-A logout is usually unnecessary. Log out and back in when changing how the
-niri session starts, or when the running compositor does not pick up a config
-change.
+A logout is usually unnecessary. Log out and back in when changing how the niri session starts, or when the running compositor ignores a config change.
 
-If Home Manager refuses to replace an existing file, keep a backup during the
-switch:
+If Home Manager refuses to replace an existing file, keep a backup during the switch:
 
 ```bash
 home-manager switch --flake .#pseudofractal -b backup
 ```
 
-`systemd.user.startServices` is `false`, so a switch never starts services
-itself — long oneshot jobs such as Lieer full syncs would otherwise block the
-activation. The `rebuild` shortcut compensates: after a successful Home
-Manager switch it restarts all user timers, so new or changed schedules take
-effect. Restarting a timer only re-arms its schedule; it never runs the job,
-and running syncs are left undisturbed. The shortcut also reprints Home
-Manager's suggested service restarts in yellow at the end of a
-successful switch, so they are not buried in the activation log.
+`systemd.user.startServices` is `false`, so a switch never starts services itself. Otherwise long oneshots like Lieer full syncs would block activation. The `rebuild` shortcut fills the gap: after a good Home Manager switch it restarts all user timers, so new or changed schedules apply. Restarting a timer only re-arms its schedule, never runs the job, and running syncs are left alone. It also reprints Home Manager's suggested service restarts in yellow at the end of a good switch, instead of leaving them buried in the activation log.
 
-If you switch without `rebuild`, re-arm them manually, e.g.:
+Switched without `rebuild`? Re-arm manually, e.g.:
 
 ```bash
 systemctl --user restart lieer-iiser.timer lieer-personal.timer email-classify-backfill.timer
@@ -46,18 +32,15 @@ systemctl --user restart lieer-iiser.timer lieer-personal.timer email-classify-b
 
 ## System Manager
 
-System Manager owns the SDDM session entry, `/run/system-manager/sw`,
-`/run/opengl-driver`, and the files declared in `hosts/arch/system.nix`.
+System Manager owns the SDDM session entry, `/run/system-manager/sw`, `/run/opengl-driver`, and the files declared in `hosts/arch/system.nix`.
 
-Run it after changing `hosts/arch/system.nix` or the `systemConfigs.arch`
-definition in `flake.nix`:
+Run it after changing `hosts/arch/system.nix` or the `systemConfigs.arch` definition in `flake.nix`:
 
 ```bash
 nix run 'github:numtide/system-manager' -- switch --sudo --flake "$PWD#arch"
 ```
 
-Log out and select **Niri (Nix)** again if the session wrapper or niri package
-changed. A Home Manager switch does not deploy System Manager changes.
+Log out and pick **Niri (Nix)** again if the session wrapper or niri package changed. A Home Manager switch doesn't deploy System Manager changes.
 
 Useful checks:
 
@@ -68,51 +51,36 @@ niri msg outputs
 systemctl --user status noctalia.service
 ```
 
-Both `readlink` commands should resolve to the same niri store package.
+Both `readlink` commands should land on the same niri store package.
 
 ## Binary caches
 
-The project caches live in `~/.config/nix/nix.conf` because
-`accept-flake-config` is disabled:
+The project caches live in `~/.config/nix/nix.conf` because `accept-flake-config` is off:
 
 ```text
 extra-substituters = https://niri-nix.cachix.org https://noctalia.cachix.org https://vicinae.cachix.org
 extra-trusted-public-keys = niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=
 ```
 
-Without these entries, Nix may build large packages locally.
+Without these, Nix builds large packages locally.
 
 ## Updating inputs
 
-Update one input at a time:
+One input at a time:
 
 ```bash
 nix flake lock --update-input <name>
 git diff flake.lock
 ```
 
-Do not run a plain `nix flake update`; moving every input at once makes
-breakage difficult to isolate.
+Never a bare `nix flake update`. Moving every input at once makes breakage hard to isolate.
 
-Some inputs are pinned deliberately:
+Rev-pinned inputs (`nixpkgs`, `nixpkgs-llama`, `nixpkgs-zotero`, `niri-nix`) don't move with `lock --update-input`; that command is a no-op on a pinned rev. Bump the rev in `flake.nix`, then re-lock that input.
 
-- `vicinae` must never follow the root nixpkgs: that would rebuild it from
-  source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX
-  skew) and miss `vicinae.cachix.org`. The input floats on upstream `main`
-  with no override, so its nixpkgs always equals upstream's lock — every
-  rev's binary is already cached, updates download instead of compiling.
-  Just `nix flake lock --update-input vicinae` (deprecated alias: `nix flake
-  update vicinae`) and build. The flake's `lib` is also needed for
-  `mkVicinaeExtension`, so nixpkgs' `vicinae` package is not a substitute.
-- `niri-nix` provides the overlay used by both Home Manager and System
-  Manager. Building niri against the root nixpkgs keeps it compatible with
-  `/run/opengl-driver` (upstream prebuilt binaries silently get zero
-  outputs). Its own nixpkgs input is untouched, so it follows upstream's
-  lock; nothing we consume (overlay instantiates with our pkgs, home module
-  uses `self.lib` plus our `package` override) reads that input.
-- `nixpkgs-zotero` keeps Zotero 10.0.2 on a compatible Firefox ESR release
-  (the last nixpkgs with firefox-esr-140; Zotero's build scripts abort
-  against ESR 153's ActorManagerParent). Temporary until upstream adapts
-  Zotero.
-- `nixpkgs-llama` freezes both llama.cpp servers, so routine nixpkgs updates
-  never trigger a from-source CUDA rebuild.
+Some inputs are pinned on purpose:
+
+- `nixpkgs` itself is pinned to a channel-tip rev (not the moving branch), so every machine builds the same tree. `nixpkgs-llama` rides the same rev, which keeps one shared nixpkgs checkout for the CUDA build below.
+- `vicinae` must never follow the root nixpkgs. That would rebuild it from source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX skew) and skip `vicinae.cachix.org`. The input floats on upstream `main` with no override, so its nixpkgs always equals upstream's lock, and every rev's binary is already cached. Updates download instead of compiling. Just `nix flake lock --update-input vicinae` (deprecated alias: `nix flake update vicinae`) and build. The flake's `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' own `vicinae` package won't do.
+- `niri-nix` provides the overlay both Home Manager and System Manager use. Building niri against the root nixpkgs keeps it compatible with `/run/opengl-driver` (upstream prebuilts silently get zero outputs). Its own nixpkgs input is untouched, so it tracks upstream's lock. Nothing consumed here reads that input (the overlay instantiates with our pkgs; the home module uses `self.lib` plus our `package` override).
+- `nixpkgs-zotero` holds Zotero 10.0.2 on a compatible Firefox ESR (the last nixpkgs shipping firefox-esr-140; Zotero's build scripts die against ESR 153's ActorManagerParent). Temporary until upstream adapts Zotero.
+- `nixpkgs-llama` freezes both llama.cpp servers, so routine nixpkgs updates never trigger a from-source CUDA rebuild.

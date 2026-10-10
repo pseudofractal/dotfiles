@@ -1,9 +1,8 @@
-# Niri Notes
+# niri notes
 
-## ASUS Function Keys
+## ASUS function keys
 
-The laptop firmware translates several physical function keys before niri
-sees them:
+The laptop firmware translates several physical function keys before niri sees them:
 
 | Physical key | Niri binding         | Action                                                            |
 | ------------ | -------------------- | ----------------------------------------------------------------- |
@@ -12,8 +11,6 @@ sees them:
 | `Fn+F9`      | `Mod+P`              | Move the focused window to the next monitor                       |
 | `Fn+F10`     | `XF86TouchpadToggle` | Unbound                                                           |
 
-`Fn+F4` only switches between `Integrated` and `Hybrid`. Any other current
-mode, including `AsusEgpu`, is left unchanged so an attached XG Mobile is not
-disconnected accidentally.
+`Fn+F4` only switches between `Integrated` and `Hybrid`. Anything else, including `AsusEgpu`, is left alone so an attached XG Mobile never disconnects by accident.
 
 `Mod+F6` selects an area and copies it without saving a file.
