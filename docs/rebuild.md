@@ -51,6 +51,13 @@ niri msg outputs
 systemctl --user status noctalia.service
 ```
 
+## Snapshots
+
+`rebuild --system` takes a snapper `pre-rebuild` snapshot of `/` first
+(`snapper -c root`), kept under number cleanup (default: last 50).
+Swap lives in its own `/swap` subvolume so snapshots never trip on it.
+Roll back with `sudo snapper -c root undochange <pre-N>..<post-N>`.
+
 Both `readlink` commands should land on the same niri store package.
 
 ## Binary caches

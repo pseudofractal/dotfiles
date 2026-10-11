@@ -55,6 +55,11 @@ function rebuild --description "Rebuild the Home Manager or System Manager confi
         nix-on-droid switch --flake .#koch --verbose
         set rebuild_status $status
     else if set -q run_system[1]
+        if command -q snapper
+            echo "Creating pre-rebuild snapshot..."
+            sudo snapper -c root create --description "pre-rebuild "(date +"%Y%m%d-%H%M%S") --cleanup-algorithm number
+            or echo (set_color yellow)"warning: snapshot failed, continuing without a safety net"(set_color normal) >&2
+        end
         nix run 'github:numtide/system-manager' -- switch --sudo --flake "$dotfiles_dir#arch"
         set rebuild_status $status
     else
