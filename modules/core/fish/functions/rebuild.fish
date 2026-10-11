@@ -18,9 +18,9 @@ function rebuild --description "Rebuild the Home Manager or System Manager confi
     for arg in $argv
         switch $arg
             case --system
-                set run_system
+                set run_system 1
             case --backup
-                set use_backup
+                set use_backup 1
             case '*'
                 echo "Usage: rebuild [--system] [--backup]" >&2
                 return 2
