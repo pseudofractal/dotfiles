@@ -57,6 +57,7 @@ systemctl --user status noctalia.service
 (`snapper -c root`), kept under number cleanup (default: last 50).
 Swap lives in its own `/swap` subvolume so snapshots never trip on it.
 Roll back with `sudo snapper -c root undochange <pre-N>..<post-N>`.
+Full reference, including rescue scenarios and the rollback caveat: `docs/snapshots.md`.
 
 Both `readlink` commands should land on the same niri store package.
 
