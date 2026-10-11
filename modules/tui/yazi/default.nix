@@ -69,8 +69,10 @@
   xdg.portal = lib.mkIf (!isAndroid) {
     enable = true;
     extraPortals = [
+      # keep-sorted start
       pkgs.xdg-desktop-portal-gtk
       pkgs.xdg-desktop-portal-termfilechooser
+      # keep-sorted end
     ];
     config.common = {
       default = ["gtk"];

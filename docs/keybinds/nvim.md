@@ -51,6 +51,33 @@ Leader is `space`. Uppercase means `shift` plus the key (`dB` is
 The `gd` and `gD` pairs shadow Vim's natives, but only in buffers
 with an LSP running. Everywhere else the natives still work.
 
+## Jupyter (`j`)
+
+Notebook buffers (`.ipynb`, opened with `:JupynvimOpen`):
+
+- `jr` run cell and advance (`shift-enter` also works, in insert
+  mode too), `ctrl-enter` run and stay
+- `jR` run all, `jA` and `jB` run above and below
+- `ja` and `jb` add cell above and below, `jd` delete cell
+- `jk` and `jj` move cell up and down
+- `jm` and `jy` convert to markdown and code
+- `jK` pick kernel, `js` and `jS` start and stop, `ji`
+  interrupt, `jx` restart
+- `jc` and `jC` clear cell and all outputs, `jo` and `jO`
+  expand and hide output, `jl` limit output lines
+- `jI` save cell image, `jD` delete embedded image, `jL`
+  refresh display
+- `]c` and `[c` jump between cells, `]i` and `[i` between image
+  cells, `ctrl-j` and `ctrl-k` drop into a cell output,
+  `gx` opens the link
+- `ty` attaches notebook-aware; kernel completion and hover ride
+  along. Saving writes nbformat JSON.
+- `jK` picks the kernel. Kernels always come from the project:
+  a notebook inside a uv project auto-uses its `.venv` (just
+  `uv add ipykernel`), Julia comes from a devenv shell, and
+  `jK` points at either explicitly. Nothing is global. Python
+  gets `ty`, Julia gets JETLS.
+
 ## LSP (`l`)
 
 These only exist in buffers with an LSP attached.
@@ -84,7 +111,6 @@ These only exist in buffers with an LSP attached.
 
 ## Reserved and empty
 
-- `j` is reserved for Jupyter bindings, which land later
 - `L` (with `Lp` for Python) is kept for language-specific bindings
 
 ## Direct keys

@@ -30,11 +30,13 @@
 in
   lib.mkIf (!isAndroid) {
     home.packages = with pkgs; [
+      # keep-sorted start
       (aspellWithDicts (dicts: [dicts.en]))
       libnotify
       nchatUpstream
       wl-clipboard
       xdg-utils
+      # keep-sorted end
     ];
 
     xdg.configFile = {

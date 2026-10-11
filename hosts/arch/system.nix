@@ -36,8 +36,10 @@ in {
 
   environment = {
     systemPackages = [
+      # keep-sorted start
       niri
       niriSession
+      # keep-sorted end
     ];
 
     etc."sddm.conf.d/20-niri-nix.conf".text = ''

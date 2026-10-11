@@ -26,6 +26,7 @@
     gcc
     gnumake
     go
+    imagemagick
     nodejs
     python3
     ripgrep

@@ -15,8 +15,10 @@
     };
 
     nativeBuildInputs = [
+      # keep-sorted start
       pkgs.pkg-config
       pkgs.zig_0_15
+      # keep-sorted end
     ];
     buildInputs = [pkgs.dbus];
 

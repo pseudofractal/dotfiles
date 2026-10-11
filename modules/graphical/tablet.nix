@@ -3,10 +3,12 @@
   ...
 }: {
   home.packages = [
-    pkgs.sunshine
-    pkgs.scrcpy
+    # keep-sorted start
     pkgs.android-tools
     pkgs.go-mtpfs
+    pkgs.scrcpy
+    pkgs.sunshine
+    # keep-sorted end
   ];
 
   xdg.dataFile."applications/tablet-mirror.desktop".text = ''

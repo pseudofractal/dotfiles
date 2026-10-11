@@ -31,6 +31,7 @@ in {
       # The pinned treefmt-nix schema predates Biome's markup support.
       validate.enable = false;
       includes = [
+        # keep-sorted start
         "*.astro"
         "*.cjs"
         "*.css"
@@ -49,6 +50,7 @@ in {
         "*.ts"
         "*.tsx"
         "*.vue"
+        # keep-sorted end
       ];
       settings = {
         formatter = {

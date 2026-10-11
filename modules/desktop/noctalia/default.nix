@@ -24,8 +24,10 @@
   allToml = lib.concatMapStringsSep "\n" readToml (coreFiles ++ pluginFiles);
 in {
   imports = [
+    # keep-sorted start
     ./lrc_tty.nix
     inputs.noctalia.homeModules.default
+    # keep-sorted end
   ];
 
   programs.noctalia = {
