@@ -1,7 +1,7 @@
 {pkgs, ...}: let
   scriptSource = pkgs.fetchurl {
     url = "https://raw.githubusercontent.com/3timeslazy/nix-search-tv/main/nixpkgs.sh";
-    hash = "sha256-Kz1L8S0OCK9i9h79T3ISt9AO23LhT3hZAnNaIyhFYjE=";
+    hash = "sha256-UHrXo6tlXABheZ6Nkvpe0by2mkKUAgYGTYQpGwj9dpk=";
   };
 
   nix-search = pkgs.writeShellScriptBin "nix-search" (builtins.readFile scriptSource);
