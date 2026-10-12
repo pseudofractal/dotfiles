@@ -115,6 +115,12 @@ enforces the limits hourly. Snapshots are read-only; only rollback clones
 are writable. Snapshot cost at birth is near zero (shared extents); they
 grow as `/` diverges from them.
 
+Space accounting caveat: a snapshot pins every block `/` referenced at
+creation time. Deleting files (or a Nix GC run) does not free disk space
+until every snapshot referencing those blocks is itself deleted or expires.
+If `df` barely moves after a large cleanup, `snapper -c root list` and
+suspect the oldest snapshot first.
+
 The snapper client talks to `snapperd` over D-Bus by default. `--no-dbus`
 operates directly and surfaces kernel-level errors; useful for diagnosis.
 
