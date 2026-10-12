@@ -47,8 +47,7 @@
 
       postBuild = ''
         rm -f "$out/bin/${programName}"
-        # Prevent ambient host/NVIDIA state from replacing nixGL's Mesa stack.
-        wrapperArgs=(
+        mesaGuard=(
           --unset LD_LIBRARY_PATH
           --unset __GLX_VENDOR_LIBRARY_NAME
           --unset __NV_PRIME_RENDER_OFFLOAD
@@ -56,11 +55,11 @@
           --unset VK_LOADER_DRIVERS_SELECT
         )
         ${lib.optionalString launcherWrapper ''
-          wrapperArgs+=(--set NIX_LAUNCHER_WRAPPER "$out/bin/${programName}")
+          mesaGuard+=(--set NIX_LAUNCHER_WRAPPER "$out/bin/${programName}")
         ''}
         makeWrapper ${lib.getExe nixGLPackage} \
           "$out/bin/${programName}" \
-          "''${wrapperArgs[@]}" \
+          "''${mesaGuard[@]}" \
           --add-flags ${lib.escapeShellArg programExecutable}
       '';
     };

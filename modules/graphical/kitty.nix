@@ -3,7 +3,9 @@
   lib,
   config,
   ...
-}: {
+}: let
+  neverWatchConfig = "-1";
+in {
   programs.kitty = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
@@ -33,8 +35,7 @@
       listen_on = "unix:@mykitty";
       shell_integration = "enabled";
 
-      # https://github.com/prismatic-koi/nixos-config/issues/2198
-      auto_reload_config = "-1";
+      auto_reload_config = neverWatchConfig;
     };
 
     keybindings = {

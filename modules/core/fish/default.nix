@@ -31,6 +31,8 @@
         cat = "bat";
         fzf = "fzf --preview 'bat --color=always --style=header,grid --line-range :500 {}'";
         c = "nvim .";
+        rm = "trash-put";
+        rmdir = "trash-put";
       }
       // (lib.optionalAttrs (hostname == "arch") {
         paru = "env -i HOME=$HOME TERM=$TERM PATH=/usr/local/bin:/usr/bin:/bin paru";

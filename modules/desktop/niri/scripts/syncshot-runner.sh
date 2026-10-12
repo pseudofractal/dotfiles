@@ -8,13 +8,18 @@ preview=
 freeze_pid=
 
 cleanup() {
-  if [[ -n $freeze_pid ]]; then
-    kill "$freeze_pid" 2>/dev/null || true
-    wait "$freeze_pid" 2>/dev/null || true
-  fi
+  unfreeze_screen
   rm -f "$tmp" ${preview:+"$preview"}
 }
 trap cleanup EXIT
+
+unfreeze_screen() {
+  if [[ -n $freeze_pid ]]; then
+    kill "$freeze_pid" 2>/dev/null || true
+    wait "$freeze_pid" 2>/dev/null || true
+    freeze_pid=
+  fi
+}
 
 mkdir -p "$directory"
 wayfreeze &
@@ -30,10 +35,7 @@ else
   grim -g "$geometry" - | catppucinify --stdin --scale 2 >"$tmp"
 fi
 
-# Unfreeze before showing any UI - yad would be hidden behind the wayfreeze overlay
-kill "$freeze_pid" 2>/dev/null || true
-wait "$freeze_pid" 2>/dev/null || true
-freeze_pid=
+unfreeze_screen
 
 default="$(date '+%B_%d_%Y__%I-%M-%S_%p')"
 if [[ $invert == "true" ]]; then

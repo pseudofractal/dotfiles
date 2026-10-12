@@ -28,17 +28,14 @@
     };
   };
 
-  # Zoxide replaces cd
   programs.zoxide = {
     enable = true;
     enableFishIntegration = true;
     options = ["--cmd cd"];
   };
 
-  # Bat replaces cat
   programs.bat.enable = true;
 
-  # Only build bat cache on first run — it auto-generates on first use anyway
   home.activation.batCache = lib.mkForce (lib.hm.dag.entryAfter ["linkGeneration"] ''
     if [ ! -f "${config.xdg.cacheHome}/bat/syntaxes.bin" ]; then
       export XDG_CACHE_HOME=${lib.escapeShellArg config.xdg.cacheHome}
@@ -46,7 +43,6 @@
     fi
   '');
 
-  # Eza replaces ls
   programs.eza = {
     enable = true;
     enableFishIntegration = true;
@@ -58,14 +54,10 @@
   home.packages = with pkgs;
     [
       # keep-sorted start
-
-      # For secret management
       age
       bitwarden-cli
-      # For cloud backups
       rclone
       sops
-      # Prefer uutils-provided core commands from the Home Manager profile.
       uutils-coreutils-noprefix
       # keep-sorted end
     ]

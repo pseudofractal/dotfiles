@@ -4,11 +4,6 @@
   pkgs,
   ...
 }: let
-  # nixpkgs (including unstable) is stuck on 5.16.9, whose bundled whatsmeow
-  # client version is rejected by WhatsApp: "Client outdated (405)" ->
-  # websocket never connects -> chats show from cache but nothing syncs.
-  # Track upstream releases directly until nixpkgs catches up. Session keys
-  # live in ~/.config/nchat/profiles and are unaffected by the swap.
   nchatUpstream = pkgs.stdenv.mkDerivation rec {
     pname = "nchat";
     version = "5.19.18";

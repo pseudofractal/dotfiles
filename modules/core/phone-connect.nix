@@ -5,6 +5,7 @@
   ...
 }: let
   kdeconnectCli = "${pkgs.kdePackages.kdeconnect-kde}/bin/kdeconnect-cli";
+  kdeconnectDbusActivation = "${pkgs.kdePackages.kdeconnect-kde}/share/dbus-1/services/org.kde.kdeconnect.service";
   kdeconnectBrowse = pkgs.writeShellScriptBin "kdeconnect-browse" ''
     set -eu
 
@@ -48,8 +49,7 @@ in {
       kdeconnectBrowse
     ];
 
-    # KIO and the indicator use D-Bus activation even when systemd starts the daemon.
-    xdg.dataFile."dbus-1/services/org.kde.kdeconnect.service".source = "${pkgs.kdePackages.kdeconnect-kde}/share/dbus-1/services/org.kde.kdeconnect.service";
+    xdg.dataFile."dbus-1/services/org.kde.kdeconnect.service".source = kdeconnectDbusActivation;
     xdg.dataFile."applications/org.kde.kdeconnect-storage.desktop".text = ''
       [Desktop Entry]
       Name=KDE Connect Storage

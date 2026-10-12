@@ -3,26 +3,27 @@
   lib,
   isAndroid,
   ...
-}: {
-  imports =
-    [
-      # keep-sorted start
-      ./cli
-      ./core
-      ./programming
-      ./tui
-      # keep-sorted end
+}: let
+  localModules = [
+    # keep-sorted start
+    ./cli
+    ./core
+    ./programming
+    ./tui
+    # keep-sorted end
+  ];
 
-      # External Modules from Flake Inputs
-      inputs.sops-nix.homeManagerModules.sops
-      inputs.catppuccin.homeModules.catppuccin
+  flakeModules = [
+    inputs.catppuccin.homeModules.catppuccin
+    inputs.sops-nix.homeManagerModules.sops
+  ];
 
-      # My packages
-    ]
-    ++ lib.optionals (!isAndroid) [
-      inputs.vicinae.homeManagerModules.default
-      ./cli/vicinae.nix
-      ./graphical
-      ./desktop
-    ];
+  desktopModules = lib.optionals (!isAndroid) [
+    inputs.vicinae.homeManagerModules.default
+    ./cli/vicinae.nix
+    ./graphical
+    ./desktop
+  ];
+in {
+  imports = localModules ++ flakeModules ++ desktopModules;
 }

@@ -60,7 +60,6 @@ in {
         "webgl.force-enabled" = true;
       };
       userChrome = ''
-        #navigator-toolbox[zen-sidebar-expanded="true"],
         :root[zen-sidebar-expanded="true"] #navigator-toolbox {
           --zen-sidebar-width: ${sidebarExpandedWidthPx} !important;
           --actual-zen-sidebar-width: ${sidebarExpandedWidthPx} !important;

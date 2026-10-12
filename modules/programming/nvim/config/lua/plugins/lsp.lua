@@ -85,20 +85,16 @@ return {
         return
       end
 
-      ------------------------------------------------- DIAGNOSTICS ARE WRITTEN BY GODS
       --- https://github.com/joe-p/kickstart.nvim/blob/1737779829e7eac109dbb98ce4290210eb9cf973/lua/joe-p/diagnostic.lua
 
-      -- Get the window id for a buffer
-      -- @param bufnr integer
+      ---@param bufnr integer
       local function find_window_for_buffer(bufnr)
         local current_win = vim.fn.win_getid()
 
-        -- Check if current window has the buffer
         if vim.fn.winbufnr(current_win) == bufnr then
           return current_win
         end
 
-        -- Otherwise, find a visible window with this buffer
         local win_ids = vim.fn.win_findbuf(bufnr)
         local current_tabpage = vim.fn.tabpagenr()
 
@@ -111,10 +107,8 @@ return {
         return current_win
       end
 
-      -- Split a string into multiple lines, each no longer than max_width
-      -- The split will only occur on spaces to preserve readability
-      -- @param str string
-      -- @param max_width integer
+      ---@param str string
+      ---@param max_width integer
       local function wrap_line_at_width(str, max_width)
         if #str <= max_width then
           return { str }
@@ -124,13 +118,10 @@ return {
         local current_line = ""
 
         for word in string.gmatch(str, "%S+") do
-          -- If adding this word would exceed max_width
           if #current_line + #word + 1 > max_width then
-            -- Add the current line to our results
             table.insert(lines, current_line)
             current_line = word
           else
-            -- Add word to the current line with a space if needed
             if current_line ~= "" then
               current_line = current_line .. " " .. word
             else
@@ -139,7 +130,6 @@ return {
           end
         end
 
-        -- Don't forget the last line
         if current_line ~= "" then
           table.insert(lines, current_line)
         end

@@ -8,15 +8,13 @@
   noctalia = lib.getExe config.programs.noctalia.package;
   tools = pkgs.callPackage ./tools.nix {};
   inherit (tools) niriUtils syncshotRunner;
+  systemMesaNiri = pkgs.niri-unstable;
 in {
   imports = [inputs.niri-nix.homeModules.default];
 
   wayland.windowManager.niri = {
     enable = true;
-    # Overlay build, not inputs.niri-nix.packages: the compositor shares
-    # /run/opengl-driver with the rest of the system, so its Mesa/glibc
-    # must match. (Upstream binaries silently get zero outputs.)
-    package = pkgs.niri-unstable;
+    package = systemMesaNiri;
     validation.enable = true;
 
     settings =
@@ -91,7 +89,6 @@ in {
           xcursor-theme = "elementary";
           xcursor-size = 25;
         };
-        # Repeated top-level nodes (startup, outputs, workspaces, rules).
       }
       // (import ./rules.nix {
         inherit lib pkgs;
@@ -115,9 +112,7 @@ in {
 
   services.polkit-gnome.enable = true;
 
-  # niri-nix home module (unlike home-manager upstream) ships no systemd
-  # units – link them from the package so niri-session / niri.service still work.
-  systemd.user.packages = [pkgs.niri-unstable];
+  systemd.user.packages = [systemMesaNiri];
 
   home.packages = with pkgs; [
     blueman

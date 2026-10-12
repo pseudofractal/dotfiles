@@ -32,7 +32,6 @@ in {
         "mail/app-passwords/google/personal" = {};
       };
 
-    # Android specific adjustments
     defaultSymlinkPath = lib.mkIf isAndroid "${config.xdg.dataHome}/sops/secrets";
     defaultSecretsMountPoint = lib.mkIf isAndroid "${config.xdg.dataHome}/sops/mount";
 

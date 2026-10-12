@@ -7,6 +7,7 @@
     ./fish
     ./fonts.nix
     ./git.nix
+    ./maintenance.nix
     ./phone-connect.nix
     ./secrets.nix
     ./tools.nix

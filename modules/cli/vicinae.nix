@@ -17,6 +17,7 @@
       version = pkg.version or "0";
     };
   mkExt = name: mkExtFrom (extSrc name) name;
+  extensionShellPath = "${lib.makeBinPath [pkgs.wl-mirror pkgs.wlr-randr pkgs.grim pkgs.slurp pkgs.imagemagick]}:${config.home.profileDirectory}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
   raycastExt = {
     name,
     rev,
@@ -36,11 +37,7 @@ in {
       enable = true;
       autoStart = true;
       environment = {
-        # The screen-mirror extension shells out to bare wl-mirror/wlr-randr
-        # (plus which/ps) with no path preferences, and the daemon unit sets
-        # no PATH of its own. Include the Home Manager profile so desktop
-        # entries using bare executable names can launch managed apps.
-        PATH = "${lib.makeBinPath [pkgs.wl-mirror pkgs.wlr-randr pkgs.grim pkgs.slurp pkgs.imagemagick]}:${config.home.profileDirectory}/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin";
+        PATH = extensionShellPath;
       };
     };
     extensions =
@@ -65,7 +62,6 @@ in {
 
     settings = {
       close_on_focus_loss = true;
-      # Keep Bitwarden resolution independent of the service PATH.
       providers."@bl4zee1g/bitwarden".preferences.rbwPath = lib.getExe pkgs.rbw;
       launcher_window = {
         opacity = 0.95;

@@ -30,19 +30,6 @@ in {
     };
 
     plugin = {
-      # prepend_fetchers = [
-      #   {
-      #     id = "git";
-      #     name = "*";
-      #     run = "git";
-      #   }
-      #   {
-      #     id = "git";
-      #     name = "*/";
-      #     run = "git";
-      #   }
-      # ];
-
       prepend_preloaders = [
         {
           url = "/run/user/1000/gvfs/**/*";

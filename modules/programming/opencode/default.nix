@@ -112,7 +112,6 @@
 in {
   imports = [
     # keep-sorted start
-    #./tools
     ./mcps.nix
     ./rules
     ./skills

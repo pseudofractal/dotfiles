@@ -1,7 +1,3 @@
-# Repeated top-level nodes: startup entries, outputs, workspaces and
-# window/layer rules. niri-nix renders a list under a real node name as
-# repeated KDL nodes, so this evaluates to an attrset merged into
-# `wayland.windowManager.niri.settings` (see default.nix).
 {
   lib,
   pkgs,

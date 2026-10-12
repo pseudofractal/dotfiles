@@ -1,14 +1,7 @@
 {lib, ...}: let
-  create-fake-uuid-v4 = input_string: let
-    hash = builtins.hashString "sha256" input_string;
-  in
-    "${builtins.substring 0 8 hash}-"
-    + "${builtins.substring 8 4 hash}-"
-    + "4${builtins.substring 13 3 hash}-"
-    + "8${builtins.substring 17 3 hash}-"
-    + "${builtins.substring 20 12 hash}";
+  inherit (import ./uuid.nix) uuidV4FromName;
 
-  spaceId = spaceName: create-fake-uuid-v4 "zen-browser-space:${spaceName}";
+  spaceId = spaceName: uuidV4FromName "zen-browser-space:${spaceName}";
 
   rawPins = [
     {
@@ -126,7 +119,7 @@ in {
   programs.zen-browser.profiles.main.pins = builtins.listToAttrs (lib.imap1 (
       idx: pin: {
         name = "pin-${toString idx}";
-        value = pin // {id = create-fake-uuid-v4 "zen-browser-pin:${pin.title}:${pin.url}";};
+        value = pin // {id = uuidV4FromName "zen-browser-pin:${pin.title}:${pin.url}";};
       }
     )
     rawPins);

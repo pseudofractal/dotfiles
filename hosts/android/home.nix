@@ -12,9 +12,6 @@
   home.stateVersion = "24.05";
   news.display = "silent";
 
-  home.packages = [
-  ];
-
   xdg = {
     enable = true;
     configHome = "${config.home.homeDirectory}/.config";
@@ -23,14 +20,11 @@
     cacheHome = "${config.home.homeDirectory}/.cache";
   };
 
-  sops.age.keyFile = "/data/data/com.termux.nix/files/home/.config/sops/age/keys.txt";
+  sops.age.keyFile = "${config.home.homeDirectory}/.config/sops/age/keys.txt";
 
-  # OPTIMIZATIONS
-  # Disable man-pages generation to speed up activation
   manual.manpages.enable = false;
   manual.html.enable = false;
   manual.json.enable = false;
 
-  # Android can't handle some Linuxisms
   services.gpg-agent.enable = lib.mkForce false;
 }

@@ -6,17 +6,17 @@
 }: let
   themeName = "Catppuccin Mocha";
   driverLibraryArg = "--set LD_LIBRARY_PATH /run/opengl-driver/lib:";
-  rewriteWrapperArg = arg:
-    if lib.hasPrefix "--set NIX_LAUNCHER_WRAPPER " arg
+  isLauncherWrapperPin = lib.hasPrefix "--set NIX_LAUNCHER_WRAPPER ";
+  isDriverLibrarySet = lib.hasPrefix driverLibraryArg;
+  rebaseBehindNixGL = arg:
+    if isLauncherWrapperPin arg
     then null
-    else if lib.hasPrefix driverLibraryArg arg
+    else if isDriverLibrarySet arg
     then "--suffix LD_LIBRARY_PATH : ${lib.removePrefix driverLibraryArg arg}"
     else arg;
   prismLauncherPackage = config.dotfiles.graphical.nixgl.maybeWrap {
     package = pkgs.prismlauncher.overrideAttrs (old: {
-      # Keep child launches on the outer wrapper and append Prism's runtime
-      # libraries behind nixGL's coherent Mesa stack.
-      qtWrapperArgs = builtins.filter (arg: arg != null) (map rewriteWrapperArg old.qtWrapperArgs);
+      qtWrapperArgs = builtins.filter (arg: arg != null) (map rebaseBehindNixGL old.qtWrapperArgs);
     });
     bin = "prismlauncher";
     launcherWrapper = true;

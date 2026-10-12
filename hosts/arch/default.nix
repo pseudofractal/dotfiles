@@ -6,9 +6,6 @@
   home.stateVersion = "24.11";
   news.display = "silent";
 
-  home.packages = [
-  ];
-
   xdg = {
     enable = true;
     userDirs.enable = true;

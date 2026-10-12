@@ -5,12 +5,10 @@
   niriUtils,
   syncshotRunner,
 }: let
-  # Bind with a title shown in niri's hotkey overlay.
   app = title: spawn: {
     _props.hotkey-overlay-title = title;
     inherit spawn;
   };
-  # Bind usable on the lock screen (media keys, night light).
   locked = spawn: {
     _props.allow-when-locked = true;
     inherit spawn;

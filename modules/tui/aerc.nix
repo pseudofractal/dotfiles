@@ -146,6 +146,11 @@
     hash = "sha256-1lLLP+NKgZajrlMuY0zFAzf1mUV12O8DH9U4inP41rY=";
   };
   gmiLockFile = account: "${mailRoot}/${account}/.gmi.lock";
+  # Pull must precede push: a stale last_historyId makes push skip, and the next pull then reverts those tags, silently un-deleting and un-archiving.
+  pullAndClassify = accountWord: ''
+    gmi pull
+    ${lib.getExe ruleMail} "${accountWord}"
+  '';
   lieerSync = account:
     pkgs.writeShellApplication {
       name = "lieer-sync-${account}";
@@ -156,17 +161,7 @@
           echo "lieer-sync-${account}: repo locked by another gmi instance; skipping" >&2
           exit 0
         fi
-        # Pull first, classify, then push: lieer push skips any message whose
-        # remote historyId is newer than the last pull ("remote has changed,
-        # will not update"), and the following pull then reverts the skipped
-        # local tags. Since push never advances last_historyId, the previous
-        # run's own label uploads (rule-mail tags) already count as "remote
-        # changes" and self-inflict the conflict on the next run's push --
-        # silently un-deleting every D and un-archiving every a. Pulling first
-        # makes last_historyId fresh, so the final push only yields to changes
-        # that genuinely landed remotely mid-run.
-        gmi pull
-        ${lib.getExe ruleMail} ${account}
+        ${pullAndClassify account}
         gmi push
       '';
     };
@@ -175,10 +170,13 @@
     runtimeInputs = [pkgs.lieer pkgs.notmuch];
     text = ''
       account="''${1:-}"
-      if [[ "$account" != iiser && "$account" != personal ]]; then
-        echo "Usage: lieer-auth {iiser|personal}" >&2
-        exit 2
-      fi
+      case "$account" in
+        iiser|personal) ;;
+        *)
+          echo "Usage: lieer-auth {iiser|personal}" >&2
+          exit 2
+          ;;
+      esac
 
       export NOTMUCH_CONFIG=${config.xdg.configHome}/notmuch/default/config
       notmuch new
@@ -267,32 +265,49 @@
     name = "classify-backfill";
     runtimeInputs = [pkgs.gawk pkgs.lieer pkgs.notmuch pkgs.util-linux];
     text = ''
-      avail_kb="$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)"
-      if (( avail_kb < 4 * 1024 * 1024 )); then
-        echo "classify-backfill: only $((avail_kb / 1024)) MiB available, keeping 4 GiB buffer; skipping" >&2
-        exit 0
-      fi
-      classify_and_sync() {
-        (
-          exec 9>"${mailRoot}/$1/.gmi.lock"
-          if ! flock -n 9; then
-            echo "classify-backfill: $1 repo locked by another gmi instance; skipping" >&2
-            exit 0
-          fi
-          cd "${mailRoot}/$1"
-          # Pull-first for the same reason as lieer-sync: a push with a stale
-          # last_historyId self-conflicts against our own earlier uploads and
-          # gets reverted by the pull, so refresh before classifying/pushing.
-          gmi pull
-          ${lib.getExe ruleMail} "$1"
-          if ! gmi push; then
-            echo "classify-backfill: $1 gmi push failed; will retry on the next run" >&2
-          fi
-        )
-      }
+        minAvailKB=$((4 * 1024 * 1024))
+        avail_kb="$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)"
+        if (( avail_kb < minAvailKB )); then
+          echo "classify-backfill: only $((avail_kb / 1024)) MiB available, keeping 4 GiB buffer; skipping" >&2
+          exit 0
+        fi
+        classify_and_sync() {
+          (
+            exec 9>"${mailRoot}/$1/.gmi.lock"
+            if ! flock -n 9; then
+              echo "classify-backfill: $1 repo locked by another gmi instance; skipping" >&2
+              exit 0
+            fi
+            cd "${mailRoot}/$1"
+            ${pullAndClassify "$1"}
+            if ! gmi push; then
+              echo "classify-backfill: $1 gmi push failed; will retry on the next run" >&2
+            fi
+          )
+        }
       classify_and_sync iiser
       classify_and_sync personal
     '';
+  };
+  gmailTagBinds = {
+    patterns = [
+      "[messages]\n"
+      "[view]\n"
+      "D = :delete<Enter>"
+      "d = :choose -o y 'Really delete this message' delete-message<Enter>"
+      "a = :archive flat<Enter>"
+      "A = :unmark -a<Enter>:mark -T<Enter>:archive flat<Enter>"
+      "A = :archive flat<Enter>"
+    ];
+    replacements = [
+      "[messages]\nRd = :read<Enter>\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
+      "[view]\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
+      "D = :modify-labels +trash -inbox<Enter>"
+      "d = :modify-labels +trash -inbox<Enter>"
+      "a = :modify-labels -inbox<Enter>"
+      "A = :unmark -a<Enter>:mark -T<Enter>:modify-labels -inbox<Enter>"
+      "A = :modify-labels -inbox<Enter>"
+    ];
   };
 in {
   accounts.email.maildirBasePath = mailRoot;
@@ -444,34 +459,12 @@ in {
     Install.WantedBy = ["timers.target"];
   };
 
-  # Gmail two-way sync is tag-based (lieer pushes tags as labels), so the
-  # default file-deleting D/d and file-moving a/A would only delete local
-  # copies that the next sync re-downloads. Rebind them to tag ops instead:
-  # D/d trashes (+trash -inbox), a/A archives (-inbox), * toggles star
-  # (!flagged <-> STARRED), l opens the label prompt (custom labels sync
-  # both ways). Read/unread already syncs via the unread tag.
   home.file."${config.xdg.configHome}/aerc/binds.conf" = {
     force = true;
     text =
       lib.replaceStrings
-      [
-        "[messages]\n"
-        "[view]\n"
-        "D = :delete<Enter>"
-        "d = :choose -o y 'Really delete this message' delete-message<Enter>"
-        "a = :archive flat<Enter>"
-        "A = :unmark -a<Enter>:mark -T<Enter>:archive flat<Enter>"
-        "A = :archive flat<Enter>"
-      ]
-      [
-        "[messages]\nRd = :read<Enter>\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
-        "[view]\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
-        "D = :modify-labels +trash -inbox<Enter>"
-        "d = :modify-labels +trash -inbox<Enter>"
-        "a = :modify-labels -inbox<Enter>"
-        "A = :unmark -a<Enter>:mark -T<Enter>:modify-labels -inbox<Enter>"
-        "A = :modify-labels -inbox<Enter>"
-      ]
+      gmailTagBinds.patterns
+      gmailTagBinds.replacements
       (builtins.readFile "${config.programs.aerc.package}/share/aerc/binds.conf");
   };
 

@@ -68,7 +68,6 @@ in {
   };
 
   home.file.".local/share/fcitx5/m17n/default".text = ''
-    # Keep the upstream m17n defaults while naming the active Indic methods.
     hi:itrans:2:Hindi
     or:itrans:2:Odia
     as:*:2

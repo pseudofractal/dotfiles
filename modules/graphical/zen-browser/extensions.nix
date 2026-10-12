@@ -11,6 +11,7 @@ in {
     copy-as-markdown
     redirector
     stylus
+    tridactyl
     ublock-origin
     unpaywall
     user-agent-string-switcher
