@@ -10,7 +10,10 @@
   inherit (tools) niriUtils syncshotRunner;
   systemMesaNiri = pkgs.niri-unstable;
 in {
-  imports = [inputs.niri-nix.homeModules.default];
+  imports = [
+    ./rotate.nix
+    inputs.niri-nix.homeModules.default
+  ];
 
   wayland.windowManager.niri = {
     enable = true;
@@ -128,6 +131,7 @@ in {
     thunar
     wev
     wl-clipboard
+    wlr-randr
     xwayland-satellite-unstable
     yad
   ];
