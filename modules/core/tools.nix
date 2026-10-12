@@ -19,6 +19,12 @@
       gcloud = {
         disabled = true;
       };
+      time = {
+        disabled = false;
+        format = "[$time]($style) ";
+        time_format = "%R";
+        style = "dimmed";
+      };
     };
   };
 
