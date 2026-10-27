@@ -71,6 +71,7 @@ programs.fish.interactiveShellInit = ''
 So a new machine (a phone, another laptop) can decrypt secrets:
 
 1. On the new device: generate a key (above) and copy the public key (starts with `age1...`).
+
 1. On this PC: open `.sops.yaml` in the repo root and add the public key:
 
    ```yaml

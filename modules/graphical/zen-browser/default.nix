@@ -13,13 +13,12 @@
   zenUnwrapped = inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}."twilight-unwrapped".override {
     inherit (zenBrowserSettings) policies;
   };
-  zenRewrapped =
-    (import "${inputs.zen-browser.outPath}/wrap-zen.nix" pkgs.wrapFirefox) zenUnwrapped {
-      icon =
-        if zenBrowserSettings.icon != null
-        then zenBrowserSettings.icon
-        else "zen-twilight";
-    };
+  zenRewrapped = (import "${inputs.zen-browser.outPath}/wrap-zen.nix" pkgs.wrapFirefox) zenUnwrapped {
+    icon =
+      if zenBrowserSettings.icon != null
+      then zenBrowserSettings.icon
+      else "zen-twilight";
+  };
   zenTwilightPackage = config.dotfiles.graphical.nixgl.maybeWrap {
     package = zenRewrapped;
     bin = "zen-twilight";

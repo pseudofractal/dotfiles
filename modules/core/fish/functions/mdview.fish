@@ -4,7 +4,10 @@ end
 
 function mdview --description "Render Markdown and open it in the browser"
     argparse h/help 'theme=' -- $argv
-    or begin __mdview_usage >&2; return 2; end
+    or begin
+        __mdview_usage >&2
+        return 2
+    end
 
     if set -q _flag_help
         __mdview_usage
@@ -43,7 +46,10 @@ function mdview --description "Render Markdown and open it in the browser"
     end
 
     set -l temp_dir (mktemp -d)
-    or begin echo "mdview: could not create a temporary directory" >&2; return 1; end
+    or begin
+        echo "mdview: could not create a temporary directory" >&2
+        return 1
+    end
     set -l output "$temp_dir/"(basename "$input" .md)".html"
 
     pandoc \
@@ -57,7 +63,10 @@ function mdview --description "Render Markdown and open it in the browser"
         --mathjax="$PANDOC_MATHJAX_URL" \
         --output="$output" \
         "$input"
-    or begin rm -rf "$temp_dir"; return 1; end
+    or begin
+        rm -rf "$temp_dir"
+        return 1
+    end
 
     nohup "$browser" "$output" >/dev/null 2>&1 &
 end

@@ -11,10 +11,10 @@ The Arch laptop (niri/Wayland) and the Galaxy Tab S10 Lite share one USB cable i
 
 ## Hardware
 
-| Endpoint | Device | Panel | Aspect |
-| -------- | ------ | ----- | ------ |
-| Host | Arch laptop, niri, AMD Cezanne iGPU + GTX 1650 Mobile | 1920x1200 (eDP-1) | 16:10 |
-| Client | Galaxy Tab S10 Lite (SM-X400), S Pen, 90 Hz TFT | 2112x1320 (WUXGA+) | 16:10 |
+| Endpoint | Device                                                | Panel              | Aspect |
+| -------- | ----------------------------------------------------- | ------------------ | ------ |
+| Host     | Arch laptop, niri, AMD Cezanne iGPU + GTX 1650 Mobile | 1920x1200 (eDP-1)  | 16:10  |
+| Client   | Galaxy Tab S10 Lite (SM-X400), S Pen, 90 Hz TFT       | 2112x1320 (WUXGA+) | 16:10  |
 
 Both panels are 16:10, so exact 1:1 input mapping is possible end to end. Pointer drift after setup is config, not physics (see Troubleshooting).
 
@@ -46,16 +46,16 @@ The encoder choice bites, so here it is plainly. The nixpkgs Sunshine build ship
 #### Host setup
 
 1. `rebuild` to install `sunshine`.
-2. `sudo usermod -aG video $USER`, then log out and back in (capture permissions; groups apply to new sessions only).
-3. If ufw is active: `sudo ufw allow 47984:48010/tcp` and `sudo ufw allow 47998:48010/udp`. Inactive by default on Arch.
-4. Run `sunshine`, open `https://localhost:47990` (accept the self-signed certificate), create credentials, and pick the VAAPI encoder under Configuration → Audio/Video.
-5. The stream is unencrypted by design (latency beats confidentiality here): trusted networks and USB only, never forward these ports on a router.
+1. `sudo usermod -aG video $USER`, then log out and back in (capture permissions; groups apply to new sessions only).
+1. If ufw is active: `sudo ufw allow 47984:48010/tcp` and `sudo ufw allow 47998:48010/udp`. Inactive by default on Arch.
+1. Run `sunshine`, open `https://localhost:47990` (accept the self-signed certificate), create credentials, and pick the VAAPI encoder under Configuration → Audio/Video.
+1. The stream is unencrypted by design (latency beats confidentiality here): trusted networks and USB only, never forward these ports on a router.
 
 #### Client setup (Moonlight, Play Store, free)
 
 1. Cable the tablet with USB tethering on. The PC side is the static `10.211.109.100`; check with `ip -4 -brief addr show enp8s0f4u1`.
-2. Moonlight → Add Host Manually → `10.211.109.100` → enter the shown PIN in Sunshine's web UI (PIN page). Pairing is permanent.
-3. Tap the desktop entry to stream.
+1. Moonlight → Add Host Manually → `10.211.109.100` → enter the shown PIN in Sunshine's web UI (PIN page). Pairing is permanent.
+1. Tap the desktop entry to stream.
 
 #### Pairing hygiene (read before re-pairing)
 
@@ -97,22 +97,22 @@ Manual override for any window: `Mod+Ctrl+F` toggles fullscreen, `Mod+Shift+F` m
 
 ## Files in play
 
-| Path | Role |
-| ---- | ---- |
-| `modules/graphical/tablet.nix` | `sunshine`, `scrcpy`, `android-tools` packages; `tablet-mirror.desktop` entry |
-| `modules/core/fish/functions/tablet.fish` | toggle lifecycle for the mirror session |
-| `modules/desktop/niri/rules.nix` | fullscreen rule for the `Tablet` window |
-| `modules/graphical/default.nix` | imports `tablet.nix` |
+| Path                                      | Role                                                                          |
+| ----------------------------------------- | ----------------------------------------------------------------------------- |
+| `modules/graphical/tablet.nix`            | `sunshine`, `scrcpy`, `android-tools` packages; `tablet-mirror.desktop` entry |
+| `modules/core/fish/functions/tablet.fish` | toggle lifecycle for the mirror session                                       |
+| `modules/desktop/niri/rules.nix`          | fullscreen rule for the `Tablet` window                                       |
+| `modules/graphical/default.nix`           | imports `tablet.nix`                                                          |
 
 ## Troubleshooting
 
-| Symptom | Cause / fix |
-| ------- | ----------- |
-| Weylus: `invalid HTTP method parsed` from tablet IP | Browser auto-upgraded to HTTPS; use explicit `http://`, disable the browser's secure-upgrade toggle |
-| Weylus QR unusable | It encodes the WiFi URL; type the tether URL manually |
-| Sunshine Capture dropdown empty | Port 9001/websocket blocked, or portal screencast denied on the host |
-| `Failed to create uinput device` (Weylus) | User not in `uinput` group in this session; log out/in |
-| `amdgpu_cs_ctx_create2 failed`, `CAP_SYS_ADMIN` (Sunshine) | Benign; add `video` group for the direct-DRM path |
-| No adb RSA prompt | Disable USB tethering, revoke authorizations, `adb kill-server`, replug |
-| Tablet sleeps mid-stream | Developer options → "Stay awake" (charging = cabled) |
-| Pointer drift after setup change | Re-check stream aspect (native/1920x1200) and trackpad toggle; run the corner test |
+| Symptom                                                    | Cause / fix                                                                                         |
+| ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Weylus: `invalid HTTP method parsed` from tablet IP        | Browser auto-upgraded to HTTPS; use explicit `http://`, disable the browser's secure-upgrade toggle |
+| Weylus QR unusable                                         | It encodes the WiFi URL; type the tether URL manually                                               |
+| Sunshine Capture dropdown empty                            | Port 9001/websocket blocked, or portal screencast denied on the host                                |
+| `Failed to create uinput device` (Weylus)                  | User not in `uinput` group in this session; log out/in                                              |
+| `amdgpu_cs_ctx_create2 failed`, `CAP_SYS_ADMIN` (Sunshine) | Benign; add `video` group for the direct-DRM path                                                   |
+| No adb RSA prompt                                          | Disable USB tethering, revoke authorizations, `adb kill-server`, replug                             |
+| Tablet sleeps mid-stream                                   | Developer options → "Stay awake" (charging = cabled)                                                |
+| Pointer drift after setup change                           | Re-check stream aspect (native/1920x1200) and trackpad toggle; run the corner test                  |
