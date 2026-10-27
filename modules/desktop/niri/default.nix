@@ -38,7 +38,10 @@ in {
         };
 
         prefer-no-csd = {};
-        overview.zoom = 0.4;
+        overview = {
+          zoom = 0.4;
+          backdrop-color = "#000000b3";
+        };
         debug.honor-xdg-activation-with-invalid-serial = {};
 
         layout = {
