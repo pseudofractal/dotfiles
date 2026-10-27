@@ -5,6 +5,8 @@
     flavor = "mocha";
     accent = "teal";
     nvim.enable = false;
+    # OpenCode 2 uses its built-in Catppuccin theme via opencode/cli.json.
+    opencode.enable = false;
   };
 
   home.activation.fixGtk3CatppuccinCss = lib.hm.dag.entryAfter ["writeBoundary"] ''

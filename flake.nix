@@ -3,11 +3,13 @@
 
   nixConfig = {
     extra-substituters = [
+      "https://cache.numtide.com"
       "https://niri-nix.cachix.org"
       "https://noctalia.cachix.org"
       "https://vicinae.cachix.org"
     ];
     extra-trusted-public-keys = [
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
       "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
@@ -64,10 +66,9 @@
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    opencode = {
-      url = "github:anomalyco/opencode";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Keep agent releases independent of the desktop's nixpkgs revision.
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    t3code.url = "github:ominit/t3code-flake";
     noctalia = {
       url = "github:noctalia-dev/noctalia/cachix";
     };

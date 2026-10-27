@@ -1,9 +1,18 @@
 {
+  config,
   isAndroid,
   lib,
   pkgs,
   ...
 }: let
+  terminalEditor = pkgs.writeShellApplication {
+    name = "nvim-terminal";
+    text = ''
+      exec ${lib.getExe config.programs.kitty.package} \
+        --class neovim --title Neovim --directory "$PWD" \
+        ${lib.getExe config.programs.neovim.finalPackage} "$@"
+    '';
+  };
   languageServers = with pkgs; [
     # keep-sorted start
     astro-language-server
@@ -38,6 +47,13 @@
     '';
   };
 in {
+  # defaultEditor also sets VISUAL to bare nvim; graphical callers need Kitty.
+  home.sessionVariables.VISUAL = lib.mkForce (
+    if isAndroid
+    then "nvim"
+    else lib.getExe terminalEditor
+  );
+
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -70,7 +86,10 @@ in {
       xclip
       # keep-sorted end
     ]
-    ++ languageServers ++ [codelldb] ++ linters;
+    ++ languageServers
+    ++ [codelldb]
+    ++ linters
+    ++ lib.optionals (!isAndroid) [terminalEditor];
 
   xdg.configFile."nvim" = {
     source = ./config;

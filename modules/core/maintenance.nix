@@ -40,11 +40,13 @@ in {
     settings = {
       auto-optimise-store = true;
       extra-substituters = [
+        "https://cache.numtide.com"
         "https://niri-nix.cachix.org"
         "https://noctalia.cachix.org"
         "https://vicinae.cachix.org"
       ];
       extra-trusted-public-keys = [
+        "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
         "niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0="
         "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
         "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="

@@ -42,7 +42,7 @@
     hash = "sha256-3aVvQoM/n7MOkYg0j+yfP+6Pkqf8oB8ycVS2M2umuNU=";
   };
 in {
-  programs.opencode.skills = {
+  dotfiles.programming.agents.skills = {
     # keep-sorted start
     "aeon" = "${scientific-skills}/skills/aeon";
     "agents-sdk" = "${cloudflare-skills}/skills/agents-sdk";

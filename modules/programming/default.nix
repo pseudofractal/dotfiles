@@ -39,8 +39,12 @@ in {
 
   imports = [
     # keep-sorted start
+    ./claude-code.nix
+    ./codex.nix
     ./nvim
     ./opencode
+    ./shared
+    ./t3code.nix
     ./zed.nix
     # keep-sorted end
   ];
