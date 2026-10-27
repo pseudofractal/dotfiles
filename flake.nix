@@ -1,20 +1,10 @@
 {
   description = "My Dotfiles";
 
-  nixConfig = {
-    extra-substituters = [
-      "https://cache.numtide.com"
-      "https://niri-nix.cachix.org"
-      "https://noctalia.cachix.org"
-      "https://vicinae.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
-      "niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0="
-      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
-      "vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc="
-    ];
-  };
+  # Binary caches are provided natively via modules/core/maintenance.nix
+  # (nix.settings -> ~/.config/nix/nix.conf), so no flake nixConfig is needed.
+  # Keeping nixConfig here triggers the flake trust flow and prints
+  # "Using saved setting for ..." on every nix invocation.
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
