@@ -1,4 +1,6 @@
 {
+  config,
+  isAndroid,
   lib,
   pkgs,
   ...
@@ -40,9 +42,15 @@ in {
   xdg.dataFile."applications/neovim.desktop".text = ''
     [Desktop Entry]
     Name=Neovim
-    TryExec=${pkgs.neovim}/bin/nvim
-    Exec=${pkgs.neovim}/bin/nvim -- %F
-    Terminal=true
+    TryExec=${config.home.sessionVariables.VISUAL}
+    Exec=${config.home.sessionVariables.VISUAL} -- %F
+    Icon=nvim
+    StartupWMClass=neovim
+    Terminal=${
+      if isAndroid
+      then "true"
+      else "false"
+    }
     Type=Application
     NoDisplay=true
     Categories=Utility;TextEditor;

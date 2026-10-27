@@ -2,7 +2,6 @@ set -gx PYENV_ROOT "$HOME/.pyenv"
 
 set -gx EDITOR nvim
 set -gx READER sioyek
-set -gx VISUAL code
 set -gx TERMINAL kitty
 set -gx BROWSER zen-twilight
 set -gx VIDEO mpv
