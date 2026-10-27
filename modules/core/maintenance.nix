@@ -39,6 +39,9 @@ in {
     };
     settings = {
       auto-optimise-store = true;
+      # Suppress informational noise (e.g. "Using saved setting for ...") on
+      # every nix invocation; warnings and errors are still shown.
+      log-level = "warn";
       extra-substituters = [
         "https://cache.numtide.com"
         "https://niri-nix.cachix.org"
