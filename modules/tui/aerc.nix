@@ -11,122 +11,253 @@
     config.allowUnfree = true;
   };
   llamaCppGpu = llamaPkgs.llama-cpp.override {cudaSupport = true;};
-  personalTags = [
-    "security"
-    "bank"
-    "trips"
-    "travel"
-    "aireads"
-    "learn"
-    "compete"
-    "devreads"
-    "news"
-    "jobs"
-    "orders"
-    "shopping"
-    "socials"
-    "invest"
-    "intl"
-    "devtools"
-    "accounts"
+  # Official IISER senders shared by the "notices" rule (these senders *are*
+  # notices) and the "faculty" rule (exclude these official senders so faculty
+  # mail isn't swallowed). One list keeps the two rules from drifting apart.
+  iiserOfficialSenders = [
+    "deanstudents"
+    "deanacad"
+    "director"
+    "academic.office"
+    "librarian"
+    "src"
+    "studentmess"
+    "oppcell"
+    "iwd"
+    "dord"
+    "foundationday"
+    "sahlawat"
+    "bsmsreps4"
+    "bsmsreps5"
+    "manthanmagzine"
+    "ads"
+    "adaa"
+    "deanoutreach"
   ];
-  iiserTags = [
-    "career"
-    "scholarships"
-    "finance"
-    "exams"
-    "courses"
-    "tsukuba"
-    "council"
-    "rooms"
-    "mess"
-    "facilities"
-    "wellbeing"
-    "notices"
-    "fest"
-    "clubs"
-    "seminars"
-    "library"
-    "accounts"
-    "thesis"
-    "urgent"
-    "lostfound"
-    "faith"
-    "debate"
-    "peers"
-    "faculty"
-    "dev"
-  ];
+  iiserOfficialClause =
+    lib.concatMapStringsSep " or " (sender: "from:${sender}@iisermohali.ac.in")
+    iiserOfficialSenders;
+  # List order is classification priority: rule-mail applies these top-down and
+  # each query skips mail already carrying any tag, so reordering reclassifies.
+  mailRules = {
+    iiser = [
+      {
+        tag = "career";
+        query = ''(from:oppcell@iisermohali.ac.in) or (subject:placement* or subject:internship*)'';
+      }
+      {
+        tag = "scholarships";
+        query = ''(subject:scholarship* or subject:fellowship* or subject:daad or subject:shreyas) or from:bserc'';
+      }
+      {
+        tag = "finance";
+        query = ''(subject:invoice* or subject:fee or subject:fees or subject:flywire or subject:payment* or subject:reimburse* or subject:insurance*)'';
+      }
+      {
+        tag = "exams";
+        query = ''((from:academic.office@iisermohali.ac.in or subject:exam* or subject:midsem* or subject:datesheet* or subject:evaluation* or subject:grade*) and not (subject:health and subject:exam*))'';
+      }
+      {
+        tag = "courses";
+        query = ''(from:nptel or subject:course* or subject:assignment*)'';
+      }
+      {
+        tag = "tsukuba";
+        query = ''(from:tsukuba or from:resceu or from:shikano or from:taylorandfrancis or from:go.jp) or subject:resceu'';
+      }
+      {
+        tag = "council";
+        query = ''(from:src@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in) or (subject:senate or subject:"open house" or subject:gbm or subject:election*)'';
+      }
+      {
+        tag = "rooms";
+        query = ''((subject:room or subject:rooms) and (subject:allot* or subject:swap or subject:exchange)) or subject:allotment* or ((subject:partition and subject:shifting) or (subject:hostel and subject:warden))'';
+      }
+      {
+        tag = "mess";
+        query = ''(from:studentmess@iisermohali.ac.in or subject:mess or subject:canteen* or subject:menu or subject:menus or subject:lunch or subject:lunchbox or subject:dinner* or subject:breakfast* or subject:"food outlet")'';
+      }
+      {
+        tag = "facilities";
+        query = ''((subject:water and subject:tank) or subject:lift* or subject:salon or (subject:washing and subject:machine) or subject:cleaning or subject:electricity or subject:internet or subject:wifi or subject:maintenance)'';
+      }
+      {
+        tag = "wellbeing";
+        query = ''(subject:counselling or subject:insurance* or subject:well-being or subject:wellbeing or subject:"well being" or subject:medical* or subject:"mental health" or subject:donation* or subject:camp)'';
+      }
+      {
+        tag = "library";
+        query = ''(from:librarian@iisermohali.ac.in)'';
+      }
+      {
+        tag = "notices";
+        query = ''((${iiserOfficialClause}) or (subject:foundation and subject:day) or (subject:thank and subject:you) or subject:grateful or subject:swachhata or subject:pledge or subject:condolence* or subject:demise)'';
+      }
+      {
+        tag = "fest";
+        query = ''(subject:janmashtami or subject:handi or subject:bhandara or subject:diwali or subject:holi or subject:dandiya or subject:navratri or subject:christmas or subject:eid or subject:gurpurab or subject:lohri or subject:festival* or subject:celebration*)'';
+      }
+      {
+        tag = "clubs";
+        query = ''((from:phiclub@iisermohali.ac.in or from:ambienteclub@iisermohali.ac.in or from:turingclub@iisermohali.ac.in or from:movieclub@iisermohali.ac.in or from:lumiereclub@iisermohali.ac.in or from:astronomyclub@iisermohali.ac.in or from:ariaclub@iisermohali.ac.in or from:bdfclub@iisermohali.ac.in or from:imqcclub@iisermohali.ac.in or from:gamingclub@iisermohali.ac.in or from:ldsclub@iisermohali.ac.in or from:curieclub@iisermohali.ac.in or from:danceclub@iisermohali.ac.in or from:darpanclub@iisermohali.ac.in or from:rangclub@iisermohali.ac.in or from:infinityclub@iisermohali.ac.in or from:insomnia@iisermohali.ac.in or from:miles@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in) or (subject:workshop* or subject:meetup* or subject:tournament* or subject:orientation or subject:astrophotography or subject:music or subject:macay or subject:patang or subject:movie* or subject:screening*))'';
+      }
+      {
+        tag = "seminars";
+        query = ''(subject:seminar* or subject:talk* or subject:colloquium or subject:rqi or subject:dcs or subject:hss or subject:conference* or subject:workshop*)'';
+      }
+      {
+        tag = "accounts";
+        query = ''(subject:security or subject:activate* or subject:verify* or subject:registration* or subject:esta) or (from:notion or from:grammarly or from:openai or from:google.com)'';
+      }
+      {
+        tag = "thesis";
+        query = ''(subject:thesis* or subject:dissertation* or subject:synopsis*) or (from:jasjeet@iisermohali.ac.in and to:ms22174@iisermohali.ac.in)'';
+      }
+      {
+        tag = "urgent";
+        query = ''(subject:blood or subject:emergency* or subject:urgent)'';
+      }
+      {
+        tag = "lostfound";
+        query = ''(subject:missing or subject:lost or subject:taken or subject:stolen or subject:theft* or subject:poster* or subject:cable* or subject:grievance* or subject:dog or subject:complaint* or subject:safety or subject:rti or subject:cctv)'';
+      }
+      {
+        tag = "faith";
+        query = ''(subject:havan or subject:shanti or subject:puja or subject:aarti or subject:mandir or subject:chhath)'';
+      }
+      {
+        tag = "debate";
+        query = ''(subject:letter* or subject:statement* or subject:demand* or subject:condemnation or subject:shame or subject:sexualisation or subject:discrimination* or subject:apology* or subject:tragic* or subject:"why are" or subject:"for the women" or subject:"don't feel safe" or subject:"letter from")'';
+      }
+      {
+        tag = "peers";
+        query = ''(from:ms* or from:ph* or from:mp* or ((from:gmail.com or from:yahoo.com or from:outlook.com or from:hotmail.com) and (subject:book or subject:notes or subject:lecture or subject:assignment or subject:course)) or subject:"shared by")'';
+      }
+      {
+        tag = "faculty";
+        query = ''(from:iisermohali.ac.in and not (${iiserOfficialClause}))'';
+      }
+      {
+        tag = "dev";
+        query = ''(from:github.com or from:discoursemail.com or from:flutterflow.io)'';
+      }
+    ];
+    personal = [
+      {
+        tag = "security";
+        query = ''(subject:otp or subject:"verification code" or subject:"sign-in code" or subject:"security alert" or subject:"has been linked" or subject:"removed your bank" or subject:"privacy request" or subject:"delivery status" or subject:"oauth application" or subject:"login notification" or subject:"password changed" or subject:"password reset" or subject:"sign in to your" or subject:"new login to your" or subject:"new device" or subject:"logged in from" or subject:kyc) or (from:no-reply@accounts.google.com or from:haveibeenpwned.com or from:github.com or from:bitwarden.com or from:uidai.gov.in)'';
+      }
+      {
+        tag = "bank";
+        query = ''(from:dcb.bank.in or from:slice.bank.in or from:sbicard.com or from:slicebank.com or from:dcbbank.com or from:goniyomx.com or from:goniyo.com) or (subject:debit* or subject:intimation or subject:credit* or subject:statement* or subject:repay* or subject:transact* or subject:balance)'';
+      }
+      {
+        tag = "trips";
+        query = ''(subject:pnr or subject:itinerary* or subject:booking* or subject:ticket* or subject:boarding or subject:reservation*) or (subject:visa and not subject:card) or subject:"check-in"'';
+      }
+      {
+        tag = "travel";
+        query = ''(from:skyscanner.com or from:goindigo.in or from:airindiaexpress.com or from:ubigi.com or from:airalo.com or from:malaysiaairlines.com or from:cleartrip.com or from:navitime.jp or from:vfsglobal.com or from:vfshelpline.com or from:easemytrip.com or from:balmerlawrietravelapp.com)'';
+      }
+      {
+        tag = "aireads";
+        query = ''(from:theresanaiforthat.com or from:alphaxiv.org or from:z.ai or from:aiinsightblog or from:aiinsightsbiz or from:beehiiv.com)'';
+      }
+      {
+        tag = "learn";
+        query = ''(from:duolingo.com or from:khanacademy.org or from:chess.com or from:koohii.com)'';
+      }
+      {
+        tag = "compete";
+        query = ''(from:kaggle.com or from:marimo.io) or (subject:competition* or subject:hacktoberfest or subject:hackathon*)'';
+      }
+      {
+        tag = "devreads";
+        query = ''(from:dev.to)'';
+      }
+      {
+        tag = "news";
+        query = ''(from:nationalacademies.org or from:tbpn or from:medium.com or from:vivaldi.com)'';
+      }
+      {
+        tag = "jobs";
+        query = ''(from:naukri.com or from:jobrxiv.org or from:deloitte.com or from:hr-manager.net) or subject:jobagenten'';
+      }
+      {
+        tag = "orders";
+        query = ''(((from:steampowered.com or from:xiaomi.com or from:shop.app or from:bookmyshow.com or from:swiggy.in or from:adobe.com or from:wise.com or from:paypal.com or from:cloudflare.com or from:shopifyemail.com or from:stripe.com or from:jio.com or from:canva.com or from:trustpilotmail.com or from:anoma.ly or from:instamart.in or from:delhivery.com or from:paddle.com or from:zomato.com or from:home.id or from:bigbasket.com or from:coveritup.in) and (subject:shipped or subject:deliver* or subject:receipt* or subject:order* or subject:invoice* or subject:payment*)) or (subject:play and subject:receipt*))'';
+      }
+      {
+        tag = "shopping";
+        query = ''((from:steampowered.com or from:xiaomi.com or from:shop.app or from:bookmyshow.com or from:swiggy.in or from:adobe.com or from:wise.com or from:paypal.com or from:cloudflare.com or from:shopifyemail.com or from:stripe.com or from:jio.com or from:canva.com or from:trustpilotmail.com or from:anoma.ly or from:instamart.in or from:delhivery.com or from:paddle.com or from:zomato.com or from:home.id or from:bigbasket.com or from:coveritup.in))'';
+      }
+      {
+        tag = "socials";
+        query = ''(from:instagram.com or from:verify@x.com or from:info@x.com or from:reddit.com or from:redditmail.com or from:pinterest.com or from:linkedin.com or from:snapchat.com)'';
+      }
+      {
+        tag = "invest";
+        query = ''(from:motilaloswal.com or from:nipponindia.email or from:groww.in or from:binance.com) or (subject:credit and (subject:report or subject:score))'';
+      }
+      {
+        tag = "intl";
+        query = ''(from:tsukuba.ac.jp or from:resceu.s.u-tokyo.ac.jp or from:gtn-mobile.com or from:rakuten.co.jp or from:moneyforward.com or from:qrioinc.com or from:digital.go.jp or from:shikano or from:gtn or from:rakuten)'';
+      }
+      {
+        tag = "devtools";
+        query = ''(from:cursor or from:deepseek or from:wolfram or from:flutterflow or from:zed or from:huggingface or from:oracle or from:cloudflare or from:codeberg or from:appsheet or from:microsoft or from:zoom)'';
+      }
+      {
+        tag = "accounts";
+        query = ''((from:google.com or from:youtube.com or from:onetrust.com or from:googlemail.com or from:pika-network.net or from:openai.com or from:fiverr.com or from:zulip.com or from:godlike.host or from:mcserverhost.com or from:o-in.me) and not (from:notebooklm or from:notion))'';
+      }
+    ];
+  };
+  personalTags = map (r: r.tag) mailRules.personal;
+  iiserTags = map (r: r.tag) mailRules.iiser;
+  # The mail accounts are exactly mailRules' keys; every script below derives
+  # its account list from here so a new account only needs editing in one
+  # place (mailRules and accounts.email.accounts).
+  accounts = lib.attrNames mailRules;
+  accountAlternatives = lib.concatStringsSep "|" accounts;
   lieer = {
     enable = true;
     sync.enable = true;
     settings.ignore_tags = ["ai-classified"];
     settings.ignore_remote_labels = [];
   };
+  untaggedClause = rules: "and not (${lib.concatMapStringsSep " or " (r: "tag:${r.tag}") rules})";
+  ruleLines = rules: lib.concatMapStringsSep "\n" (r: "tag ${lib.escapeShellArg r.tag} ${lib.escapeShellArg r.query}") rules;
+  withGmiLock = prog: account: body: ''
+    exec 9>"${gmiLockFile account}"
+    if ! flock -n 9; then
+      echo "${prog}: ${account} repo locked by another gmi instance; skipping" >&2
+      exit 0
+    fi
+    ${body}
+  '';
   ruleMail = pkgs.writeShellApplication {
     name = "rule-mail";
     runtimeInputs = [pkgs.notmuch];
     text = ''
       account="''${1:-}"
-      if [[ "$account" != iiser && "$account" != personal ]]; then
-        echo "Usage: rule-mail {iiser|personal}" >&2
-        exit 2
-      fi
       notmuchConfig="--config=${config.xdg.configHome}/notmuch/default/config"
       accountMailScope="(path:$account/mail/cur or path:$account/mail/new)"
-      if [[ "$account" == iiser ]]; then
-        untaggedOnly="and not (tag:career or tag:scholarships or tag:finance or tag:exams or tag:courses or tag:tsukuba or tag:council or tag:rooms or tag:mess or tag:facilities or tag:wellbeing or tag:notices or tag:fest or tag:clubs or tag:seminars or tag:library or tag:accounts or tag:thesis or tag:urgent or tag:lostfound or tag:faith or tag:debate or tag:peers or tag:faculty or tag:dev)"
-      else
-        untaggedOnly="and not (tag:security or tag:bank or tag:trips or tag:travel or tag:aireads or tag:learn or tag:compete or tag:devreads or tag:news or tag:jobs or tag:orders or tag:shopping or tag:socials or tag:invest or tag:intl or tag:devtools or tag:accounts)"
-      fi
       tag() {
         notmuch "$notmuchConfig" tag "+$1" -- "$accountMailScope $untaggedOnly and ($2)"
       }
-      if [[ "$account" == iiser ]]; then
-        tag career '(from:oppcell@iisermohali.ac.in) or (subject:placement* or subject:internship*)'
-        tag scholarships '(subject:scholarship* or subject:fellowship* or subject:daad or subject:shreyas) or from:bserc'
-        tag finance '(subject:invoice* or subject:fee or subject:fees or subject:flywire or subject:payment* or subject:reimburse* or subject:insurance*)'
-        tag exams '((from:academic.office@iisermohali.ac.in or subject:exam* or subject:midsem* or subject:datesheet* or subject:evaluation* or subject:grade*) and not (subject:health and subject:exam*))'
-        tag courses '(from:nptel or subject:course* or subject:assignment*)'
-        tag tsukuba '(from:tsukuba or from:resceu or from:shikano or from:taylorandfrancis or from:go.jp) or subject:resceu'
-        tag council '(from:src@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in) or (subject:senate or subject:"open house" or subject:gbm or subject:election*)'
-        tag rooms '((subject:room or subject:rooms) and (subject:allot* or subject:swap or subject:exchange)) or subject:allotment* or ((subject:partition and subject:shifting) or (subject:hostel and subject:warden))'
-        tag mess '(from:studentmess@iisermohali.ac.in or subject:mess or subject:canteen* or subject:menu or subject:menus or subject:lunch or subject:lunchbox or subject:dinner* or subject:breakfast* or subject:"food outlet")'
-        tag facilities '((subject:water and subject:tank) or subject:lift* or subject:salon or (subject:washing and subject:machine) or subject:cleaning or subject:electricity or subject:internet or subject:wifi or subject:maintenance)'
-        tag wellbeing '(subject:counselling or subject:insurance* or subject:well-being or subject:wellbeing or subject:"well being" or subject:medical* or subject:"mental health" or subject:donation* or subject:camp)'
-        tag library '(from:librarian@iisermohali.ac.in)'
-        tag notices '((from:deanstudents@iisermohali.ac.in or from:deanacad@iisermohali.ac.in or from:director@iisermohali.ac.in or from:academic.office@iisermohali.ac.in or from:librarian@iisermohali.ac.in or from:src@iisermohali.ac.in or from:studentmess@iisermohali.ac.in or from:oppcell@iisermohali.ac.in or from:iwd@iisermohali.ac.in or from:dord@iisermohali.ac.in or from:foundationday@iisermohali.ac.in or from:sahlawat@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in or from:ads@iisermohali.ac.in or from:adaa@iisermohali.ac.in or from:deanoutreach@iisermohali.ac.in) or (subject:foundation and subject:day) or (subject:thank and subject:you) or subject:grateful or subject:swachhata or subject:pledge or subject:condolence* or subject:demise)'
-        tag fest '(subject:janmashtami or subject:handi or subject:bhandara or subject:diwali or subject:holi or subject:dandiya or subject:navratri or subject:christmas or subject:eid or subject:gurpurab or subject:lohri or subject:festival* or subject:celebration*)'
-        tag clubs '((from:phiclub@iisermohali.ac.in or from:ambienteclub@iisermohali.ac.in or from:turingclub@iisermohali.ac.in or from:movieclub@iisermohali.ac.in or from:lumiereclub@iisermohali.ac.in or from:astronomyclub@iisermohali.ac.in or from:ariaclub@iisermohali.ac.in or from:bdfclub@iisermohali.ac.in or from:imqcclub@iisermohali.ac.in or from:gamingclub@iisermohali.ac.in or from:ldsclub@iisermohali.ac.in or from:curieclub@iisermohali.ac.in or from:danceclub@iisermohali.ac.in or from:darpanclub@iisermohali.ac.in or from:rangclub@iisermohali.ac.in or from:infinityclub@iisermohali.ac.in or from:insomnia@iisermohali.ac.in or from:miles@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in) or (subject:workshop* or subject:meetup* or subject:tournament* or subject:orientation or subject:astrophotography or subject:music or subject:macay or subject:patang or subject:movie* or subject:screening*))'
-        tag seminars '(subject:seminar* or subject:talk* or subject:colloquium or subject:rqi or subject:dcs or subject:hss or subject:conference* or subject:workshop*)'
-        tag accounts '(subject:security or subject:activate* or subject:verify* or subject:registration* or subject:esta) or (from:notion or from:grammarly or from:openai or from:google.com)'
-        tag thesis '(subject:thesis* or subject:dissertation* or subject:synopsis*) or (from:jasjeet@iisermohali.ac.in and to:ms22174@iisermohali.ac.in)'
-        tag urgent '(subject:blood or subject:emergency* or subject:urgent)'
-        tag lostfound '(subject:missing or subject:lost or subject:taken or subject:stolen or subject:theft* or subject:poster* or subject:cable* or subject:grievance* or subject:dog or subject:complaint* or subject:safety or subject:rti or subject:cctv)'
-        tag faith '(subject:havan or subject:shanti or subject:puja or subject:aarti or subject:mandir or subject:chhath)'
-        tag debate "(subject:letter* or subject:statement* or subject:demand* or subject:condemnation or subject:shame or subject:sexualisation or subject:discrimination* or subject:apology* or subject:tragic* or subject:\"why are\" or subject:\"for the women\" or subject:\"don't feel safe\" or subject:\"letter from\")"
-        tag peers '(from:ms* or from:ph* or from:mp* or ((from:gmail.com or from:yahoo.com or from:outlook.com or from:hotmail.com) and (subject:book or subject:notes or subject:lecture or subject:assignment or subject:course)) or subject:"shared by")'
-        tag faculty '(from:iisermohali.ac.in and not (from:deanstudents@iisermohali.ac.in or from:deanacad@iisermohali.ac.in or from:director@iisermohali.ac.in or from:academic.office@iisermohali.ac.in or from:librarian@iisermohali.ac.in or from:src@iisermohali.ac.in or from:studentmess@iisermohali.ac.in or from:oppcell@iisermohali.ac.in or from:iwd@iisermohali.ac.in or from:dord@iisermohali.ac.in or from:foundationday@iisermohali.ac.in or from:sahlawat@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in or from:ads@iisermohali.ac.in or from:adaa@iisermohali.ac.in or from:deanoutreach@iisermohali.ac.in))'
-        tag dev '(from:github.com or from:discoursemail.com or from:flutterflow.io)'
-      else
-        tag security '(subject:otp or subject:"verification code" or subject:"sign-in code" or subject:"security alert" or subject:"has been linked" or subject:"removed your bank" or subject:"privacy request" or subject:"delivery status" or subject:"oauth application" or subject:"login notification" or subject:"password changed" or subject:"password reset" or subject:"sign in to your" or subject:"new login to your" or subject:"new device" or subject:"logged in from" or subject:kyc) or (from:no-reply@accounts.google.com or from:haveibeenpwned.com or from:github.com or from:bitwarden.com or from:uidai.gov.in)'
-        tag bank '(from:dcb.bank.in or from:slice.bank.in or from:sbicard.com or from:slicebank.com or from:dcbbank.com or from:goniyomx.com or from:goniyo.com) or (subject:debit* or subject:intimation or subject:credit* or subject:statement* or subject:repay* or subject:transact* or subject:balance)'
-        tag trips '(subject:pnr or subject:itinerary* or subject:booking* or subject:ticket* or subject:boarding or subject:reservation*) or (subject:visa and not subject:card) or subject:"check-in"'
-        tag travel '(from:skyscanner.com or from:goindigo.in or from:airindiaexpress.com or from:ubigi.com or from:airalo.com or from:malaysiaairlines.com or from:cleartrip.com or from:navitime.jp or from:vfsglobal.com or from:vfshelpline.com or from:easemytrip.com or from:balmerlawrietravelapp.com)'
-        tag aireads '(from:theresanaiforthat.com or from:alphaxiv.org or from:z.ai or from:aiinsightblog or from:aiinsightsbiz or from:beehiiv.com)'
-        tag learn '(from:duolingo.com or from:khanacademy.org or from:chess.com or from:koohii.com)'
-        tag compete '(from:kaggle.com or from:marimo.io) or (subject:competition* or subject:hacktoberfest or subject:hackathon*)'
-        tag devreads '(from:dev.to)'
-        tag news '(from:nationalacademies.org or from:tbpn or from:medium.com or from:vivaldi.com)'
-        tag jobs '(from:naukri.com or from:jobrxiv.org or from:deloitte.com or from:hr-manager.net) or subject:jobagenten'
-        tag orders '(((from:steampowered.com or from:xiaomi.com or from:shop.app or from:bookmyshow.com or from:swiggy.in or from:adobe.com or from:wise.com or from:paypal.com or from:cloudflare.com or from:shopifyemail.com or from:stripe.com or from:jio.com or from:canva.com or from:trustpilotmail.com or from:anoma.ly or from:instamart.in or from:delhivery.com or from:paddle.com or from:zomato.com or from:home.id or from:bigbasket.com or from:coveritup.in) and (subject:shipped or subject:deliver* or subject:receipt* or subject:order* or subject:invoice* or subject:payment*)) or (subject:play and subject:receipt*))'
-        tag shopping '((from:steampowered.com or from:xiaomi.com or from:shop.app or from:bookmyshow.com or from:swiggy.in or from:adobe.com or from:wise.com or from:paypal.com or from:cloudflare.com or from:shopifyemail.com or from:stripe.com or from:jio.com or from:canva.com or from:trustpilotmail.com or from:anoma.ly or from:instamart.in or from:delhivery.com or from:paddle.com or from:zomato.com or from:home.id or from:bigbasket.com or from:coveritup.in))'
-        tag socials '(from:instagram.com or from:verify@x.com or from:info@x.com or from:reddit.com or from:redditmail.com or from:pinterest.com or from:linkedin.com or from:snapchat.com)'
-        tag invest '(from:motilaloswal.com or from:nipponindia.email or from:groww.in or from:binance.com) or (subject:credit and (subject:report or subject:score))'
-        tag intl '(from:tsukuba.ac.jp or from:resceu.s.u-tokyo.ac.jp or from:gtn-mobile.com or from:rakuten.co.jp or from:moneyforward.com or from:qrioinc.com or from:digital.go.jp or from:shikano or from:gtn or from:rakuten)'
-        tag devtools '(from:cursor or from:deepseek or from:wolfram or from:flutterflow or from:zed or from:huggingface or from:oracle or from:cloudflare or from:codeberg or from:appsheet or from:microsoft or from:zoom)'
-        tag accounts '((from:google.com or from:youtube.com or from:onetrust.com or from:googlemail.com or from:pika-network.net or from:openai.com or from:fiverr.com or from:zulip.com or from:godlike.host or from:mcserverhost.com or from:o-in.me) and not (from:notebooklm or from:notion))'
-      fi
+      case "$account" in
+      ${lib.concatMapStringsSep "\n" (account: ''
+        ${account})
+          untaggedOnly="${untaggedClause mailRules.${account}}"
+          ${ruleLines mailRules.${account}}
+          ;;'')
+      accounts}
+        *)
+          echo "Usage: rule-mail {${accountAlternatives}}" >&2
+          exit 2
+          ;;
+      esac
     '';
   };
   queryMap = maildir: tags: ''
@@ -155,12 +286,7 @@
     pkgs.writeShellApplication {
       name = "lieer-sync-${account}";
       runtimeInputs = [pkgs.lieer pkgs.notmuch pkgs.util-linux];
-      text = ''
-        exec 9>"${gmiLockFile account}"
-        if ! flock -n 9; then
-          echo "lieer-sync-${account}: repo locked by another gmi instance; skipping" >&2
-          exit 0
-        fi
+      text = withGmiLock "lieer-sync-${account}" account ''
         ${pullAndClassify account}
         gmi push
       '';
@@ -171,9 +297,9 @@
     text = ''
       account="''${1:-}"
       case "$account" in
-        iiser|personal) ;;
+      ${accountAlternatives}) ;;
         *)
-          echo "Usage: lieer-auth {iiser|personal}" >&2
+          echo "Usage: lieer-auth {${accountAlternatives}}" >&2
           exit 2
           ;;
       esac
@@ -188,8 +314,8 @@
     name = "email-toggle";
     runtimeInputs = [pkgs.systemd pkgs.curl];
     text = ''
-      timers=(lieer-iiser.timer lieer-personal.timer email-classify-backfill.timer)
-      jobs=(lieer-iiser.service lieer-personal.service email-classify-backfill.service)
+      timers=(${lib.concatMapStringsSep " " (account: "lieer-${account}.timer") accounts} email-classify-backfill.timer)
+      jobs=(${lib.concatMapStringsSep " " (account: "lieer-${account}.service") accounts} email-classify-backfill.service)
       clear_failed() {
         systemctl --user reset-failed "''${jobs[@]}" email-classifier.service email-classifier-gpu.service
       }
@@ -221,7 +347,7 @@
           echo "email fetching and classification: full speed (NVIDIA GPU, CPU service stopped)"
           ;;
         toggle)
-          if systemctl --user is-active --quiet lieer-iiser.timer; then
+          if systemctl --user is-active --quiet "''${timers[1]}"; then
             systemctl --user stop "''${timers[@]}" "''${jobs[@]}" email-classifier.service email-classifier-gpu.service
             clear_failed
             echo "email fetching and classification: off"
@@ -271,44 +397,52 @@
           echo "classify-backfill: only $((avail_kb / 1024)) MiB available, keeping 4 GiB buffer; skipping" >&2
           exit 0
         fi
-        classify_and_sync() {
-          (
-            exec 9>"${mailRoot}/$1/.gmi.lock"
-            if ! flock -n 9; then
-              echo "classify-backfill: $1 repo locked by another gmi instance; skipping" >&2
-              exit 0
-            fi
-            cd "${mailRoot}/$1"
-            ${pullAndClassify "$1"}
-            if ! gmi push; then
-              echo "classify-backfill: $1 gmi push failed; will retry on the next run" >&2
-            fi
-          )
-        }
-      classify_and_sync iiser
-      classify_and_sync personal
+      ${lib.concatMapStringsSep "\n" (account: ''
+        (
+        ${withGmiLock "classify-backfill" account ''
+          cd "${mailRoot}/${account}"
+          ${pullAndClassify account}
+          if ! gmi push; then
+            echo "classify-backfill: ${account} gmi push failed; will retry on the next run" >&2
+          fi
+        ''}
+        )'')
+      accounts}
     '';
   };
-  gmailTagBinds = {
-    patterns = [
-      "[messages]\n"
-      "[view]\n"
-      "D = :delete<Enter>"
-      "d = :choose -o y 'Really delete this message' delete-message<Enter>"
-      "a = :archive flat<Enter>"
-      "A = :unmark -a<Enter>:mark -T<Enter>:archive flat<Enter>"
-      "A = :archive flat<Enter>"
-    ];
-    replacements = [
-      "[messages]\nRd = :read<Enter>\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
-      "[view]\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n"
-      "D = :modify-labels +trash -inbox<Enter>"
-      "d = :modify-labels +trash -inbox<Enter>"
-      "a = :modify-labels -inbox<Enter>"
-      "A = :unmark -a<Enter>:mark -T<Enter>:modify-labels -inbox<Enter>"
-      "A = :modify-labels -inbox<Enter>"
-    ];
-  };
+  # Each entry pairs a stock bind line with its notmuch-label replacement.
+  # Keeping them together (instead of two parallel lists) makes the
+  # correspondence explicit and impossible to miscount.
+  gmailTagBinds = [
+    {
+      pattern = "[messages]\n";
+      replacement = "[messages]\nRd = :read<Enter>\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n";
+    }
+    {
+      pattern = "[view]\n";
+      replacement = "[view]\n* = :modify-labels !flagged<Enter>\nl = :modify-labels<space>\n";
+    }
+    {
+      pattern = "D = :delete<Enter>";
+      replacement = "D = :modify-labels +trash -inbox<Enter>";
+    }
+    {
+      pattern = "d = :choose -o y 'Really delete this message' delete-message<Enter>";
+      replacement = "d = :modify-labels +trash -inbox<Enter>";
+    }
+    {
+      pattern = "a = :archive flat<Enter>";
+      replacement = "a = :modify-labels -inbox<Enter>";
+    }
+    {
+      pattern = "A = :unmark -a<Enter>:mark -T<Enter>:archive flat<Enter>";
+      replacement = "A = :unmark -a<Enter>:mark -T<Enter>:modify-labels -inbox<Enter>";
+    }
+    {
+      pattern = "A = :archive flat<Enter>";
+      replacement = "A = :modify-labels -inbox<Enter>";
+    }
+  ];
 in {
   accounts.email.maildirBasePath = mailRoot;
 
@@ -463,8 +597,8 @@ in {
     force = true;
     text =
       lib.replaceStrings
-      gmailTagBinds.patterns
-      gmailTagBinds.replacements
+      (map (bind: bind.pattern) gmailTagBinds)
+      (map (bind: bind.replacement) gmailTagBinds)
       (builtins.readFile "${config.programs.aerc.package}/share/aerc/binds.conf");
   };
 
