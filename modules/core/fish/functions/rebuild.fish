@@ -64,11 +64,7 @@ function rebuild --description "Rebuild the Home Manager or System Manager confi
         set rebuild_status $status
     else
         set switch_log (mktemp)
-        if set -q use_backup[1]
-            home-manager switch --flake .#pseudofractal -b "hm-bak-"(date +"%Y%m%d-%H%M%S") 2>&1 | tee $switch_log
-        else
-            home-manager switch --flake .#pseudofractal 2>&1 | tee $switch_log
-        end
+        home-manager switch --flake .#pseudofractal -b "hm-bak-"(date +"%Y%m%d-%H%M%S-%N") 2>&1 | tee $switch_log
         set rebuild_status $pipestatus[1]
     end
 

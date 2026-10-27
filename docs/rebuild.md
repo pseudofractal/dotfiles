@@ -10,13 +10,13 @@ The normal rebuild:
 home-manager switch --flake .#pseudofractal
 ```
 
-The fish shortcut is `rebuild`. `rebuild --system` does System Manager, `rebuild --backup` tells Home Manager to move an existing file aside instead of refusing.
+The fish shortcut is `rebuild`. It automatically moves conflicting local files aside with a unique `.hm-bak-<timestamp>` suffix before Home Manager installs its managed files. `rebuild --system` does System Manager; `rebuild --backup` remains accepted for compatibility and behaves like `rebuild`.
 
 Run it after changing anything under `modules/` or `hosts/arch/default.nix`: packages, dotfiles, user services, niri settings, Noctalia, Vicinae.
 
 A logout is usually unnecessary. Log out and back in when changing how the niri session starts, or when the running compositor ignores a config change.
 
-If Home Manager refuses to replace an existing file, keep a backup during the switch:
+When running Home Manager directly, request backups explicitly to avoid conflicts with existing files:
 
 ```bash
 home-manager switch --flake .#pseudofractal -b backup
