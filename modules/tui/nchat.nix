@@ -11,7 +11,7 @@
       url = "https://github.com/d99kris/nchat/releases/download/v${version}/nchat-${version}-linux-x86_64-glibc.tar.gz";
       hash = "sha256-Ize/J9wpScoOfLsjc3mn66GSbJZIVwbplg6192/aN0c=";
     };
-    nativeBuildInputs = [pkgs.autoPatchelfHook];
+    nativeBuildInputs = [pkgs.autoPatchelfHook pkgs.makeWrapper];
     buildInputs = with pkgs; [stdenv.cc.cc ncurses libpng openssl zlib];
     installPhase = ''
       runHook preInstall
@@ -20,6 +20,10 @@
       install -Dm755 "$nchat_bin" $out/bin/nchat
       if [ -d share ]; then cp -r share $out/; fi
       runHook postInstall
+    '';
+    postFixup = ''
+      # The upstream binary's libmagic database path points outside the Nix store.
+      wrapProgram $out/bin/nchat --set MAGIC ${pkgs.file}/share/misc/magic.mgc
     '';
   };
 in
