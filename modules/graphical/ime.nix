@@ -13,7 +13,7 @@
     postPatch =
       (old.postPatch or "")
       + ''
-        substituteInPlace src/unix/fcitx5/mozc_engine.cc \
+        substituteInPlace unix/fcitx5/mozc_engine.cc \
           --replace-fail 'return _(kPropCompositionModes[mozc_state->GetCompositionMode()].description);' 'return {};'
       '';
   });
