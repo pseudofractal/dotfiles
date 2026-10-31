@@ -35,7 +35,6 @@ in {
   home.packages = with pkgs; [
     # keep-sorted start
     imv
-    mpv
     # keep-sorted end
   ];
 

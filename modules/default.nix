@@ -8,6 +8,7 @@
     # keep-sorted start
     ./cli
     ./core
+    ./entertainment
     ./programming
     ./tui
     # keep-sorted end

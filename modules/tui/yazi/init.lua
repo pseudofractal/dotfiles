@@ -1,6 +1,7 @@
 require("starship"):setup()
 require("git"):setup()
 require("gvfs"):setup()
+require("duckdb"):setup({ mode = "standard" })
 
 require("custom-shell"):setup({
 	history_path = "default",

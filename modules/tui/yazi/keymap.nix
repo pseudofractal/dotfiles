@@ -52,8 +52,13 @@
     }
     {
       on = "<Tab>";
-      run = "shell 'ripdrag \"$@\" -anx 2>/dev/null &' --confirm";
+      run = "shell --orphan -- ripdrag -anxb -- %s";
       desc = "Drag and drop";
+    }
+    {
+      on = ["g" "i"];
+      run = "spot";
+      desc = "Show file information";
     }
     {
       on = "C";

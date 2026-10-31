@@ -8,9 +8,6 @@
   home.packages = [
     # keep-sorted start
     pkgs.concord-tui
-    # Concord plays video/audio attachments (media_playback above) via an
-    # external mpv on PATH, so it must be installed alongside it.
-    pkgs.mpv
     # keep-sorted end
   ];
 

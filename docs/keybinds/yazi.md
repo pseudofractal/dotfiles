@@ -16,7 +16,8 @@ yazi. All of these are prepended to the manager keymap.
 - `F` smart filter
 - `shift-s` symlink yanked files by absolute path
 - `C` compress selection into a zip (ouch)
-- `tab` drag and drop selection out (ripdrag)
+- `tab` open ripdrag for the selection or hovered file; drag from its floating window into the target app
+- `g` then `i` show detailed information about the hovered file
 - `?` size of selection or current directory
 
 ## Shell

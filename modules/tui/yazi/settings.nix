@@ -40,6 +40,10 @@ in {
           run = "noop";
         }
         {
+          url = "*.cb[7rz]";
+          run = "comicthumb";
+        }
+        {
           mime = "{audio,video,image}/*";
           run = "mediainfo";
         }
@@ -61,6 +65,14 @@ in {
         {
           url = "/run/media/${username}/**/*";
           run = "noop";
+        }
+        {
+          url = "*.cb[7rz]";
+          run = "comicthumb";
+        }
+        {
+          url = "*.{csv,tsv,json,parquet}";
+          run = "duckdb";
         }
         {
           mime = "{audio,video,image}/*";

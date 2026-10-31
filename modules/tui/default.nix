@@ -7,7 +7,6 @@
     ./rmcl.nix
     ./shiryoku.nix
     ./yazi
-    ./youtube-tui.nix
     # keep-sorted end
   ];
 }

@@ -31,6 +31,7 @@
       asciinema
       bat
       catdoc
+      duckdb
       exiftool
       ffmpeg
       ffmpegthumbnailer
@@ -46,6 +47,7 @@
       mediainfo
       miller
       ouch
+      p7zip
       pandoc
       poppler-utils
       resvg

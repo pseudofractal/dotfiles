@@ -97,6 +97,7 @@ in {
       _children =
         [(match {app-id = "it.catboy.ripdrag";})]
         ++ [
+          {open-floating = true;}
           {
             border = {
               active-color = "#a6e3a1";
