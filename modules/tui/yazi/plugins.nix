@@ -39,6 +39,8 @@
           raise SystemExit("duckdb preview wait block changed")
       path.write_text(source.replace(old, "\t\treturn"))
       PY
+      substituteInPlace "$out/main.lua" \
+        --replace-fail 'columns(c -> list_contains' 'columns(lambda c: list_contains'
     '';
     enhance-piper = pkgs.yaziPlugins.enhance-piper;
     file-extra-metadata = pkgs.yaziPlugins.file-extra-metadata;
