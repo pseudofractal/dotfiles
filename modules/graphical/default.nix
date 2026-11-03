@@ -11,6 +11,7 @@
     ./nixgl.nix
     ./office.nix
     ./packet.nix
+    ./papyri.nix
     ./prism-launcher.nix
     ./sioyek.nix
     ./steam.nix
