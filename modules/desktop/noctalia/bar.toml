@@ -61,6 +61,8 @@ type = "icefish/phone-connect:bar"
 
 [widget.lyrics]
 type = "h465855hgg/lyrics:lyrics"
+hide_when_no_lyrics = true
+hide_when_paused = true
 show_artist = false
 show_cover = true
 show_glyph = false
@@ -76,11 +78,14 @@ hide_when_no_unread = true
 icon_color = "error"
 
 [widget.taskbar]
+empty_color = "surface_container_high"
 focused_color = "tertiary"
 group_by_workspace = true
 hide_empty_workspaces = true
 inactive_opacity = 0.75
-occupied_color = "on_surface_variant"
+occupied_color = "primary"
+show_workspace_label = true
+urgent_color = "error"
 workspace_group_capsule = false
 workspace_label_placement = "inside"
 
@@ -92,11 +97,3 @@ icon_color = "primary"
 
 [widget.volume]
 color = "secondary"
-
-[widget.workspaces]
-empty_color = "on_primary"
-focused_color = "tertiary"
-hide_when_empty = true
-max_label_chars = 8
-occupied_color = "on_surface"
-style = "focus_hint"
