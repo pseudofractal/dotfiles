@@ -46,4 +46,15 @@ in {
       "shift+ctrl+r" = "set_tab_title \"\"";
     };
   };
+
+  # xdg-terminal-exec launches terminal applications requested by GUI tools,
+  # such as Yazi opened through xdg-open. The niri-prefixed list wins under
+  # niri, so both need to select kitty.
+  xdg.configFile."xdg-terminals.list".text = ''
+    kitty.desktop
+  '';
+
+  xdg.configFile."niri-xdg-terminals.list".text = ''
+    kitty.desktop
+  '';
 }

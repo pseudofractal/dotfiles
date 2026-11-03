@@ -68,6 +68,23 @@
 
   home.packages = [pkgs.xdg-terminal-exec];
 
+  # GUI applications open directories through xdg-open, which ignores the
+  # Terminal=true key in the packaged Yazi entry and starts Yazi without a TTY.
+  # Launch it through a terminal explicitly instead.
+  xdg.dataFile."applications/yazi.desktop".text = ''
+    [Desktop Entry]
+    Name=Yazi File Manager
+    Comment=Blazing fast terminal file manager written in Rust, based on async I/O
+    Icon=yazi
+    Terminal=false
+    TryExec=yazi
+    Exec=xdg-terminal-exec yazi %f
+    Type=Application
+    MimeType=inode/directory
+    Categories=System;FileManager;FileTools;ConsoleOnly
+    Keywords=File;Manager;Explorer;Browser;Launcher
+  '';
+
   xdg.portal = lib.mkIf (!isAndroid) {
     enable = true;
     extraPortals = [
