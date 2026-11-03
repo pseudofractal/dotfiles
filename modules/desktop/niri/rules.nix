@@ -37,8 +37,20 @@ in {
 
   workspace = [
     {_args = ["Work"];}
-    {_args = ["Utilities"];}
-    {_args = ["Entertainment"];}
+    {
+      _args = ["Utilities"];
+      layout = {
+        gaps = 0;
+      };
+    }
+    {
+      _args = ["Entertainment"];
+      layout = {
+        gaps = 0;
+        border.off = {};
+        default-column-width.proportion = 1.0;
+      };
+    }
   ];
 
   window-rule = [
@@ -92,6 +104,19 @@ in {
       "sioyek"
       "nvim"
     ]) [{default-column-display = "tabbed";}])
+    (rule (ids [
+        "kitty"
+        "nchat"
+        "nvim"
+        "yazi"
+      ]) [
+        {
+          background-effect = {
+            blur = true;
+            xray = false;
+          };
+        }
+      ])
     (rule (ids ["vesktop"]) [{scroll-factor = 0.4;}])
     {
       _children =
@@ -144,6 +169,18 @@ in {
           (match {namespace = "noctalia-notification";})
         ]
         ++ [{block-out-from = "screencast";}];
+    }
+    {
+      _children =
+        [(match {namespace = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher)$";})]
+        ++ [
+          {
+            background-effect = {
+              blur = true;
+              xray = false;
+            };
+          }
+        ];
     }
   ];
 }
