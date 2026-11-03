@@ -81,11 +81,11 @@
       },
       "locked": {
         "dir": "pkgs/firefox-addons",
-        "lastModified": 1793419353,
-        "narHash": "sha256-UiTaJe+0zJK9a+aUrsdG8AqtSkbV1ltkFYtZLBrozuE=",
+        "lastModified": 1793505757,
+        "narHash": "sha256-QFDvayCpJoQzg1k67lmjeKJyIIyRA+Ecvl5oyGx5xLw=",
         "owner": "rycee",
         "repo": "nur-expressions",
-        "rev": "cba186973c89f9d54df352a790484de3e72425cb",
+        "rev": "8172232b66c54682a026c02347543a159e86e811",
         "type": "gitlab"
       },
       "original": {
@@ -485,11 +485,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1766118412,
-        "narHash": "sha256-6+YuV2cD3ZupWswAcobPWh+SWD5CTka1Z+rkMKdroKQ=",
+        "lastModified": 1793644071,
+        "narHash": "sha256-tlXT/BaZMc3hBbOGxkT3wzffFRIV5IvKb2xhMOSusUI=",
         "owner": "pseudofractal",
         "repo": "kensaku",
-        "rev": "64d239a6ebed5b3c7c85d5d7e62906dbf47a7f49",
+        "rev": "e03b82abad458aa5f44d3afdce7759c1ff5366f5",
         "type": "github"
       },
       "original": {
@@ -507,11 +507,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1793435943,
-        "narHash": "sha256-kl4L50m8mMMyQLjH2d46ljtdzR+9vlgpoDmOrpNV/SU=",
+        "lastModified": 1793543262,
+        "narHash": "sha256-qPyhfwkt2NA2oodsZ+vzjzyWlD5uv47i2Yd3zZsXPoM=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "b14f9d18b6d127221bd9f63817a40e1cca2b344b",
+        "rev": "e78ca7f96a07c5d9ab88a34f5e76d544c6d2a299",
         "type": "github"
       },
       "original": {
@@ -845,6 +845,22 @@
     },
     "nixpkgs_10": {
       "locked": {
+        "lastModified": 1781359544,
+        "narHash": "sha256-iUuzKQcyXvopYDDzFpMK5eQKP3WIJExYny2kJtbgUcE=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "9f11f828c213641c2369a9f1fa31fe31557e3156",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_11": {
+      "locked": {
         "lastModified": 1793345420,
         "narHash": "sha256-e/yiZ31gXRROBDcnOtT3YwDQ73NVG9Cepccbt86LIn8=",
         "owner": "nixos",
@@ -859,7 +875,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_11": {
+    "nixpkgs_12": {
       "locked": {
         "lastModified": 1792502884,
         "narHash": "sha256-IoNisKcGbUjdd45qCqywGMCYmZ5EnkxezvLII0FWwNA=",
@@ -875,7 +891,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_12": {
+    "nixpkgs_13": {
       "locked": {
         "lastModified": 1792094642,
         "narHash": "sha256-zp8ToDMnqZcu4o4IH9pdwXFXGp7yLm/M0dEnNWnyd7I=",
@@ -998,16 +1014,16 @@
     },
     "nixpkgs_9": {
       "locked": {
-        "lastModified": 1781359544,
-        "narHash": "sha256-iUuzKQcyXvopYDDzFpMK5eQKP3WIJExYny2kJtbgUcE=",
-        "owner": "nixos",
+        "lastModified": 1793110635,
+        "narHash": "sha256-dhoW6VgFWlaodSY5jrBn+CF2FLmaUvDVgM7+C7T2+NM=",
+        "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "9f11f828c213641c2369a9f1fa31fe31557e3156",
+        "rev": "31ecbaca1bdefa45dffc409f0250bd8039ea0010",
         "type": "github"
       },
       "original": {
-        "owner": "nixos",
-        "ref": "nixpkgs-unstable",
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
         "repo": "nixpkgs",
         "type": "github"
       }
@@ -1158,6 +1174,24 @@
         "type": "github"
       }
     },
+    "papyri": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_9"
+      },
+      "locked": {
+        "lastModified": 1793665651,
+        "narHash": "sha256-TNPkHg4XL0T7ae7Ck7qNmvGv1BiKLy6KzAC1pUYlxng=",
+        "ref": "refs/heads/main",
+        "rev": "7059f09e1026e3a921b58ddd5f90c855e1f6c626",
+        "revCount": 40,
+        "type": "git",
+        "url": "ssh://git@github.com/pseudofractal/papyri"
+      },
+      "original": {
+        "type": "git",
+        "url": "ssh://git@github.com/pseudofractal/papyri"
+      }
+    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": [
@@ -1189,7 +1223,7 @@
     "rmcl": {
       "inputs": {
         "flake-utils": "flake-utils_4",
-        "nixpkgs": "nixpkgs_9"
+        "nixpkgs": "nixpkgs_10"
       },
       "locked": {
         "lastModified": 1781962461,
@@ -1225,6 +1259,7 @@
         "nur": "nur",
         "nur-vortriz": "nur-vortriz",
         "nvf": "nvf",
+        "papyri": "papyri",
         "rmcl": "rmcl",
         "shiryoku": "shiryoku",
         "sops-nix": "sops-nix",
@@ -1256,7 +1291,7 @@
     "shiryoku": {
       "inputs": {
         "flake-utils": "flake-utils_5",
-        "nixpkgs": "nixpkgs_10"
+        "nixpkgs": "nixpkgs_11"
       },
       "locked": {
         "lastModified": 1766768676,
@@ -1501,15 +1536,15 @@
     "t3code": {
       "inputs": {
         "flake-parts": "flake-parts_7",
-        "nixpkgs": "nixpkgs_11",
+        "nixpkgs": "nixpkgs_12",
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1793422936,
-        "narHash": "sha256-jAJdXsZgk6DGBp7lyf22UtvHNwOYu0KmjJ0osYtqaCE=",
+        "lastModified": 1793575705,
+        "narHash": "sha256-PXxkOtPLPMJaW1bzczKV/LhtfMNeJHQoK3nwLXWywYE=",
         "owner": "ominit",
         "repo": "t3code-flake",
-        "rev": "83e88c8f9920d788aa2682d8a68b32ccc23be5ba",
+        "rev": "fbfd1a3f51c139d0eb05736a6288f22c5acacf97",
         "type": "github"
       },
       "original": {
@@ -1632,7 +1667,7 @@
     },
     "vicinae": {
       "inputs": {
-        "nixpkgs": "nixpkgs_12",
+        "nixpkgs": "nixpkgs_13",
         "numen": "numen",
         "soulver-cpp": "soulver-cpp",
         "systems": "systems_9"

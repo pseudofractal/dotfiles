@@ -77,6 +77,7 @@
     kensaku.url = "github:pseudofractal/kensaku";
     rmcl.url = "github:pseudofractal/rmcl";
     mnemosyne.url = "github:pseudofractal/mnemosyne";
+    papyri.url = "git+ssh://git@github.com/pseudofractal/papyri";
     shiryoku.url = "github:pseudofractal/shiryoku";
 
     vicinae = {
