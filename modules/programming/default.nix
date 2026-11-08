@@ -45,6 +45,7 @@ in {
     ./opencode
     ./shared
     ./t3code.nix
+    ./typesetting.nix
     ./zed.nix
     # keep-sorted end
   ];
