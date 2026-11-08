@@ -9,6 +9,18 @@
   tools = pkgs.callPackage ./tools.nix {};
   inherit (tools) niriUtils syncshotRunner;
   systemMesaNiri = pkgs.niri-unstable;
+
+  thunarWithPlugins = pkgs.thunar.override {
+    thunarPlugins = [
+      # keep-sorted start
+      pkgs.thunar-archive-plugin
+      pkgs.thunar-media-tags-plugin
+      pkgs.thunar-shares-plugin
+      pkgs.thunar-vcs-plugin
+      pkgs.thunar-volman
+      # keep-sorted end
+    ];
+  };
 in {
   imports = [
     ./rotate.nix
@@ -122,6 +134,7 @@ in {
 
   home.packages = with pkgs; [
     blueman
+    file-roller
     grim
     imagemagick
     jq
@@ -131,7 +144,7 @@ in {
     pantheon.elementary-icon-theme
     slurp
     syncshotRunner
-    thunar
+    thunarWithPlugins
     wev
     wl-clipboard
     wlr-randr
