@@ -5,9 +5,14 @@
   ...
 }: let
   attachmentPath = "${config.home.homeDirectory}/vault/Thesis/papers/";
-  esr140Pkgs = import inputs.nixpkgs-zotero {
+
+  # Zotero still bundles Firefox ESR 140, which current nixpkgs marks insecure.
+  zoteroPkgs = import inputs.nixpkgs {
     system = pkgs.stdenv.hostPlatform.system;
-    config.allowUnfree = true;
+    config = {
+      allowUnfree = true;
+      permittedInsecurePackages = ["firefox-esr-140-bin-unwrapped-140.17.0esr"];
+    };
   };
 in {
   imports = [inputs.nur-vortriz.homeModules.zotero];
@@ -17,7 +22,7 @@ in {
   programs.zotero = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = esr140Pkgs.zotero;
+      package = zoteroPkgs.zotero;
       bin = "zotero";
     };
 
