@@ -12,5 +12,6 @@
       ./calibre.nix
       ./movie-import
       ./music.nix
+      ./viu.nix
     ];
 }
