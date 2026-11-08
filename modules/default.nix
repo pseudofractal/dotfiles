@@ -20,6 +20,7 @@
   ];
 
   desktopModules = lib.optionals (!isAndroid) [
+    inputs.papyri.homeManagerModules.default
     inputs.vicinae.homeManagerModules.default
     ./cli/vicinae.nix
     ./graphical
