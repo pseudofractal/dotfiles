@@ -25,11 +25,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nur = {
-      url = "github:nix-community/NUR";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     catppuccin.url = "github:catppuccin/nix";
     nixgl.url = "github:nix-community/nixGL";
     niri-nix = {
@@ -37,10 +32,6 @@
     };
     nix-system-graphics = {
       url = "github:soupglasses/nix-system-graphics";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    lmstudio = {
-      url = "github:Daaboulex/lmstudio-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-browser = {
@@ -51,7 +42,6 @@
       url = "github:Vortriz/nur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs-zotero.url = "github:NixOS/nixpkgs/88c4c23f3d6e5a4116ee19e148df5a0f2004f861";
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -59,12 +49,9 @@
     # Keep agent releases independent of the desktop's nixpkgs revision.
     llm-agents.url = "github:numtide/llm-agents.nix";
     t3code.url = "github:ominit/t3code-flake";
+    viu.url = "git+https://github.com/Benexl/fastanime?rev=f6329483099b89a1084dfb785ded7cfe12327ad0";
     noctalia = {
       url = "github:noctalia-dev/noctalia/cachix";
-    };
-    nvf = {
-      url = "github:notashelf/nvf";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
