@@ -63,6 +63,12 @@ in {
     settings = {
       close_on_focus_loss = true;
       providers."@bl4zee1g/bitwarden".preferences.rbwPath = lib.getExe pkgs.rbw;
+      # File search is disabled: the indexer scans the whole home directory
+      # and repeatedly pins a full CPU core for minutes at a time.
+      providers."files" = {
+        enabled = false;
+        preferences.autoIndexing = false;
+      };
       launcher_window = {
         opacity = 0.95;
         material = "auto";
