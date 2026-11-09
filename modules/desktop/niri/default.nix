@@ -23,6 +23,7 @@
   };
 in {
   imports = [
+    ./nectarlink-share-pointer.nix
     ./rotate.nix
     inputs.niri-nix.homeModules.default
   ];

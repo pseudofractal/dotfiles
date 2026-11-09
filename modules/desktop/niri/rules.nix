@@ -20,6 +20,11 @@
     }
     {shadow.on = {};}
   ];
+  # Nectar Island is 400px wide on the 1920px output. Niri positions floating
+  # windows relative to the work area, which starts below the 40px Noctalia
+  # bar, so y=8 lands just under the bar.
+  islandX = (1920 - 400) / 2;
+  islandY = 8;
 in {
   spawn-at-startup = [
     [(lib.getExe' pkgs.blueman "blueman-applet")]
@@ -153,6 +158,26 @@ in {
       {open-focused = true;}
     ])
     (rule (ids ["dev.noctalia.Noctalia"]) [{open-floating = true;}])
+    # NectarLink's Nectar Island overlay is a Qt.Tool window. On Wayland it is
+    # titled "Nectar Island - PiP"; under XWayland it is "Nectar Island".
+    # Keep it floating, unfocused and undecorated so Niri doesn't tile it.
+    (rule
+      [
+        (match {title = "Nectar Island - PiP";})
+        (match {title = "Nectar Island";})
+      ]
+      [
+        {open-floating = true;}
+        {open-focused = false;}
+        {
+          default-floating-position._props = {
+            x = islandX;
+            y = islandY;
+          };
+        }
+        {border.off = {};}
+        {shadow.off = {};}
+      ])
     (rule [(match {title = "Tablet";})] [{open-fullscreen = true;}])
   ];
 
