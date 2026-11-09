@@ -34,6 +34,11 @@
       url = "github:soupglasses/nix-system-graphics";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Pinned to the release that matches the Android APK.
+    nectarlink = {
+      url = "github:thtbee/nectarlink/v0.1.5";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";

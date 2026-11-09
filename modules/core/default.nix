@@ -8,6 +8,7 @@
     ./fonts.nix
     ./git.nix
     ./maintenance.nix
+    ./nectarlink.nix
     ./phone-connect.nix
     ./secrets.nix
     ./tools.nix

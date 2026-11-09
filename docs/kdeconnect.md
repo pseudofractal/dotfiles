@@ -1,6 +1,7 @@
 # KDE Connect
 
-KDE Connect runs on non-Android Home Manager setups. Home Manager installs it and runs two user services: `kdeconnect.service` (the daemon) and `kdeconnect-indicator.service` (tray).
+KDE Connect runs on non-Android Home Manager setups. NectarLink is an optional
+second phone-connect app; see [nectarlink.md](nectarlink.md). Home Manager installs it and runs two user services: `kdeconnect.service` (the daemon) and `kdeconnect-indicator.service` (tray).
 
 Nix-on-Droid doesn't run it; phones and tablets use the Android app as clients.
 
