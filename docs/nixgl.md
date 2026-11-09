@@ -71,6 +71,8 @@ A Home Manager module that overrides its package can still use the helper; the h
 
 Prism wraps with `maybeWrap` around `pkgs.prismlauncher`, keeping its Qt wrapper, Java discovery, desktop entry and game runtime libraries. The outer wrapper clears inherited graphics variables and sets up nixGL's Mesa stack. Prism's own wrapper then appends its runtime libraries instead of swapping that stack for `/run/opengl-driver`.
 
+On the Arch host, Prism's game wrapper adds the host NVIDIA driver libraries when **Use discrete GPU** is enabled. Restart Prism and the game after a Home Manager switch; check the F3 renderer or `nvidia-smi` to confirm the game uses NVIDIA.
+
 With wrapping active, `launcherWrapper = true` makes generated instance launchers re-enter the outer wrapper instead of slipping past nixGL.
 
 Prism's `InstanceDir` must be absolute because Prism doesn't expand `~` in its config. Ours is `/home/pseudofractal/Games/prismlauncher`, via `config.home.homeDirectory`.

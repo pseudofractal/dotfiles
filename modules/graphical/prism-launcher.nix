@@ -5,6 +5,13 @@
   ...
 }: let
   themeName = "Catppuccin Mocha";
+  nvidiaOffloadWrapper = pkgs.writeShellScript "prism-nvidia-offload" ''
+    if [[ ''${__NV_PRIME_RENDER_OFFLOAD:-} == 1 ]]; then
+      export LD_LIBRARY_PATH="''${LD_LIBRARY_PATH:+''${LD_LIBRARY_PATH}:}/usr/lib"
+      export __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/10_nvidia.json
+    fi
+    exec "$@"
+  '';
   driverLibraryArg = "--set LD_LIBRARY_PATH /run/opengl-driver/lib:";
   isLauncherWrapperPin = lib.hasPrefix "--set NIX_LAUNCHER_WRAPPER ";
   isDriverLibrarySet = lib.hasPrefix driverLibraryArg;
@@ -28,16 +35,20 @@ in {
     enable = true;
     package = prismLauncherPackage;
 
-    settings = {
-      # keep-sorted start
-      ApplicationTheme = themeName;
-      InstSortMode = "Name";
-      InstanceDir = "${config.home.homeDirectory}/Games/prismlauncher";
-      MaxMemAlloc = 4096;
-      MinMemAlloc = 2048;
-      ShowConsole = true;
-      # keep-sorted end
-    };
+    settings =
+      {
+        # keep-sorted start
+        ApplicationTheme = themeName;
+        InstSortMode = "Name";
+        InstanceDir = "${config.home.homeDirectory}/Games/prismlauncher";
+        MaxMemAlloc = 4096;
+        MinMemAlloc = 2048;
+        ShowConsole = true;
+        # keep-sorted end
+      }
+      // lib.optionalAttrs config.dotfiles.graphical.nixgl.enable {
+        WrapperCommand = "${nvidiaOffloadWrapper}";
+      };
 
     themes.${themeName} = {
       theme = {
