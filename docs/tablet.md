@@ -4,8 +4,8 @@
 
 - `tablet mirror` (`m`): mirror over USB with scrcpy, detached, logging to `~/.local/state/scrcpy.log`. Run it again to stop.
 - `tablet input` (`i`): toggles the Sunshine host (detached, `~/.local/state/sunshine.log`). Then drive the laptop from the tablet with Moonlight (client setup is §1.2).
-- `tablet files <backend>` (`f`): mount tablet storage and cd into it. `adb` goes over USB through MTP/FUSE at `~/.local/mnt/sierpenski` (go-mtpfs; this host has no gvfs so gio mounting is dead here; needs the `fuse2` system package for `/bin/fusermount`; if the Samsung phone is cabled too it picks by adb serial, otherwise it mounts the only device). `kdeconnect` goes over LAN through SFTP (device `Siérpenski`, needs pairing plus SFTP switched on in the tablet app). `u`/`unmount` detaches everything, `help` reprints this.
-- `tablet fa` / `tablet fk`: shortcuts for `files adb` / `files kdeconnect`.
+- `tablet files` (`f`): mount tablet storage over USB through MTP/FUSE at `~/.local/mnt/sierpenski` and cd into it (go-mtpfs; this host has no gvfs so gio mounting is dead here; needs the `fuse2` system package for `/bin/fusermount`; if the Samsung phone is cabled too it picks by adb serial, otherwise it mounts the only device). `u`/`unmount` detaches it, `help` reprints this.
+- `tablet fa`: shortcut for `files`.
 
 The Arch laptop (niri/Wayland) and the Galaxy Tab S10 Lite share one USB cable in both directions: laptop screen on the tablet as a low-latency stream, tablet screen on the laptop as a mirror. USB first, WiFi as fallback. Everything is declared in `modules/graphical/tablet.nix` and driven by the `tablet` fish function.
 

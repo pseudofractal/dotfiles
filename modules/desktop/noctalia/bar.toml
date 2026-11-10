@@ -15,7 +15,7 @@ capsule_padding = 5
 widget_spacing = 5
 
 start = ["session", "group:taskgroup", "pomodoro", "notes"]
-center = ["lyrics", "clock", "control-center", "phone"]
+center = ["lyrics", "clock", "control-center"]
 end = [
   "notifications",
   "network",
@@ -56,8 +56,6 @@ capsule_radius = 20
 custom_image = "/home/pseudofractal/dotfiles/pictures/profile/transparent.png"
 scale = 1.75
 
-[widget.phone]
-type = "icefish/phone-connect:bar"
 
 [widget.lyrics]
 type = "h465855hgg/lyrics:lyrics"

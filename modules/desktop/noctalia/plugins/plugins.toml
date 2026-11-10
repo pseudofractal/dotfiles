@@ -4,7 +4,6 @@ enabled = [
   "h465855hgg/lyrics",
   "noctalia/notes",
   "thepunkoff/pomodoro",
-  "icefish/phone-connect",
 ]
 
 [[plugins.source]]
@@ -21,3 +20,6 @@ enabled = true
 
 [plugin_settings."h465855hgg/lyrics"]
 lyrics_offset_ms = 1500
+# NectarLink exposes a stale local media session and otherwise wins the
+# plugin's "playing" tie-break over the real player.
+player_blocklist = ["nectarlink"]

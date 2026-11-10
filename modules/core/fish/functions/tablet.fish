@@ -14,8 +14,6 @@ function tablet --description "Unified Samsung tablet control over USB (mirror/i
             __tablet_files $argv[2..-1]
         case fa
             __tablet_files_adb
-        case fk
-            __tablet_files_kde
         case '*'
             __tablet_say red "unknown: tablet $argv[1] (try: tablet help)"
             return 1
@@ -76,13 +74,10 @@ function __tablet_help
     echo "tablet <sub> — Samsung tablet over USB (no default; pick one)"
     echo "  m | mirror      toggle scrcpy mirror (niri fullscreen, phone icon)"
     echo "  i | input       toggle Sunshine host (drive laptop from Moonlight)"
-    echo "  f | files ..    tablet filesystem (default backend: adb)"
-    echo "    adb             mount over USB via MTP, cd into it"
-    echo "    kdeconnect      mount over LAN via KDE Connect SFTP, cd into it"
-    echo "    u | unmount     detach all tablet mounts"
+    echo "  f | files ..    tablet filesystem over USB via MTP, cd into it"
+    echo "    u | unmount     detach the MTP mount"
     echo "    help            this files help"
-    echo "  fa              shortcut: tablet files adb"
-    echo "  fk              shortcut: tablet files kdeconnect"
+    echo "  fa              shortcut: tablet files"
     echo "  h | help        this help"
 end
 
@@ -139,25 +134,20 @@ function __tablet_input --description "Toggle Sunshine host (tablet as laptop in
     __tablet_say green "Credential Page: https://localhost:47990"
 end
 
-function __tablet_files --description "Tablet filesystem via adb/MTP or KDE Connect"
+function __tablet_files --description "Tablet filesystem via adb/MTP"
     set -l backend adb
     if test (count $argv) -gt 0
         set backend $argv[1]
     end
     switch $backend
         case help
-            echo "tablet files <backend> — mount tablet storage and cd into it"
-            echo "  adb           USB via MTP (needs a data cable; needs fuse2 for /bin/fusermount)"
-            echo "  kdeconnect    LAN via KDE Connect SFTP (needs pairing + SFTP enabled)"
-            echo "  u | unmount   detach all tablet mounts"
+            echo "tablet files [u|unmount|help] — mount tablet storage over USB and cd into it"
         case adb
             __tablet_files_adb
-        case kdeconnect
-            __tablet_files_kde
         case u unmount
             __tablet_files_unmount
         case '*'
-            __tablet_say red "unknown backend: $backend (try: tablet files help)"
+            __tablet_say red "unknown option: $backend (try: tablet files help)"
             return 1
     end
 end
@@ -199,40 +189,7 @@ function __tablet_files_adb --description "Mount tablet storage over USB via MTP
     cd "$mount_point"
 end
 
-function __tablet_kde_device_id
-    for row in (kdeconnect-cli --list-devices --id-name-only 2>/dev/null)
-        if string match -qi '*rpenski*' -- "$row"
-            echo (string split ' ' -- $row)[1]
-            return 0
-        end
-    end
-    return 1
-end
-
-function __tablet_files_kde --description "Mount tablet storage over LAN via KDE Connect SFTP and cd into it"
-    __tablet_need kdeconnect-cli; or return 1
-
-    set -l device_id (__tablet_kde_device_id)
-    if test -z "$device_id"
-        __tablet_say red "Siérpenski not reachable over KDE Connect (same LAN? paired? try: kdeconnect-cli -l)"
-        return 1
-    end
-
-    kdeconnect-cli --mount --device "$device_id" 2>/dev/null
-    set -l sftp_path "/run/user/"(id -u)"/$device_id/storage/emulated/0"
-    for attempt in (seq 1 50)
-        if test -d "$sftp_path"
-            cd "$sftp_path"
-            __tablet_say green "Tablet storage: $sftp_path"
-            return 0
-        end
-        sleep 0.1
-    end
-    __tablet_say red "KDE Connect SFTP did not appear (enable it in the tablet app)"
-    return 1
-end
-
-function __tablet_files_unmount --description "Detach all tablet mounts (MTP + KDE Connect)"
+function __tablet_files_unmount --description "Detach the tablet MTP mount"
     set -l failures 0
 
     set -l mount_point "$HOME/.local/mnt/sierpenski"
@@ -244,17 +201,6 @@ function __tablet_files_unmount --description "Detach all tablet mounts (MTP + K
             set failures 1
         end
         pkill -f "go-mtpfs.*sierpenski" 2>/dev/null
-    end
-
-    for mount_dir in /run/user/(id -u)/*/
-        if string match -qr '/[0-9a-f]{32}/$' -- "$mount_dir"; and mountpoint -q "$mount_dir" 2>/dev/null
-            if umount "$mount_dir" 2>/dev/null
-                __tablet_say green "KDE Connect unmounted: $mount_dir"
-            else
-                __tablet_say red "KDE Connect unmount failed: $mount_dir"
-                set failures 1
-            end
-        end
     end
 
     if test $failures -eq 0
