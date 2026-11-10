@@ -26,6 +26,10 @@
     };
 
     catppuccin.url = "github:catppuccin/nix";
+    concord = {
+      url = "github:chojs23/concord";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixgl.url = "github:nix-community/nixGL";
     niri-nix = {
       url = "git+https://codeberg.org/BANanaD3V/niri-nix";
@@ -36,7 +40,7 @@
     };
     # Pinned to the release that matches the Android APK.
     nectarlink = {
-      url = "github:thtbee/nectarlink/v0.1.5";
+      url = "github:thtbee/nectarlink/v0.1.6-nightly.7";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-browser = {
@@ -78,6 +82,10 @@
     vicinae-extensions = {
       url = "github:vicinaehq/extensions";
       flake = false;
+    };
+    ytm-player = {
+      url = "github:peternaame-boop/ytm-player";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     vicinae-color-picker = {
       url = "github:psampir/vicinae-color-picker";
@@ -159,6 +167,15 @@
     };
 
     formatter.${system} = treefmtEval.config.build.wrapper;
+
+    packages.${system}.nectarlink-nightly =
+      pkgs.callPackage ./tools/nectarlink-nightly.nix {};
+
+    apps.${system}.nectarlink-nightly = {
+      type = "app";
+      program = "${self.packages.${system}.nectarlink-nightly}/bin/nectarlink-nightly";
+      meta.description = "Update NectarLink to the latest nightly and queue its Android APK";
+    };
 
     checks.${system}.formatting = treefmtEval.config.build.check self;
   };
