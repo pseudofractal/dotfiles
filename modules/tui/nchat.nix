@@ -4,6 +4,23 @@
   pkgs,
   ...
 }: let
+  # nchat's release binaries statically link libmagic 5.46, which only accepts
+  # magic databases written in format version 20. nixpkgs' file ships a
+  # version 21 database that libmagic rejects outright, so every attachment
+  # ends up with an empty MIME type (WhatsApp then sends it as a generic
+  # document). Build the matching database from the upstream release.
+  file546 = pkgs.stdenv.mkDerivation rec {
+    pname = "file";
+    version = "5.46";
+    src = pkgs.fetchurl {
+      url = "https://astron.com/pub/file/file-${version}.tar.gz";
+      hash = "sha256-ycx3x8VgxUMTXtxVWvYJ1WGdvvARmX6YjOQKPXXYYIg=";
+    };
+    buildInputs = [pkgs.zlib];
+    enableParallelBuilding = true;
+    doCheck = false;
+  };
+
   nchatUpstream = pkgs.stdenv.mkDerivation rec {
     pname = "nchat";
     version = "5.19.18";
@@ -22,8 +39,13 @@
       runHook postInstall
     '';
     postFixup = ''
-      # The upstream binary's libmagic database path points outside the Nix store.
-      wrapProgram $out/bin/nchat --set MAGIC ${pkgs.file}/share/misc/magic.mgc
+      # Point libmagic at the database matching the version bundled in nchat;
+      # the upstream binary's default path is outside the Nix store.
+      # The bundled OpenSSL was built with its cert directory under
+      # /opt/nchat-deps, so point it (and Go's x509) at the Nix CA bundle too.
+      wrapProgram $out/bin/nchat \
+        --set MAGIC ${file546}/share/misc/magic.mgc \
+        --set SSL_CERT_FILE ${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt
     '';
   };
 in
@@ -174,12 +196,12 @@ in
       "applications/nchat.desktop".text = ''
         [Desktop Entry]
         Name=nchat
-        Comment=WhatsApp and email
-        Exec=kitty --app-id=nchat nchat
+        Comment=Terminal-based Telegram, WhatsApp and Signal client
+        Exec=${lib.getExe pkgs.kitty} --app-id=nchat ${nchatUpstream}/bin/nchat
         Icon=nchat
         Terminal=false
         Type=Application
-        Categories=Network;Chat;Email;
+        Categories=Network;Chat;
         StartupWMClass=nchat
       '';
       "icons/hicolor/scalable/apps/nchat.svg".source = ./nchat.svg;
