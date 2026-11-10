@@ -22,7 +22,7 @@ home-manager switch --flake . --impure
 1. Lock it:
 
 ```bash
-nix flake lock --update-input myflake
+nix flake update myflake
 ```
 
 1. Use it in a module:
@@ -131,7 +131,7 @@ inputs = {
 ### Lock it
 
 ```bash
-nix flake lock --update-input myflake
+nix flake update myflake
 ```
 
 ### Consume it

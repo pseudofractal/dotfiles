@@ -12,6 +12,18 @@ home-manager switch --flake .#pseudofractal
 
 The fish shortcut is `rebuild`. It automatically moves conflicting local files aside with a unique `.hm-bak-<timestamp>` suffix before Home Manager installs its managed files. `rebuild --system` does System Manager; `rebuild --backup` remains accepted for compatibility and behaves like `rebuild`.
 
+Every normal Home Manager rebuild attempts to pin the `nectarlink` input to the
+newest `v*-nightly.*` release with an APK and checksum before the switch.
+NectarLink is a Nix package, so this has to happen before Home Manager
+evaluates the configuration. A pending NectarLink transaction is resolved with
+the previous updater before the new one is built, so Nix never evaluates a
+half-updated flake. The APK queue runs afterwards as an activation hook, with
+one marker per device so an offline phone or tablet retries on a later rebuild.
+A failed switch attempts to restore the previous pin and Home Manager
+generation. See [nectarlink.md](nectarlink.md#nightly-updates).
+`rebuild --system` and Nix-on-Droid skip the NectarLink step because it only
+exists on the desktop.
+
 Run it after changing anything under `modules/` or `hosts/arch/default.nix`: packages, dotfiles, user services, niri settings, Noctalia, Vicinae.
 
 A logout is usually unnecessary. Log out and back in when changing how the niri session starts, or when the running compositor ignores a config change.
@@ -77,18 +89,18 @@ Without these, Nix builds large packages locally.
 One input at a time:
 
 ```bash
-nix flake lock --update-input <name>
+nix flake update <name>
 git diff flake.lock
 ```
 
-Never a bare `nix flake update`. Moving every input at once makes breakage hard to isolate.
+Never a bare `nix flake update`; name the input. Moving every input at once makes breakage hard to isolate.
 
-Rev-pinned inputs (`nixpkgs-llama`) don't move with `lock --update-input`; that command is a no-op on a pinned rev. Bump the rev in `flake.nix`, then re-lock that input.
+Rev-pinned inputs (`nixpkgs-llama`) don't move with `nix flake update`; that command is a no-op on a pinned rev. Bump the rev in `flake.nix`, then re-lock that input.
 
 Some inputs are pinned on purpose:
 
 - `nixpkgs` floats on the unstable branch (the lock file pins the exact rev, so builds stay reproducible). `nixpkgs-llama` stays rev-pinned: bump it by hand to the same rev when you want the CUDA servers rebuilt against the new tree, otherwise routine updates never trigger the from-source CUDA compile.
-- `vicinae` must never follow the root nixpkgs. That would rebuild it from source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX skew) and skip `vicinae.cachix.org`. The input floats on upstream `main` with no override, so its nixpkgs always equals upstream's lock, and every rev's binary is already cached. Updates download instead of compiling. Just `nix flake lock --update-input vicinae` (deprecated alias: `nix flake update vicinae`) and build. The flake's `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' own `vicinae` package won't do.
+- `vicinae` must never follow the root nixpkgs. That would rebuild it from source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX skew) and skip `vicinae.cachix.org`. The input floats on upstream `main` with no override, so its nixpkgs always equals upstream's lock, and every rev's binary is already cached. Updates download instead of compiling. Just `nix flake update vicinae` and build. The flake's `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' own `vicinae` package won't do.
 - `niri-nix` provides the overlay both Home Manager and System Manager use. Building niri against the root nixpkgs keeps it compatible with `/run/opengl-driver` (upstream prebuilts silently get zero outputs). Its own nixpkgs input is untouched, so it tracks upstream's lock. Nothing consumed here reads that input (the overlay instantiates with our pkgs; the home module uses `self.lib` plus our `package` override).
 - Zotero still bundles Firefox ESR 140, which nixpkgs marks insecure. `modules/graphical/zotero.nix` imports the root nixpkgs with a scoped `permittedInsecurePackages` entry instead of pinning a separate nixpkgs. Update that entry when nixpkgs bumps the bundled ESR.
 - `nixpkgs-llama` freezes both llama.cpp servers, so routine nixpkgs updates never trigger a from-source CUDA rebuild.
