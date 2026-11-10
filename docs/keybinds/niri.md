@@ -10,7 +10,7 @@ keys and work on the lock screen too.
 - `Mod-b` Zen browser, `Mod-shift-b` private window
 - `Mod-e` file browser (yazi in kitty)
 - `Mod-shift-e` GUI file browser (thunar)
-- `Mod-c` chat and email (kitty session with nchat and aerc tabs)
+- `Mod-c` communication apps (kitty session with nchat, aerc, and Concord tabs)
 - `Mod-space` app launcher (vicinae)
 - `Mod-m` logout and power menu (noctalia panel)
 

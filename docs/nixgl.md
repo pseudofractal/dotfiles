@@ -56,13 +56,12 @@ A Home Manager module that overrides its package can still use the helper; the h
 
 ```nix
 { pkgs, config, ... }: {
-  programs.vesktop = {
+  programs.discord = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
-      package = pkgs.vesktop;
-      bin = "vesktop";
+      package = pkgs.discord;
+      bin = "discord";
     };
-    vencord.useSystem = true;
   };
 }
 ```

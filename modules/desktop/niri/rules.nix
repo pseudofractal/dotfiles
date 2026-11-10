@@ -92,7 +92,9 @@ in {
       "nchat"
       "nvim"
       "sioyek"
-      "vesktop"
+      "concord"
+      "discord"
+      "Discord"
       "^libreoffice-.*$"
     ]) [{open-maximized = true;}])
     (rule (ids [
@@ -122,7 +124,7 @@ in {
           };
         }
       ])
-    (rule (ids ["vesktop"]) [{scroll-factor = 0.4;}])
+    (rule (ids ["discord" "Discord"]) [{scroll-factor = 0.4;}])
     {
       _children =
         [(match {app-id = "it.catboy.ripdrag";})]
@@ -144,7 +146,7 @@ in {
     }
     (onWorkspace ["sioyek" "nvim"] "Work")
     (onWorkspace ["zen" "yazi" "kitty"] "Utilities")
-    (onWorkspace ["nchat" "vesktop" "YouTube Music Desktop App"] "Entertainment")
+    (onWorkspace ["nchat" "discord" "Discord" "concord" "YouTube Music Desktop App"] "Entertainment")
     (rule
       [
         (match {app-id = "Ds9.tcl";})
