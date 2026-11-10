@@ -48,4 +48,8 @@ in {
     lrcTty
     pkgs.playerctl
   ];
+
+  # lrc_tty targets playerctld by default so lyrics follow whichever MPRIS
+  # player is active instead of needing an explicit --player each time.
+  services.playerctld.enable = true;
 }

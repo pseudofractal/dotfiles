@@ -1,3 +1,9 @@
-{pkgs, ...}: {
-  home.packages = [pkgs.kdePackages.audiotube];
+{
+  inputs,
+  pkgs,
+  ...
+}: {
+  home.packages = [
+    inputs.ytm-player.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
 }
