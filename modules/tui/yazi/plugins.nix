@@ -1,11 +1,14 @@
 {
+  inputs,
   isAndroid,
   lib,
   pkgs,
   ...
-}: {
+}: let
+  yaziPlugins = inputs.nur-vortriz.legacyPackages.${pkgs.stdenv.hostPlatform.system}.yaziPlugins;
+in {
   programs.yazi.plugins = lib.mkIf (!isAndroid) {
-    bunny = pkgs.yaziPlugins.bunny;
+    bunny = yaziPlugins.bunny;
     # Upstream shadows the filename list when creating its cache on first use.
     comicthumb = pkgs.runCommand "comicthumb.yazi" {} ''
       cp -r ${pkgs.fetchFromGitHub {
@@ -18,7 +21,7 @@
       substituteInPlace "$out/main.lua" \
         --replace-fail 'local filenames, output = self.generate_list(job.file.url)' 'local output; filenames, output = self.generate_list(job.file.url)'
     '';
-    custom-shell = pkgs.yaziPlugins.custom-shell;
+    custom-shell = yaziPlugins.custom-shell;
     # Without preloaders, summary previews must not wait for a cache to appear.
     duckdb = pkgs.runCommand "duckdb.yazi" {} ''
       cp -r ${pkgs.yaziPlugins.duckdb} "$out"
@@ -42,8 +45,8 @@
       substituteInPlace "$out/main.lua" \
         --replace-fail 'columns(c -> list_contains' 'columns(lambda c: list_contains'
     '';
-    enhance-piper = pkgs.yaziPlugins.enhance-piper;
-    file-extra-metadata = pkgs.yaziPlugins.file-extra-metadata;
+    enhance-piper = yaziPlugins.enhance-piper;
+    file-extra-metadata = yaziPlugins.file-extra-metadata;
     git = pkgs.yaziPlugins.git;
     gvfs = pkgs.yaziPlugins.gvfs;
     jump-to-char = pkgs.yaziPlugins.jump-to-char;
@@ -57,6 +60,6 @@
     smart-filter = pkgs.yaziPlugins.smart-filter;
     starship = pkgs.yaziPlugins.starship;
     toggle-pane = pkgs.yaziPlugins.toggle-pane;
-    what-size = pkgs.yaziPlugins.what-size;
+    what-size = yaziPlugins.what-size;
   };
 }

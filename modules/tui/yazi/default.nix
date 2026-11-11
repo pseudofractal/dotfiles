@@ -6,8 +6,6 @@
   inputs,
   ...
 }: {
-  nixpkgs.overlays = [inputs.nur-vortriz.overlays.yaziPlugins];
-
   imports = [
     # keep-sorted start
     ./keymap.nix

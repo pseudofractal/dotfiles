@@ -17,8 +17,6 @@
 in {
   imports = [inputs.nur-vortriz.homeModules.zotero];
 
-  nixpkgs.overlays = [inputs.nur-vortriz.overlays.zoteroAddons];
-
   programs.zotero = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {
@@ -35,7 +33,7 @@ in {
         "extensions.zotero.baseAttachmentPath" = attachmentPath;
       };
 
-      extensions = with pkgs.zoteroAddons; [
+      extensions = with inputs.nur-vortriz.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zoteroAddons; [
         zotero-scipdf
         zotmoov
       ];

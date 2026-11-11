@@ -47,10 +47,7 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nur-vortriz = {
-      url = "github:Vortriz/nur-packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    nur-vortriz.url = "github:Vortriz/nur-packages";
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
