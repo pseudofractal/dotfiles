@@ -1,13 +1,15 @@
 --- a/desktop/app/cpp/app_helpers.cpp
 +++ b/desktop/app/cpp/app_helpers.cpp
-@@ -670,6 +670,10 @@
-     static char s_arg0[] = "nectarlink";
-     static char *s_argv[] = { s_arg0, nullptr };
- #ifdef __linux__
-+    // On Wayland this is the app id, which is how the dock finds our icon and name.
+@@ -714,9 +714,11 @@
+         return list;
+     }();
+     static int s_argc = static_cast<int>(s_args.size());
+-    auto app = std::unique_ptr<QGuiApplication>(new QApplication(s_argc, s_argv_list.data()));
+     // On Wayland this is the app id, which is how the dock finds our icon and name.
 +    // Set it before QApplication is constructed: the Wayland platform plugin
 +    // reads the desktop file name while creating the platform integration.
-+    QGuiApplication::setDesktopFileName(QStringLiteral("nectarlink"));
-     auto app = std::unique_ptr<QGuiApplication>(new QApplication(s_argc, s_argv));
+     QGuiApplication::setDesktopFileName(QStringLiteral("nectarlink"));
++    auto app = std::unique_ptr<QGuiApplication>(new QApplication(s_argc, s_argv_list.data()));
      QObject::connect(app.get(), &QCoreApplication::aboutToQuit, app.get(), []() {
          qtEventLoopRunning().store(false, std::memory_order_release);
+     });
