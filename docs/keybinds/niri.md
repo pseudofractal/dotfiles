@@ -12,6 +12,7 @@ keys and work on the lock screen too.
 - `Mod-shift-e` GUI file browser (thunar)
 - `Mod-c` communication apps (kitty session with nchat, aerc, and Concord tabs)
 - `Mod-space` app launcher (vicinae)
+- `Mod-F1` searchable keybind cheatsheet (noctalia panel)
 - `Mod-m` logout and power menu (noctalia panel)
 
 ## Focus and workspaces
@@ -44,6 +45,7 @@ keys and work on the lock screen too.
 
 - `Mod-F6` screenshot to clipboard
 - `Mod-shift-s` save screenshot to file and copy it
+- `Mod-shift-o` OCR a selected screen region to the clipboard
 - `Alt-p` screenshot a picked window and sync it to the tablet,
   `Alt-shift-p` inverted
 - `Alt-v` clipboard history

@@ -9,8 +9,11 @@
     _props.hotkey-overlay-title = title;
     inherit spawn;
   };
-  locked = spawn: {
-    _props.allow-when-locked = true;
+  lockedApp = title: spawn: {
+    _props = {
+      allow-when-locked = true;
+      hotkey-overlay-title = title;
+    };
     inherit spawn;
   };
 
@@ -58,6 +61,7 @@ in
   // {
     "Mod+Escape".close-window = {};
     "Mod+Space".spawn = ["vicinae" "toggle"];
+    "Mod+F1" = app "Keybind Cheatsheet" [noctalia "msg" "panel-toggle" "kenn/keybind-cheatsheet:cheatsheet"];
     "Mod+M" = app "Logout" [noctalia "msg" "panel-toggle" "session"];
     "Mod+T" = app "Terminal" ["kitty"];
     "Mod+Shift+E" = app "GUI File Browser" ["thunar"];
@@ -67,17 +71,18 @@ in
     "Mod+B" = app "Zen Browser" ["zen-twilight"];
     "Mod+Shift+B".spawn = ["zen-twilight" "--private-window"];
 
-    "XF86AudioRaiseVolume" = locked [noctalia "msg" "volume-up" "3"];
-    "XF86AudioLowerVolume" = locked [noctalia "msg" "volume-down" "3"];
-    "XF86AudioMute" = locked [noctalia "msg" "volume-mute"];
-    "XF86AudioMicMute" = locked [noctalia "msg" "mic-mute"];
-    "XF86MonBrightnessUp" = locked [noctalia "msg" "brightness-up" "current" "5"];
-    "XF86MonBrightnessDown" = locked [noctalia "msg" "brightness-down" "current" "5"];
+    "XF86AudioRaiseVolume" = lockedApp "Volume Up" [noctalia "msg" "volume-up" "3"];
+    "XF86AudioLowerVolume" = lockedApp "Volume Down" [noctalia "msg" "volume-down" "3"];
+    "XF86AudioMute" = lockedApp "Mute" [noctalia "msg" "volume-mute"];
+    "XF86AudioMicMute" = lockedApp "Mic Mute" [noctalia "msg" "mic-mute"];
+    "XF86MonBrightnessUp" = lockedApp "Brightness Up" [noctalia "msg" "brightness-up" "current" "5"];
+    "XF86MonBrightnessDown" = lockedApp "Brightness Down" [noctalia "msg" "brightness-down" "current" "5"];
     "XF86Launch3" = app "Toggle Integrated/Hybrid Graphics" [utils "toggle_graphics_mode"];
-    "Mod+Shift+N" = locked [noctalia "msg" "nightlight-toggle"];
+    "Mod+Shift+N" = lockedApp "Night Light" [noctalia "msg" "nightlight-toggle"];
 
     "Mod+F6" = app "Screenshot to Clipboard" [utils "screenshot"];
     "Mod+Shift+S" = app "Save Screenshot and Copy" [utils "screenshot_with_file"];
+    "Mod+Shift+O" = app "OCR Region" [noctalia "msg" "plugin" "fel/ocr:ocr" "all" "ocr-region"];
     "Alt+P" = app "Screenshot and Sync To Tab" [syncshot];
     "Alt+Shift+P" = app "Screenshot and Sync To Tab Inverted" [syncshot "true"];
 

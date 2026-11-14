@@ -1,8 +1,11 @@
 [plugins]
 enabled = [
+  "8bury/lid-guard",
+  "ahmedhossamdev/sticky-notes",
   "dotnetrob/cat",
+  "fel/ocr",
   "h465855hgg/lyrics",
-  "noctalia/notes",
+  "kenn/keybind-cheatsheet",
   "thepunkoff/pomodoro",
 ]
 
@@ -18,8 +21,21 @@ kind = "git"
 location = "https://github.com/noctalia-dev/community-plugins"
 enabled = true
 
+[plugin_settings."ahmedhossamdev/sticky-notes"]
+default_color = "yellow"
+file_format = "md"
+save_path = "~/Documents/sticky-notes"
+use_wallpaper_colors = true
+
+[plugin_settings."fel/ocr"]
+languages = "eng"
+psm = "6"
+
 [plugin_settings."h465855hgg/lyrics"]
 lyrics_offset_ms = 1500
 # NectarLink exposes a stale local media session and otherwise wins the
 # plugin's "playing" tie-break over the real player.
 player_blocklist = ["nectarlink"]
+
+[plugin_settings."kenn/keybind-cheatsheet"]
+compositor = "niri"

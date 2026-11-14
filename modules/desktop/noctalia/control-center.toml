@@ -1,3 +1,22 @@
+# Noctalia renders at most six shortcut tiles; keep this list at six.
 [control_center]
 sidebar = "full"
 sidebar_section = "full"
+
+[[control_center.shortcuts]]
+type = "wifi"
+
+[[control_center.shortcuts]]
+type = "bluetooth"
+
+[[control_center.shortcuts]]
+type = "caffeine"
+
+[[control_center.shortcuts]]
+type = "power_profile"
+
+[[control_center.shortcuts]]
+type = "8bury/lid-guard:lid-guard-toggle"
+
+[[control_center.shortcuts]]
+type = "fel/ocr:grab"
