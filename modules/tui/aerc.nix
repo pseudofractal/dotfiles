@@ -67,7 +67,7 @@
       }
       {
         tag = "council";
-        query = ''(from:src@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in) or (subject:senate or subject:"open house" or subject:gbm or subject:election*)'';
+        query = ''(from:src@iisermohali.ac.in or from:bsmsreps4@iisermohali.ac.in or from:bsmsreps5@iisermohali.ac.in) or (subject:senate or subject:"open house" or subject:gbm)'';
       }
       {
         tag = "rooms";
@@ -99,7 +99,7 @@
       }
       {
         tag = "clubs";
-        query = ''((from:phiclub@iisermohali.ac.in or from:ambienteclub@iisermohali.ac.in or from:turingclub@iisermohali.ac.in or from:movieclub@iisermohali.ac.in or from:lumiereclub@iisermohali.ac.in or from:astronomyclub@iisermohali.ac.in or from:ariaclub@iisermohali.ac.in or from:bdfclub@iisermohali.ac.in or from:imqcclub@iisermohali.ac.in or from:gamingclub@iisermohali.ac.in or from:ldsclub@iisermohali.ac.in or from:curieclub@iisermohali.ac.in or from:danceclub@iisermohali.ac.in or from:darpanclub@iisermohali.ac.in or from:rangclub@iisermohali.ac.in or from:infinityclub@iisermohali.ac.in or from:insomnia@iisermohali.ac.in or from:miles@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in) or (subject:workshop* or subject:meetup* or subject:tournament* or subject:orientation or subject:astrophotography or subject:music or subject:macay or subject:patang or subject:movie* or subject:screening*))'';
+        query = ''((from:phiclub@iisermohali.ac.in or from:ambienteclub@iisermohali.ac.in or from:turingclub@iisermohali.ac.in or from:movieclub@iisermohali.ac.in or from:lumiereclub@iisermohali.ac.in or from:astronomyclub@iisermohali.ac.in or from:ariaclub@iisermohali.ac.in or from:bdfclub@iisermohali.ac.in or from:imqcclub@iisermohali.ac.in or from:gamingclub@iisermohali.ac.in or from:ldsclub@iisermohali.ac.in or from:curieclub@iisermohali.ac.in or from:danceclub@iisermohali.ac.in or from:darpanclub@iisermohali.ac.in or from:rangclub@iisermohali.ac.in or from:infinityclub@iisermohali.ac.in or from:insomnia@iisermohali.ac.in or from:miles@iisermohali.ac.in or from:manthanmagzine@iisermohali.ac.in) or (subject:meetup* or subject:tournament* or subject:orientation or subject:astrophotography or subject:music or subject:macay or subject:patang or subject:movie* or subject:screening*))'';
       }
       {
         tag = "seminars";
@@ -145,11 +145,11 @@
     personal = [
       {
         tag = "security";
-        query = ''(subject:otp or subject:"verification code" or subject:"sign-in code" or subject:"security alert" or subject:"has been linked" or subject:"removed your bank" or subject:"privacy request" or subject:"delivery status" or subject:"oauth application" or subject:"login notification" or subject:"password changed" or subject:"password reset" or subject:"sign in to your" or subject:"new login to your" or subject:"new device" or subject:"logged in from" or subject:kyc) or (from:no-reply@accounts.google.com or from:haveibeenpwned.com or from:github.com or from:bitwarden.com or from:uidai.gov.in)'';
+        query = ''(subject:otp or subject:"verification code" or subject:"sign-in code" or subject:"security alert" or subject:"has been linked" or subject:"removed your bank" or subject:"privacy request" or subject:"delivery status" or subject:"oauth application" or subject:"login notification" or subject:"password changed" or subject:"password reset" or subject:"sign in to your" or subject:"new login to your" or subject:"new device" or subject:"logged in from" or subject:kyc) or (from:no-reply@accounts.google.com or from:haveibeenpwned.com or from:bitwarden.com or from:uidai.gov.in) or (from:github.com and (subject:security* or subject:login* or subject:password* or subject:verification* or subject:otp))'';
       }
       {
         tag = "bank";
-        query = ''(from:dcb.bank.in or from:slice.bank.in or from:sbicard.com or from:slicebank.com or from:dcbbank.com or from:goniyomx.com or from:goniyo.com) or (subject:debit* or subject:intimation or subject:credit* or subject:statement* or subject:repay* or subject:transact* or subject:balance)'';
+        query = ''(from:dcb.bank.in or from:slice.bank.in or from:sbicard.com or from:slicebank.com or from:dcbbank.com or from:goniyomx.com or from:goniyo.com) or (subject:debit* or subject:intimation or (subject:credit* and not (subject:report or subject:score)) or subject:statement* or subject:repay* or subject:transact* or subject:balance)'';
       }
       {
         tag = "trips";
@@ -205,7 +205,7 @@
       }
       {
         tag = "devtools";
-        query = ''(from:cursor or from:deepseek or from:wolfram or from:flutterflow or from:zed or from:huggingface or from:oracle or from:cloudflare or from:codeberg or from:appsheet or from:microsoft or from:zoom)'';
+        query = ''(from:cursor or from:deepseek or from:wolfram or from:flutterflow or from:zed or from:huggingface or from:oracle or from:cloudflare or from:codeberg or from:appsheet or from:microsoft or from:zoom) and not (subject:security* or subject:verification* or subject:"sign-in code" or subject:password* or subject:"new login" or subject:"new device")'';
       }
       {
         tag = "accounts";
