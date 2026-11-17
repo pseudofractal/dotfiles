@@ -7,7 +7,7 @@ Local mail lives under `~/mails/{iiser,personal}`, synced with Gmail through Lie
 Each account has a Lieer timer firing every 5 minutes:
 
 - `lieer-iiser.service` / `lieer-personal.service` (triggered by matching `.timer` units).
-- One run is `gmi pull` (fetch labels, refresh history), then classifying new mail, then `gmi push` (upload tag changes). Pull goes first on purpose. Lieer refuses to push any message changed remotely since the last pull, and the next pull then reverts the skipped local tags. Since push never moves the stored historyId forward, the previous run's own uploads trip that conflict against themselves and silently un-delete and un-archive mail. Real mid-run remote edits still win; just retry the keybind.
+- One run is `gmi pull` (fetch mail and labels), then classifying new mail, then `gmi push` (upload tag changes). The pull runs first so the local repository sees remote changes before it tries to push. If Gmail reports a message changed since the locally recorded history point, Lieer can refuse that message's local update; a later pull may then replace the local tag state with Gmail's state. This can leave an archive or delete action unapplied remotely, or restore a label locally. Check the sync log and Gmail before retrying; do not use `gmi push -f` unless you are prepared to overwrite a concurrent remote label change.
 
 First-time authorization is interactive, once per account:
 
@@ -16,7 +16,11 @@ lieer-auth iiser
 lieer-auth personal
 ```
 
-The old mbsync download under `~/Maildir` sits untouched as a rollback copy.
+`~/mails` is the local Lieer store. There is no second local mail copy configured or
+maintained by this setup. The former mbsync download at `~/Maildir` was discarded on
+2026-11-15; messages that existed only there were not migrated. Gmail is the remote
+source of truth: messages still present in Gmail can be synced again, while messages
+deleted from Gmail are no longer available to resync.
 
 ## Classification
 
@@ -51,14 +55,16 @@ Two inference servers share port 8013 (never both at once). Classification doesn
 - `email-classifier.service` (CPU, default): 5% CPU cap, lowest scheduling priority. Daytime mode.
 - `email-classifier-gpu.service` (NVIDIA GPU): 200% CPU cap for the feed threads. Night/backlog mode. The display hangs off the integrated GPU so the NVIDIA card idles otherwise; still, switch everything off while gaming (`email-toggle off`), scheduling priority doesn't reach the GPU.
 
+These are llama.cpp inference servers, separate from the deterministic Notmuch query rules above. Notmuch classification searches message headers and text against the fixed rules in `modules/tui/aerc.nix` and assigns tags directly; it does not call either model server. The CPU service runs the model without GPU layers and is capped at 5% CPU. The GPU service puts model layers on the NVIDIA GPU and allows up to 200% CPU for its feed threads. Both expose the same local endpoint on port 8013, so they must not run at the same time. The module currently defines these servers, but the mail classification and backfill scripts do not use them; `email-toggle` starts/stops them alongside mail timers anyway. They are therefore available for ad-hoc inference, not part of mail classification.
+
 The CPU server gets `TimeoutStopSec = 5min`: a swapped-out server needs minutes to die, otherwise the stop times out and the unit fails. The CUDA build compiles once against the pinned `nixpkgs-llama` input and routine updates never rebuild it.
 
 ## email-toggle
 
 ```bash
-email-toggle on      # CPU classifier (5%) + fetching (default state)
+email-toggle on      # CPU inference server (5%) + fetching (default state)
 email-toggle off     # stop everything (timers, running syncs, both classifiers)
-email-toggle full    # GPU classifier + kick off syncs now
+email-toggle full    # GPU inference server + kick off syncs now
 email-toggle         # flip between on and off
 ```
 
@@ -69,7 +75,7 @@ email-toggle         # flip between on and off
 Used by aerc sidebar folders, `:search`, `:cf`, and the `notmuch` CLI.
 
 - `tag:inbox`, `tag:unread`, `tag:flagged`: the standard tags.
-- `tag:ai/work`: one of the ten classifier tags listed above. Spam classification shows up as the `ai-spam` folder.
+- Account-specific tags include `tag:dev`, `tag:news`, and `tag:faculty`; see the lists above.
 - `path:iiser/mail/**`, `path:personal/mail/**`: one account only.
 - `and`, `or`, `not` with parentheses: `(a or b) and not c`.
 - `from:`, `to:`, `subject:` match headers; `from:example.com` matches the domain.
@@ -78,25 +84,25 @@ Used by aerc sidebar folders, `:search`, `:cf`, and the `notmuch` CLI.
 - `thread:{id}` selects a whole thread; `id:` selects one message.
 
 ```text
-tag:inbox and tag:unread and not tag:ai-classified
-tag:ai/billing and date:6m..
-path:personal/mail/** and tag:ai/travel
+tag:inbox and tag:unread
+tag:finance and date:6m..
+path:personal/mail/** and tag:trips
 (from:example.com or from:example.org) and subject:invoice*
-tag:ai/security and date:1w..
-tag:ai/spam and not tag:trash
+tag:security and date:1w..
+tag:spam and not tag:trash
 ```
 
 CLI (`NOTMUCH_CONFIG` is already exported in interactive shells):
 
 ```bash
-notmuch search --output=summary --limit=10 'tag:ai/work and date:1m..'
-notmuch count 'tag:inbox and not tag:ai-classified'
+notmuch search --output=summary --limit=10 'tag:dev and date:1m..'
+notmuch count 'tag:inbox and not tag:unread'
 notmuch tag +flagged -- 'subject: boarding pass* and date:1m..'
 ```
 
 ## Troubleshooting
 
-- Gmail API rate limits during bulk sync are normal. Lieer backs off and the next timer run resumes; nothing is lost.
+- Gmail API rate limits during bulk sync are normal. Lieer backs off, and a later timer run can resume syncing. This covers rate-limited transfers only; it does not protect messages deleted from Gmail or resolve label conflicts described above.
 - A Lieer service sitting in `failed` after a rate error just needs its next timer tick (or a manual `systemctl --user start`).
 - `notmuch search` needs `NOTMUCH_CONFIG`, already exported in interactive shells.
 - Deletes/archives that never land remotely show up in the service log as `update: remote has changed, will not update: <gid> (add: [...] ... )`. That's the stale-history conflict from Sync above, not auth or API trouble. `gmi push -f` forces local tags through at the cost of overwriting concurrent remote edits; normal runs stay non-forced.
