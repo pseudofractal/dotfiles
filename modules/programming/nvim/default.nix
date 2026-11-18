@@ -18,14 +18,19 @@
     astro-language-server
     biome
     clang-tools
+    emmet-language-server
     harper
     lua-language-server
     marksman
     nixd
     rust-analyzer
+    svelte-language-server
     taplo
+    tailwindcss-language-server
     tinymist
     ty
+    vscode-langservers-extracted
+    yaml-language-server
     # keep-sorted end
   ];
 
@@ -83,6 +88,7 @@ in {
       ripgrep
       tree-sitter
       unzip
+      vscode-js-debug
       xclip
       # keep-sorted end
     ]

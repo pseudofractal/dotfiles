@@ -75,6 +75,33 @@ return {
             client.server_capabilities.hoverProvider = false
           end
 
+          if client and (client.name == "tsc" or client.name == "ts_ls") then
+            map_lsp_key("<leader>Lwo", function()
+              vim.lsp.buf.code_action({
+                apply = true,
+                context = { only = { "source.organizeImports" }, diagnostics = {} },
+              })
+            end, "Organize Imports")
+
+            map_lsp_key("<leader>Lwa", function()
+              local line = vim.api.nvim_win_get_cursor(0)[1] - 1
+              local diagnostics = {}
+              for _, diagnostic in ipairs(vim.diagnostic.get(0, { lnum = line })) do
+                if diagnostic.user_data and diagnostic.user_data.lsp then
+                  diagnostics[#diagnostics + 1] = diagnostic.user_data.lsp
+                end
+              end
+              vim.lsp.buf.code_action({
+                apply = true,
+                context = { only = { "quickfix" }, diagnostics = diagnostics },
+              })
+            end, "Add Missing Import")
+          end
+
+          if client and client.name == "eslint" then
+            map_lsp_key("<leader>Lwe", "<cmd>LspEslintFixAll<cr>", "ESLint Fix All")
+          end
+
           if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, event.buf) then
             map_lsp_key("<leader>lc", vim.lsp.codelens.run, "Run CodeLens")
           end
@@ -213,6 +240,25 @@ return {
       )
       vim.lsp.enable("jetls")
 
+      -- TypeScript 7 dropped tsserver.js, so the server depends on the project:
+      -- `tsc --lsp` for TS 7 and newer, `ts_ls` (tsserver) for anything older.
+      local ts_major_by_root = {}
+      local function project_ts_major(root)
+        if ts_major_by_root[root] == nil then
+          local major = 0
+          local tsc = vim.fs.joinpath(root, "node_modules", ".bin", "tsc")
+          if vim.fn.executable(tsc) == 1 then
+            local result = vim.system({ tsc, "--version" }, { text = true }):wait()
+            local version = vim.version.parse(result.stdout or "")
+            if result.code == 0 and version then
+              major = version.major
+            end
+          end
+          ts_major_by_root[root] = major
+        end
+        return ts_major_by_root[root]
+      end
+
       local servers = {
         harper_ls = {
           filetypes = {
@@ -270,6 +316,76 @@ return {
         },
         clangd = {},
         biome = {},
+        cssls = {},
+        emmet_language_server = {
+          filetypes = {
+            "css",
+            "eruby",
+            "html",
+            "javascript",
+            "javascriptreact",
+            "less",
+            "sass",
+            "scss",
+            "svelte",
+            "typescriptreact",
+            "vue",
+          },
+        },
+        eslint = {},
+        html = {},
+        jsonls = {},
+        svelte = {},
+        tailwindcss = {
+          -- lspconfig falls back to `.git` for Tailwind 4, which starts the
+          -- server in every repository. Only start it where Tailwind is used.
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, {
+              "tailwind.config.js",
+              "tailwind.config.cjs",
+              "tailwind.config.mjs",
+              "tailwind.config.ts",
+              "postcss.config.js",
+              "postcss.config.cjs",
+              "postcss.config.mjs",
+              "postcss.config.ts",
+            })
+            if not root then
+              root = vim.fs.root(bufnr, { ".git" })
+              local package_json = root and vim.fs.joinpath(root, "package.json")
+              if not package_json or vim.uv.fs_stat(package_json) == nil then
+                return
+              end
+              local contents = table.concat(vim.fn.readfile(package_json), "\n")
+              if not contents:find("tailwindcss", 1, true) then
+                return
+              end
+            end
+            on_dir(root)
+          end,
+        },
+        tsc = {
+          -- ts-expand-hover.nvim needs this to know a type can expand further.
+          capabilities = { experimental = { hoverVerbosityLevel = true } },
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(
+              bufnr,
+              { "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "bun.lock", ".git" }
+            )
+            if root and project_ts_major(root) >= 7 then
+              on_dir(root)
+            end
+          end,
+        },
+        ts_ls = {
+          root_dir = function(bufnr, on_dir)
+            local root = vim.fs.root(bufnr, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
+            if root and project_ts_major(root) < 7 then
+              on_dir(root)
+            end
+          end,
+        },
+        yamlls = {},
         astro = {
           filetypes = { "astro", "mdx" },
           init_options = {

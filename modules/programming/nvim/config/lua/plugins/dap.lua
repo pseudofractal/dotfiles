@@ -48,6 +48,53 @@ return {
         },
       }
 
+      local js_debug_adapter = "js-debug"
+
+      dap.adapters["pwa-node"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = { command = js_debug_adapter, args = { "${port}" } },
+      }
+
+      dap.adapters["pwa-chrome"] = {
+        type = "server",
+        host = "localhost",
+        port = "${port}",
+        executable = { command = js_debug_adapter, args = { "${port}" } },
+      }
+
+      for _, filetype in ipairs({ "javascript", "javascriptreact", "typescript", "typescriptreact" }) do
+        dap.configurations[filetype] = {
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch file",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+            skipFiles = { "<node_internals>/**" },
+          },
+          {
+            type = "pwa-node",
+            request = "attach",
+            name = "Attach to process",
+            processId = require("dap.utils").pick_process,
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+          },
+          {
+            type = "pwa-chrome",
+            request = "launch",
+            name = "Launch Chrome",
+            url = function()
+              return vim.fn.input("URL: ", "http://localhost:5173/")
+            end,
+            webRoot = "${workspaceFolder}",
+          },
+        }
+      end
+
       vim.keymap.set("n", "<F5>", dap.continue, { desc = "Debug: Continue" })
       vim.keymap.set("n", "<F10>", dap.step_over, { desc = "Debug: Step Over" })
       vim.keymap.set("n", "<F11>", dap.step_into, { desc = "Debug: Step Into" })
