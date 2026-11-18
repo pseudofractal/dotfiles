@@ -446,11 +446,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1794721493,
-        "narHash": "sha256-7extb+ld6xPCzcVuhVdvcvGPLu/qtDRrhFJmH68jXfM=",
+        "lastModified": 1794883163,
+        "narHash": "sha256-V3WWylFEKFjCLQ/d8voBZZQGmapX5f99yxTyxzC9HTU=",
         "owner": "numtide",
         "repo": "llm-agents.nix",
-        "rev": "aeb1afe1529c5dc7dcdc54d644a8aed212d99dd0",
+        "rev": "97b2c73782356e4934a5d350fa4b6b7dbea1b646",
         "type": "github"
       },
       "original": {
@@ -486,16 +486,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1794569144,
-        "narHash": "sha256-s3h0H6GOO0iqclQTph6nmcDOQWR99j2HbOWpWUoLg9s=",
+        "lastModified": 1794897935,
+        "narHash": "sha256-toP8qsfV39uCU8ApKPOstFFgqKa27aCPlBhY+GEkjvA=",
         "owner": "thtbee",
         "repo": "nectarlink",
-        "rev": "23dd64e44befe5571ee03a0ce1eb6a2b2442940f",
+        "rev": "8a9d2f90b8c16129e79f0cdc98699e40f7c132ab",
         "type": "github"
       },
       "original": {
         "owner": "thtbee",
-        "ref": "v0.1.6-nightly.10",
+        "ref": "v0.1.6-nightly.11",
         "repo": "nectarlink",
         "type": "github"
       }
@@ -721,11 +721,11 @@
     },
     "nixpkgs_12": {
       "locked": {
-        "lastModified": 1793726008,
-        "narHash": "sha256-jQp1wKvbwWdLBASTXkSi/VYmDJ5AbBi1WvcMt9HWJC8=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "1d060086d60cb76a40cf37109f979d88a5bd6396",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -1387,11 +1387,11 @@
         "treefmt-nix": "treefmt-nix_2"
       },
       "locked": {
-        "lastModified": 1794585737,
-        "narHash": "sha256-sduYRIh5lRcyHPDecRneHdUyyo2bmZPysRCHNxGHkHc=",
+        "lastModified": 1794833202,
+        "narHash": "sha256-25VuFqndbL1wbVo0gZNVbuNwaR+cTFJggbk8NAbgQkE=",
         "owner": "ominit",
         "repo": "t3code-flake",
-        "rev": "99a329a123d35efb9f32e9b28bc030c001c5667e",
+        "rev": "114770ac9ecde1af48ffde9a4501af2a66f545a1",
         "type": "github"
       },
       "original": {

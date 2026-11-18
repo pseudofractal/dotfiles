@@ -40,7 +40,7 @@
     };
     # Pinned to the release that matches the Android APK.
     nectarlink = {
-      url = "github:thtbee/nectarlink/v0.1.6-nightly.10";
+      url = "github:thtbee/nectarlink/v0.1.6-nightly.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-browser = {
