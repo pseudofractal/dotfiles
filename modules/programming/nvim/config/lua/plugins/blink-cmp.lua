@@ -1,8 +1,3 @@
-local localSources = {}
-if vim.env.LLAMA_LOCAL_ENABLE == "1" then
-  localSources = { "cursortab" }
-end
-
 return {
   "saghen/blink.cmp",
   dependencies = {
@@ -26,6 +21,10 @@ return {
           if cmp.is_menu_visible() then
             return cmp.accept()
           end
+        end,
+        "snippet_forward",
+        function()
+          return require("sidekick").nes_jump_or_apply()
         end,
         "fallback",
       },
@@ -77,18 +76,8 @@ return {
     },
     fuzzy = { implementation = "prefer_rust" },
     sources = {
-      default = vim.list_extend(
-        vim.list_extend({ "lazydev", "lsp", "latex", "path" }, localSources),
-        { "buffer", "snippets" }
-      ),
+      default = { "lazydev", "lsp", "latex", "path", "buffer", "snippets" },
       providers = {
-        cursortab = {
-          name = "CursorTab",
-          module = "cursortab.blink",
-          async = true,
-          timeout_ms = 5000,
-          score_offset = 50,
-        },
         buffer = {
           enabled = function()
             return vim.fn.getcmdtype() ~= ":"
