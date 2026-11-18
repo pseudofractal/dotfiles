@@ -51,31 +51,64 @@ Leader is `space`. Uppercase means `shift` plus the key (`dB` is
 The `gd` and `gD` pairs shadow Vim's natives, but only in buffers
 with an LSP running. Everywhere else the natives still work.
 
-## Jupyter (`j`)
+## Languages (`L`)
 
-Notebook buffers (`.ipynb`, opened with `:JupynvimOpen`):
+Language-specific actions live under `L`, then the language, then the
+action. Three or four keys is deliberate: these are used rarely, and
+this keeps them out of the way of the everyday bindings.
 
-- `jr` run cell and advance (`shift-enter` also works, in insert
+### Web (`Lw`)
+
+- `Lwh` expandable TypeScript hover; `ctrl-n` expands one level of
+  type aliases, `ctrl-p` collapses one
+- `Lwo` organize imports
+- `Lwa` add the missing import for the symbol under the cursor
+- `Lwe` ESLint fix all (ESLint buffers only)
+
+### Rust (`Lr`)
+
+- `Lra` code action, `Lre` explain the error under the cursor
+- `Lrh` hover actions, `Lro` open docs for the symbol
+- `Lrr` runnables, `Lrt` testables, `Lrd` debug
+
+### Julia (`Lj`)
+
+Reserved for Julia-the-language bindings. Notebooks live under `n`.
+
+### Typst (`Lt`)
+
+- `Ltp` toggle the browser preview
+
+### Markdown (`Lm`)
+
+- `Lme` enable math, `Lmd` disable it, `Lmr` refresh equations
+
+## Notebook (`n`)
+
+Notebook buffers (`.ipynb`, opened with `:JupynvimOpen`). Kernels can be
+Julia or Python.
+
+- `nr` run cell and advance (`shift-enter` also works, in insert
   mode too), `ctrl-enter` run and stay
-- `jR` run all, `jA` and `jB` run above and below
-- `ja` and `jb` add cell above and below, `jd` delete cell
-- `jk` and `jj` move cell up and down
-- `jm` and `jy` convert to markdown and code
-- `jK` pick kernel, `js` and `jS` start and stop, `ji`
-  interrupt, `jx` restart
-- `jc` and `jC` clear cell and all outputs, `jo` and `jO`
-  expand and hide output, `jl` limit output lines
-- `jI` save cell image, `jD` delete embedded image, `jL`
+- `nR` run all, `nA` and `nB` run above and below
+- `na` and `nb` add cell above and below, `nd` delete cell
+- `nk` and `nj` move cell up and down
+- `nm` and `ny` convert to markdown and code
+- `nK` pick kernel, `ns` and `nS` start and stop, `ni`
+  interrupt, `nx` restart
+- `nc` and `nC` clear cell and all outputs, `no` and `nO`
+  expand and hide output, `nl` limit output lines
+- `nI` save cell image, `nD` delete embedded image, `nL`
   refresh display
 - `]c` and `[c` jump between cells, `]i` and `[i` between image
   cells, `ctrl-j` and `ctrl-k` drop into a cell output,
   `gx` opens the link
 - `ty` attaches notebook-aware; kernel completion and hover ride
   along. Saving writes nbformat JSON.
-- `jK` picks the kernel. Kernels always come from the project:
+- `nK` picks the kernel. Kernels always come from the project:
   a notebook inside a uv project auto-uses its `.venv` (just
   `uv add ipykernel`), Julia comes from a devenv shell, and
-  `jK` points at either explicitly. Nothing is global. Python
+  `nK` points at either explicitly. Nothing is global. Python
   gets `ty`, Julia gets JETLS.
 
 ## LSP (`l`)
@@ -88,10 +121,17 @@ These only exist in buffers with an LSP attached.
 - `ld` buffer diagnostics, `lD` workspace diagnostics
 - `lc` run CodeLens
 
-## Notes (`o`)
 
-- `oe` enable markdown math, `od` disable it, `or` refresh equations
-- `op` toggle Typst preview (Typst files only)
+## Test (`t`)
+
+Neotest, currently with the Vitest adapter. Only works in projects that
+have Vitest configured.
+
+- `tt` run the test nearest the cursor, `tf` run the file, `ta` run the
+  whole project
+- `ts` toggle the summary panel, `to` show output for a test, `tO`
+  toggle the output panel
+- `td` debug the nearest test through DAP, `tS` stop the run
 
 ## UI (`u`)
 
@@ -109,9 +149,10 @@ These only exist in buffers with an LSP attached.
 - `wn` new buffer, `wp` pin buffer, `wd` close unpinned buffers
 - `shift-tab` previous buffer
 
-## Reserved and empty
+## Reserved
 
-- `L` (with `Lp` for Python) is kept for language-specific bindings
+- `Lp` is reserved for Python tooling (the uv integration is currently
+  disabled)
 
 ## Direct keys
 
@@ -127,7 +168,11 @@ These only exist in buffers with an LSP attached.
 In insert mode with completions open: `tab` accepts, `up` and
 `down` cycle, `ctrl-space` opens the menu, `ctrl-l` jumps the
 snippet forward, `enter` does nothing to completions. `alt-l`
-accepts the local AI ghost text when the model server is enabled.
+accepts the local AI ghost text when the model server is enabled. With
+no completion or snippet to handle it, `tab` jumps to a pending Copilot
+next-edit suggestion; press it again at the edit to apply it.
+`:Sidekick nes update` requests a suggestion, `:Sidekick nes clear`
+dismisses it, and `:Sidekick nes toggle` turns NES on or off.
 
 Untouched Vim defaults still doing work: surround (`ys`, `ds`,
 `cs`), todo-comment jumps (`]t`, `[t`).
