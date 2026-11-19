@@ -18,6 +18,7 @@ return {
       { "<leader>Lt", group = "Typst" },
       { "<leader>Lw", group = "Web" },
       { "<leader>n", group = "Notebook" },
+      { "<leader>p", group = "Papyri" },
       { "<leader>t", group = "Test" },
       { "<leader>u", group = "UI" },
       { "<leader>w", group = "Windows & Buffers" },
