@@ -159,6 +159,20 @@ return {
       end,
       desc = "Git branches",
     },
+    {
+      "<leader>gl",
+      function()
+        Snacks.picker.git_log()
+      end,
+      desc = "Git log",
+    },
+    {
+      "<leader>gS",
+      function()
+        Snacks.picker.git_status()
+      end,
+      desc = "Git status",
+    },
     { "<leader>un", "<cmd>Noice<cr>", desc = "Notification history" },
     {
       "<leader>wt",

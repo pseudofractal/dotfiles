@@ -2,6 +2,8 @@ vim.g.have_nerd_font = true
 vim.opt.mouse = "a"
 vim.opt.showmode = false
 vim.opt.cmdheight = 0
+vim.opt.pumheight = 12
+vim.opt.winborder = "rounded"
 
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -27,12 +29,17 @@ vim.opt.undofile = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 
+vim.opt.inccommand = "split"
+
 vim.opt.signcolumn = "yes"
 
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
 vim.opt.scrolloff = 15
+vim.opt.smoothscroll = true
+
+vim.opt.confirm = true
 
 vim.api.nvim_create_autocmd("TextYankPost", {
   desc = "Highlight when yanking text",

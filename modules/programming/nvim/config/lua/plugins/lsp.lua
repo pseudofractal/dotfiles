@@ -25,8 +25,18 @@ return {
             vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
           end
 
-          map_lsp_key("<leader>cr", vim.lsp.buf.rename, "Rename")
-          map_lsp_key("<leader>ca", vim.lsp.buf.code_action, "Code Actions")
+          vim.keymap.set("n", "<leader>cr", function()
+            return ":IncRename " .. vim.fn.expand("<cword>")
+          end, { buffer = event.buf, expr = true, desc = "LSP: Rename" })
+
+          map_lsp_key("<leader>ca", function()
+            local ok, preview = pcall(require, "actions-preview")
+            if ok then
+              preview.code_action()
+            else
+              vim.lsp.buf.code_action()
+            end
+          end, "Code Actions")
           map_lsp_key("<leader>gr", Snacks.picker.lsp_references, "Goto References")
           map_lsp_key("<leader>gi", Snacks.picker.lsp_implementations, "Goto Implementation")
           map_lsp_key("<leader>gd", Snacks.picker.lsp_definitions, "Goto Definition")
@@ -67,8 +77,12 @@ return {
 
           if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map_lsp_key("<leader>uh", function()
-              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
+              vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }), { bufnr = event.buf })
             end, "Toggle Inlay Hints")
+
+            if client.name == "tsc" or client.name == "ts_ls" then
+              vim.lsp.inlay_hint.enable(true, { bufnr = event.buf })
+            end
           end
 
           if client and client.name == "ruff" then
