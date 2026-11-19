@@ -1,10 +1,6 @@
--- Papyri's companion plugin lives inside the Papyri repository. Point this at
--- the checkout and pull it together with the flake input so the plugin and the
--- installed app stay on the same commit.
-local plugin_dir = vim.env.PAPYRI_NVIM_DIR or vim.fn.expand("~/GitHub/papyri/editors/nvim")
-
 return {
-  dir = plugin_dir,
+  url = "https://github.com/pseudofractal/papyri.git",
+  branch = "nvim-plugin",
   name = "papyri.nvim",
   lazy = false,
   keys = {
