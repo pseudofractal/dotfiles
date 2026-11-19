@@ -124,6 +124,29 @@ These only exist in buffers with an LSP attached.
 - `ld` buffer diagnostics, `lD` workspace diagnostics
 - `lc` run CodeLens
 
+## Papyri (`p`)
+
+Papyri previews Markdown and Typst while Neovim keeps the text. Saved
+Markdown and Typst buffers inside the project root attach automatically;
+unsaved edits stream to the preview as an overlay and never touch disk.
+Decoration-less mode is on by default, so the preview starts without app
+chrome; `pD` brings it back.
+
+- `po` attach the current buffer, `pt` toggle, `pc` close
+- `pd` detach but leave the tab open, `pr` reveal the cursor now
+- `pf` toggle cursor following, `ps` toggle Markdown scroll mirroring
+- `pP` preview the current Typst file itself instead of `main.typ`
+- `pT` pick a tab, `pO` pick a heading, `p/` search (selection in visual mode)
+- `p+`, `p-`, `p0` zoom in, out and reset
+- `pm` toggle theme, `pl` toggle the Typst live pane
+- `pD` toggle decoration-less mode, `pi` show connection state
+- `pF` raise Papyri, `pR` refresh, `pq` quit
+- `ph` list subcommands, `pk` force takeover, `pX` start without a document
+
+The whole interface is the dispatcher: `:Papyri {subcommand} [value]`, for
+example `:Papyri zoom 125` or `:Papyri scroll.by {"dy":200}`. Unknown names
+are sent as raw control methods. Run `:checkhealth papyri` when the preview
+does not connect.
 
 ## Test (`t`)
 
