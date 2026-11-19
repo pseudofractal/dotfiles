@@ -6,11 +6,23 @@ local f = ls.function_node
 local fmt = require("luasnip.extras.fmt").fmt
 
 -- Math detection cannot rely on the syntax tree: while a formula is being
--- typed it is often incomplete (`$a/` is an ERROR node with no `math`
--- ancestor). Typst only uses `$` as a math delimiter, so count the unescaped
--- dollars before the cursor instead. An odd count means the cursor is inside
--- math, and the character after the opening `$` distinguishes `$x$` (inline)
--- from `$ x $` and multi-line blocks (display).
+-- typed it is often incomplete (`$a/` parses as an ERROR node), and the Typst
+-- grammar even reads a `$` inside a code string as the start of math.
+--
+-- Instead, scan up to the cursor and count unescaped `$` that are not inside a
+-- raw block, string, or comment. An odd count means the cursor is inside math;
+-- the character after the opening `$` tells inline from display.
+local function starts_code_string(line, position)
+  local before = line:sub(1, position - 1):gsub("%s+$", "")
+  if before == "" then
+    return false
+  end
+  local previous = before:sub(-1)
+  -- In markup a quote usually follows a word ("he said ..."); in code it
+  -- follows an operator or delimiter (`=`, `(`, `,`, ...).
+  return not previous:match("[%w_]") and previous ~= '"'
+end
+
 local function math_context()
   local cursor = vim.api.nvim_win_get_cursor(0)
   local row, col = cursor[1] - 1, cursor[2]
@@ -18,17 +30,78 @@ local function math_context()
   local count = 0
   local open_row, open_col = nil, nil
 
+  local in_raw = false
+  local raw_ticks = 0
+  local in_string = false
+  local in_line_comment = false
+  local block_comment_depth = 0
+  local escaped = false
+
   local lines = vim.api.nvim_buf_get_lines(0, 0, row + 1, false)
   for index, line in ipairs(lines) do
     local limit = (index - 1 == row) and col or #line
     local position = 1
+    in_line_comment = false
+
     while position <= limit do
-      if line:sub(position, position) == "$" and line:sub(position - 1, position - 1) ~= "\\" then
+      local char = line:sub(position, position)
+      local next_char = line:sub(position + 1, position + 1)
+
+      if escaped then
+        escaped = false
+      elseif char == "\\" then
+        escaped = true
+      elseif block_comment_depth > 0 then
+        if char == "/" and next_char == "*" then
+          block_comment_depth = block_comment_depth + 1
+          position = position + 1
+        elseif char == "*" and next_char == "/" then
+          block_comment_depth = block_comment_depth - 1
+          position = position + 1
+        end
+      elseif in_line_comment then
+        -- Skip to the end of the line.
+      elseif in_raw then
+        if char == "`" then
+          local ticks = 1
+          while line:sub(position + ticks, position + ticks) == "`" do
+            ticks = ticks + 1
+          end
+          if ticks >= raw_ticks then
+            in_raw = false
+          end
+          position = position + ticks - 1
+        end
+      elseif in_string then
+        if char == '"' then
+          in_string = false
+        end
+      elseif char == "`" then
+        local ticks = 1
+        while line:sub(position + ticks, position + ticks) == "`" do
+          ticks = ticks + 1
+        end
+        in_raw = true
+        raw_ticks = ticks
+        position = position + ticks - 1
+      elseif char == '"' and starts_code_string(line, position) then
+        in_string = true
+      elseif char == "/" and next_char == "/" then
+        in_line_comment = true
+        position = position + 1
+      elseif char == "/" and next_char == "*" then
+        block_comment_depth = 1
+        position = position + 1
+      elseif char == "$" then
         count = count + 1
         open_row, open_col = index - 1, position - 1
       end
+
       position = position + 1
     end
+
+    -- A trailing backslash is a line break, not an escape for the next line.
+    escaped = false
   end
 
   if count % 2 == 0 then
