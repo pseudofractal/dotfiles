@@ -19,10 +19,21 @@ return {
             return cmp.accept({ index = cmp.get_selected_item_idx() or 1 })
           end
           if cmp.is_menu_visible() then
-            return cmp.accept()
+            -- Inside a snippet, only accept a completion the user explicitly
+            -- selected; otherwise let Tab advance to the next placeholder.
+            local in_snippet = cmp.snippet_active({ direction = 1 })
+            if not in_snippet or cmp.get_selected_item_idx() ~= nil then
+              return cmp.accept()
+            end
           end
         end,
-        "snippet_forward",
+        function()
+          local luasnip = require("luasnip")
+          if luasnip.jumpable(1) then
+            luasnip.jump(1)
+            return true
+          end
+        end,
         function()
           return require("sidekick").nes_jump_or_apply()
         end,
@@ -56,6 +67,7 @@ return {
       completion = { menu = { auto_show = true } },
     },
     signature = { enabled = true },
+    snippets = { preset = "luasnip" },
     completion = {
       documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } },
       menu = {
