@@ -148,6 +148,10 @@ example `:Papyri zoom 125` or `:Papyri scroll.by {"dy":200}`. Unknown names
 are sent as raw control methods. Run `:checkhealth papyri` when the preview
 does not connect.
 
+The plugin itself is published from Papyri's `nvim-plugin` branch, so
+`:Lazy update papyri.nvim` pulls plugin changes. The app follows the `papyri`
+flake input and needs a rebuild.
+
 ## Test (`t`)
 
 Neotest, currently with the Vitest adapter. Only works in projects that
