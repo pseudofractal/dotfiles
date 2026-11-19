@@ -5,8 +5,8 @@ Leader is `space`. Uppercase means `shift` plus the key (`dB` is
 
 ## Code (`c`)
 
-- `cr` rename symbol
-- `ca` code action
+- `cr` rename symbol, previewed live
+- `ca` code action, previewed as a diff
 - `cf` format buffer
 - `cs` symbol outline (Trouble)
 - `cl` LSP definitions and references (Trouble)
@@ -34,10 +34,13 @@ Leader is `space`. Uppercase means `shift` plus the key (`dB` is
 - `fG` files from GitHub projects
 - `fh` help pages
 - `fk` keymaps
+- `fr` find and replace across the project (grug-far)
 
 ## Git and goto (`g`)
 
 - `gb` branches
+- `gl` commit log
+- `gS` working tree status
 - `gd` goto definition
 - `gD` goto declaration
 - `gr` goto references
@@ -159,6 +162,10 @@ have Vitest configured.
 - `enter` grow treesitter selection (file buffers only, falls
   through everywhere else), `backspace` shrink it
 - `alt-space` grow selection in visual mode
+- `s` flash jump, `S` flash to a treesitter node (normal, visual and
+  operator-pending)
+- `af`/`if` around/inside a function, `ac`/`ic` a class, and the rest of
+  mini.ai's text objects
 - `-` open yazi at current file, `ctrl-up` resume last yazi session
 - `ctrl-a` select all
 - `n` and `N` next and previous search match
