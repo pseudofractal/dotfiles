@@ -36,6 +36,7 @@ return {
     follow_insert = false,
     debounce_ms = 120,
     launch = true,
+    launch_timeout = 15000,
     decorationless = true,
     takeover = "prompt",
     papyri = "papyri",
