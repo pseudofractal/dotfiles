@@ -5,28 +5,52 @@ local i = ls.insert_node
 local f = ls.function_node
 local fmt = require("luasnip.extras.fmt").fmt
 
--- The Typst parser puts both inline and display math under a `math` node, with
--- the formula itself as a `formula` child. Walk up from the cursor until one
--- of them is found.
-local function inside_math()
-  local ok, node = pcall(vim.treesitter.get_node)
-  if not ok or node == nil then
-    return false
-  end
+-- Math detection cannot rely on the syntax tree: while a formula is being
+-- typed it is often incomplete (`$a/` is an ERROR node with no `math`
+-- ancestor). Typst only uses `$` as a math delimiter, so count the unescaped
+-- dollars before the cursor instead. An odd count means the cursor is inside
+-- math, and the character after the opening `$` distinguishes `$x$` (inline)
+-- from `$ x $` and multi-line blocks (display).
+local function math_context()
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row, col = cursor[1] - 1, cursor[2]
 
-  while node do
-    local kind = node:type()
-    if kind == "math" or kind == "formula" then
-      return true
+  local count = 0
+  local open_row, open_col = nil, nil
+
+  local lines = vim.api.nvim_buf_get_lines(0, 0, row + 1, false)
+  for index, line in ipairs(lines) do
+    local limit = (index - 1 == row) and col or #line
+    local position = 1
+    while position <= limit do
+      if line:sub(position, position) == "$" and line:sub(position - 1, position - 1) ~= "\\" then
+        count = count + 1
+        open_row, open_col = index - 1, position - 1
+      end
+      position = position + 1
     end
-    node = node:parent()
   end
 
-  return false
+  if count % 2 == 0 then
+    return nil
+  end
+
+  local line = vim.api.nvim_buf_get_lines(0, open_row, open_row + 1, false)[1] or ""
+  local next_char = line:sub(open_col + 2, open_col + 2)
+  return { inline = next_char ~= "" and not next_char:match("%s") }
+end
+
+local function inside_math()
+  return math_context() ~= nil
 end
 
 local function outside_math()
   return not inside_math()
+end
+
+local function inline_math()
+  local context = math_context()
+  return context ~= nil and context.inline
 end
 
 -- LuaSnip regex captures are 1-indexed; this keeps the regex snippets readable.
@@ -74,8 +98,23 @@ $
     i(0),
   }),
 
-  -- Fraction: a/ -> (a)/(…)
-  s({ trig = "([^%s]+)/", regTrig = true, wordTrig = false, condition = inside_math }, {
+  -- Inline fraction: a/ -> a"/"b, so one-liners don't grow a stacked fraction.
+  s({ trig = "([^%s]+)/", regTrig = true, wordTrig = false, condition = inline_math }, {
+    capture(1),
+    t('"/"'),
+    i(1),
+    i(0),
+  }),
+
+  -- Display fraction: a/ -> (a)/(…)
+  s({
+    trig = "([^%s%$]+)/",
+    regTrig = true,
+    wordTrig = false,
+    condition = function()
+      return inside_math() and not inline_math()
+    end,
+  }, {
     t("("),
     capture(1),
     t(")/("),
@@ -108,13 +147,13 @@ $
     i(0),
   }),
 
-  -- Lagrangian and vector, matching the old file.
+  -- Lagrangian and bold vector, matching the old file.
   s({ trig = "lll", wordTrig = true, condition = inside_math }, {
     t("cal(L)"),
     i(0),
   }),
   s({ trig = "vv", wordTrig = true, condition = inside_math }, {
-    t("va("),
+    t("vb("),
     i(1),
     t(")"),
     i(0),
