@@ -596,6 +596,108 @@ cases(
     t(")"),
     i(0),
   }),
+
+  -- Machine learning.
+  s({ trig = "loss", wordTrig = true, condition = inside_math }, {
+    t("cal(L)("),
+    i(1, "theta"),
+    t(")"),
+    i(0),
+  }),
+  s({ trig = "expect", wordTrig = true, condition = inside_math }, {
+    t("bb(E)_("),
+    i(1, "x ~ p"),
+    t(")["),
+    i(2),
+    t("]"),
+    i(0),
+  }),
+  s({ trig = "kl", wordTrig = true, condition = inside_math }, {
+    t('D_"KL" ('),
+    i(1, "p"),
+    t(" || "),
+    i(2, "q"),
+    t(")"),
+    i(0),
+  }),
+  s({ trig = "gauss", wordTrig = true, condition = inside_math }, {
+    t("cal(N) ("),
+    i(1, "mu"),
+    t(", "),
+    i(2, "sigma^2"),
+    t(")"),
+    i(0),
+  }),
+  s({ trig = "attn", wordTrig = true, condition = inside_math }, {
+    t('op("Attention")('),
+    i(1, "Q"),
+    t(", "),
+    i(2, "K"),
+    t(", "),
+    i(3, "V"),
+    t(")"),
+    i(0),
+  }),
+  s({ trig = "bayes", wordTrig = true, condition = inside_math }, {
+    t("p("),
+    i(1, "theta"),
+    t(" | "),
+    i(2, "cal(D)"),
+    t(") prop p("),
+    i(3, "cal(D)"),
+    t(" | "),
+    i(4, "theta"),
+    t(") p("),
+    i(5, "theta"),
+    t(")"),
+    i(0),
+  }),
+
+  -- Modified gravity.
+  s({ trig = "conformal", wordTrig = true, condition = inside_math }, {
+    t("tilde(g)_("),
+    i(1, "mu nu"),
+    t(") = Omega^2 g_("),
+    i(2, "mu nu"),
+    t(")"),
+    i(0),
+  }),
+  s({ trig = "scalar", wordTrig = true, condition = inside_math }, {
+    t("cal(L) = 1/2 partial_mu phi partial^mu phi - V(phi)"),
+    i(0),
+  }),
+  s({ trig = "gb", wordTrig = true, condition = inside_math }, {
+    t("cal(G) = R^2 - 4 R_(mu nu) R^(mu nu) + R_(mu nu rho sigma) R^(mu nu rho sigma)"),
+    i(0),
+  }),
+
+  -- Numerical relativity.
+  s({ trig = "adm", wordTrig = true, condition = inside_math }, {
+    t("dif s^2 = -alpha^2 dif t^2 + gamma_(i j) (dif x^i + beta^i dif t)(dif x^j + beta^j dif t)"),
+    i(0),
+  }),
+  s({ trig = "psi4", wordTrig = true, condition = inside_math }, {
+    t("Psi_4"),
+    i(0),
+  }),
+  s({ trig = "constraints", wordTrig = true, condition = inside_math }, {
+    t("cal(H) = 0, quad cal(M)_i = 0"),
+    i(0),
+  }),
+
+  -- Astrophysics.
+  s({ trig = "kepler", wordTrig = true, condition = inside_math }, {
+    t("P^2 = (4 pi^2 a^3)/(G M)"),
+    i(0),
+  }),
+  s({ trig = "chirp", wordTrig = true, condition = inside_math }, {
+    t("cal(M) = ((m_1 m_2)^(3/5))/((m_1 + m_2)^(1/5))"),
+    i(0),
+  }),
+  s({ trig = "hubble", wordTrig = true, condition = inside_math }, {
+    t('H_0 = 100 thin h "km s"^(-1) "Mpc"^(-1)'),
+    i(0),
+  }),
 }
 
 -- from_lua expects the regular snippets first and autosnippets second.
