@@ -473,7 +473,21 @@ def boxed_key(char: str) -> str:
     return f"{char}\u20e3"
 
 
-def format_part(part: str) -> str:
+def format_char(char: str, app: str, shift_present: bool) -> str:
+    """Box one key, expanding uppercase letters to Shift + lowercase.
+
+    Niri stores bindings with capitalised key names whether or not Shift is
+    pressed, so its uppercase letters are just lowercased. Everywhere else an
+    uppercase letter in a cheat sheet means Shift plus the lowercase key.
+    """
+    if char.isalpha() and char.isupper():
+        char = char.lower()
+        if app != "Niri" and not shift_present:
+            return f"{SPECIAL_KEYS['shift']} + {boxed_key(char)}"
+    return boxed_key(char)
+
+
+def format_part(part: str, app: str, shift_present: bool = False) -> str:
     lower = part.lower()
     if lower in SPECIAL_KEYS:
         return SPECIAL_KEYS[lower]
@@ -482,36 +496,37 @@ def format_part(part: str) -> str:
         return FKEY_GLYPHS[int(function_key.group(1))]
     if part.startswith("XF86") or len(part) != 1:
         return part
-    return boxed_key(part)
+    return format_char(part, app, shift_present)
 
 
-def format_combination(token: str) -> str:
+def format_combination(token: str, app: str) -> str:
     separator = "+" if "+" in token else "-"
-    parts = (format_part(part) for part in token.split(separator) if part)
-    return " + ".join(parts)
+    parts = [part for part in token.split(separator) if part]
+    shift_present = any(part.lower() == "shift" for part in parts)
+    return " + ".join(format_part(part, app, shift_present) for part in parts)
 
 
-def format_token(token: str) -> str:
+def format_token(token: str, app: str) -> str:
     if "/" in token:
-        alternatives = (format_token(part) for part in token.split("/") if part)
+        alternatives = (format_token(part, app) for part in token.split("/") if part)
         return " / ".join(alternatives)
     lower = token.lower()
     if lower in SPECIAL_KEYS:
         return SPECIAL_KEYS[lower]
     if re.fullmatch(r"[Ff]\d{1,2}", token) or token.startswith("XF86"):
-        return format_part(token)
+        return format_part(token, app)
     first = re.split(r"[+-]", token, maxsplit=1)[0].lower()
     if first in COMBINATION_PREFIXES and re.search(r"[+-]", token):
-        return format_combination(token)
+        return format_combination(token, app)
     if len(token) == 1:
-        return boxed_key(token)
-    return " · ".join(boxed_key(char) for char in token)
+        return format_char(token, app, shift_present=False)
+    return " · ".join(format_char(char, app, shift_present=False) for char in token)
 
 
-def display_key(key: str) -> str:
+def display_key(key: str, app: str) -> str:
     """Render keys as keycaps, with sequences joined by a middle dot."""
     tokens = re.split(r"\s+then\s+|\s+", key.strip())
-    return " · ".join(format_token(token) for token in tokens if token)
+    return " · ".join(format_token(token, app) for token in tokens if token)
 
 
 def format_entry(entry: Entry) -> str:
@@ -519,7 +534,7 @@ def format_entry(entry: Entry) -> str:
         context = f"{entry.app} / {entry.category}"
     else:
         context = entry.app
-    return f"{display_key(entry.key)} — {entry.description} ({context})"
+    return f"{display_key(entry.key, entry.app)} — {entry.description} ({context})"
 
 
 def command_list(entries: list[Entry]) -> int:
@@ -530,7 +545,8 @@ def command_list(entries: list[Entry]) -> int:
 
 def command_json(entries: list[Entry]) -> int:
     payload = [
-        {**asdict(entry), "display": display_key(entry.key)} for entry in entries
+        {**asdict(entry), "display": display_key(entry.key, entry.app)}
+        for entry in entries
     ]
     print(json.dumps(payload, ensure_ascii=False))
     return 0
