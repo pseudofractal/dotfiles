@@ -10,8 +10,17 @@ and next slide, speaker notes, a timer, and an overview.
 present slides.pdf
 ```
 
-`present` runs `pdfpc -w both`, so the presenter and presentation windows stay
-separate. You can also run `pdfpc` directly for its other modes.
+`present` passes every argument through to `pdfpc`; pdfpc has no subcommands,
+only flags. By default it adds `-w both` so the presenter and presentation
+windows stay separate. Pass `-w` or `--windowed` yourself to override that
+default.
+
+```fish
+present -M                              # list monitors
+present --help                          # pdfpc help
+present -w presenter -1 0 -2 1 deck.pdf # custom mode and screens
+present -S deck.pdf                     # single-screen mode
+```
 
 ## Why pdfpc
 

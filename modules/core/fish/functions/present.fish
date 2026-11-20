@@ -4,5 +4,16 @@ function present --description "Present a PDF with speaker notes using pdfpc"
         return 64
     end
 
-    command pdfpc -w both $argv
+    set -l has_windowed 0
+    for arg in $argv
+        if string match -qr '^(-w|--windowed)' -- $arg
+            set has_windowed 1
+        end
+    end
+
+    if test $has_windowed -eq 1
+        command pdfpc $argv
+    else
+        command pdfpc -w both $argv
+    end
 end
