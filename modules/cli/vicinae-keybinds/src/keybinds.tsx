@@ -1,7 +1,9 @@
 import {
   Action,
   ActionPanel,
+  Clipboard,
   Color,
+  Detail,
   Icon,
   List,
   showToast,
@@ -9,6 +11,9 @@ import {
   useNavigation,
 } from "@vicinae/api"
 import { execFile } from "node:child_process"
+import { unlinkSync, writeFileSync } from "node:fs"
+import { tmpdir } from "node:os"
+import { join } from "node:path"
 import { promisify } from "node:util"
 import { useCallback, useEffect, useMemo, useState } from "react"
 
@@ -86,7 +91,36 @@ interface KeybindItemProps {
   onBack?: () => void
 }
 
+function zoomSvg(display: string): string {
+  const text = display.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+  const fontSize = Math.round(Math.min(220, 1400 / Math.max(1, display.length * 0.7)))
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500">
+  <rect x="30" y="30" width="1540" height="440" rx="48" fill="#313244" stroke="#585b70" stroke-width="4"/>
+  <text x="800" y="250" text-anchor="middle" dominant-baseline="middle" font-family="Maple Mono NF CN, monospace" font-size="${fontSize}" font-weight="bold" fill="#cdd6f4">${text}</text>
+</svg>`
+}
+
+function KeyZoom({ entry, imagePath }: { entry: Keybind; imagePath: string }) {
+  const { pop } = useNavigation()
+
+  useEffect(() => {
+    const timer = setTimeout(pop, 2500)
+    return () => {
+      clearTimeout(timer)
+      try {
+        unlinkSync(imagePath)
+      } catch {
+        // The preview may already be gone.
+      }
+    }
+  }, [pop, imagePath])
+
+  return <Detail markdown={`![](${imagePath})`} navigationTitle={entry.description} />
+}
+
 function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps) {
+  const { push } = useNavigation()
+
   return (
     <List.Item
       title={
@@ -106,10 +140,15 @@ function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps)
       ].filter(Boolean)}
       actions={
         <ActionPanel>
-          <Action.CopyToClipboard
+          <Action
             title="Copy Keybinding"
-            content={entry.key}
             icon={Icon.Keyboard}
+            onAction={async () => {
+              await Clipboard.copy(entry.key)
+              const imagePath = join(tmpdir(), `vicinae-keybind-zoom-${Date.now()}.svg`)
+              writeFileSync(imagePath, zoomSvg(entry.display))
+              push(<KeyZoom entry={entry} imagePath={imagePath} />)
+            }}
           />
           <Action.CopyToClipboard
             title="Copy Description"
