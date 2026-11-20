@@ -61,7 +61,8 @@ in
   // {
     "Mod+Escape".close-window = {};
     "Mod+Space".spawn = ["vicinae" "toggle"];
-    "Mod+F1" = app "Search Keybindings" ["keybinds" "open"];
+    # The provider matches keybindsExtension in modules/cli/vicinae.nix.
+    "Mod+F1" = app "Search Keybindings" ["vicinae" "vicinae://launch/@pseudofractal/keybindings-0/keybinds"];
     "Mod+M" = app "Logout" [noctalia "msg" "panel-toggle" "session"];
     "Mod+T" = app "Terminal" ["kitty"];
     "Mod+Shift+E" = app "GUI File Browser" ["thunar"];

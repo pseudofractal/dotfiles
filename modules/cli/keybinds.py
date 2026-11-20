@@ -15,13 +15,14 @@ clipboard.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shlex
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 DOC_APP_NAMES = {
@@ -189,7 +190,7 @@ def parse_niri(path: Path) -> list[Entry]:
             entries.append(
                 Entry(
                     app="Niri",
-                    category="",
+                    category="Window manager",
                     key=current_key,
                     description=niri_description(action, current_title),
                 )
@@ -362,6 +363,11 @@ def command_list(entries: list[Entry]) -> int:
     return 0
 
 
+def command_json(entries: list[Entry]) -> int:
+    print(json.dumps([asdict(entry) for entry in entries], ensure_ascii=False))
+    return 0
+
+
 def copy_to_clipboard(text: str) -> None:
     """Hand the entry to wl-copy without waiting for it to release the selection."""
     clipboard = shutil.which("wl-copy")
@@ -436,6 +442,7 @@ def main() -> int:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("list", help="print every entry")
+    subparsers.add_parser("json", help="print every entry as JSON")
     subparsers.add_parser("open", help="open the entries in Vicinae dmenu")
 
     args = parser.parse_args()
@@ -447,6 +454,8 @@ def main() -> int:
         parser.error("no keybindings found")
     if args.command == "open":
         return command_open(entries)
+    if args.command == "json":
+        return command_json(entries)
     return command_list(entries)
 
 

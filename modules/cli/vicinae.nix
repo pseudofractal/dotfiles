@@ -33,23 +33,20 @@
       exec python3 ${./keybinds.py} --docs ${../../docs/keybinds} "$@"
     '';
   };
+  # Version 0 keeps the install directory (and deeplink) stable.
+  keybindsExtension = inputs.vicinae.lib.${system}.mkVicinaeExtension {
+    src = lib.cleanSourceWith {
+      src = ./vicinae-keybinds;
+      filter = path: _: let
+        name = builtins.baseNameOf path;
+      in
+        name != "node_modules" && name != "dist";
+    };
+    pname = "keybindings";
+    version = "0";
+  };
 in {
   home.packages = [keybinds];
-
-  # Vicinae scans this directory for Raycast-style script commands.
-  xdg.dataFile."vicinae/scripts/keybinds.sh" = {
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
-      # @vicinae.schemaVersion 1
-      # @vicinae.title Search Keybindings
-      # @vicinae.description Search every configured keybinding
-      # @vicinae.mode silent
-      # @vicinae.keywords ["keybind", "shortcut", "keys", "cheatsheet"]
-
-      exec keybinds open
-    '';
-  };
 
   programs.vicinae = {
     enable = true;
@@ -82,6 +79,7 @@ in {
           hash = "sha256-CskrY0L1kQBEFcFjkTsncr1RxTVqWou7kfSk+GU66cg=";
         })
         (mkExtFrom inputs.vicinae-color-picker "color-picker")
+        keybindsExtension
       ];
 
     settings = {
