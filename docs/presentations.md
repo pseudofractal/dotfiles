@@ -27,6 +27,16 @@ present -w presenter -1 0 -2 1 deck.pdf # custom mode and screens
 present -S deck.pdf                     # single-screen mode
 ```
 
+## Vicinae
+
+Search for **Present PDF** in Vicinae. It lists Downloads, Documents, GitHub,
+and Vault with PDF counts. Typing searches every PDF in those folders; Enter
+starts pdfpc on the selected file. The action panel also has **Open in Sioyek**
+and **Copy Path**.
+
+The **Terminal picker** item in the Tools section opens the `fzf` picker with
+first-page `chafa` previews in a terminal.
+
 ## Why pdfpc
 
 - Works with any PDF, including Typst and LaTeX exports.

@@ -34,6 +34,17 @@
     '';
   };
   # Version 0 keeps the install directory (and deeplink) stable.
+  presentationsExtension = inputs.vicinae.lib.${system}.mkVicinaeExtension {
+    src = lib.cleanSourceWith {
+      src = ./vicinae-presentations;
+      filter = path: _: let
+        name = builtins.baseNameOf path;
+      in
+        name != "node_modules" && name != "dist" && name != "vicinae-env.d.ts";
+    };
+    pname = "presentations";
+    version = "0";
+  };
   keybindsExtension = inputs.vicinae.lib.${system}.mkVicinaeExtension {
     src = lib.cleanSourceWith {
       src = ./vicinae-keybinds;
@@ -80,6 +91,7 @@ in {
         })
         (mkExtFrom inputs.vicinae-color-picker "color-picker")
         keybindsExtension
+        presentationsExtension
       ];
 
     settings = {
