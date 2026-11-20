@@ -987,11 +987,11 @@
         "nixpkgs": "nixpkgs_9"
       },
       "locked": {
-        "lastModified": 1795127489,
-        "narHash": "sha256-wEr5AYLUD5XFM0a2s34VNEZy4TKWaDz3fqf7y/6RwZs=",
+        "lastModified": 1795153254,
+        "narHash": "sha256-bGPs72WnUs78Q7p4CbFN/KH7aefcfHzDeP0za2y30tQ=",
         "ref": "refs/heads/main",
-        "rev": "2a72c22303a583223f5b7df0b29adf11f7373bfb",
-        "revCount": 122,
+        "rev": "318109afe76b67761ed897fccf7365e18cedd8d0",
+        "revCount": 127,
         "type": "git",
         "url": "ssh://git@github.com/pseudofractal/papyri"
       },
