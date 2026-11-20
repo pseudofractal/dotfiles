@@ -144,6 +144,27 @@ in {
           }
         ];
     }
+    # Keep the pdfpc presenter console on the laptop while the presentation
+    # window can be moved to the projector.
+    (rule
+      [
+        (match {
+          app-id = "pdfpc";
+          title = "pdfpc - presenter";
+        })
+      ]
+      [
+        {open-on-output = "eDP-1";}
+        {open-focused = true;}
+      ])
+    (rule
+      [
+        (match {
+          app-id = "pdfpc";
+          title = "pdfpc - presentation";
+        })
+      ]
+      [{open-focused = false;}])
     (onWorkspace ["sioyek" "nvim"] "Work")
     (onWorkspace ["zen" "yazi" "kitty"] "Utilities")
     (onWorkspace ["nchat" "discord" "Discord" "concord" "YouTube Music Desktop App"] "Entertainment")

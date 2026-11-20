@@ -31,6 +31,7 @@ in {
     ghostscript
     okular
     pdfarranger
+    pdfpc
     # keep-sorted end
   ];
 
