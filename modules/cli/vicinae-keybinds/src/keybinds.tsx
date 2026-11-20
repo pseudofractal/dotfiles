@@ -2,6 +2,7 @@ import {
   Action,
   ActionPanel,
   Clipboard,
+  closeMainWindow,
   Color,
   Detail,
   Icon,
@@ -25,6 +26,7 @@ interface Keybind {
   key: string
   display: string
   description: string
+  chords: string[]
 }
 
 interface AppIcon {
@@ -102,10 +104,15 @@ function zoomSvg(display: string): string {
 }
 
 function KeyZoom({ entry, imagePath }: { entry: Keybind; imagePath: string }) {
-  const { pop } = useNavigation()
-
   useEffect(() => {
-    const timer = setTimeout(pop, 2500)
+    const timer = setTimeout(async () => {
+      try {
+        unlinkSync(imagePath)
+      } catch {
+        // The preview may already be gone.
+      }
+      await closeMainWindow()
+    }, 2500)
     return () => {
       clearTimeout(timer)
       try {
@@ -114,7 +121,7 @@ function KeyZoom({ entry, imagePath }: { entry: Keybind; imagePath: string }) {
         // The preview may already be gone.
       }
     }
-  }, [pop, imagePath])
+  }, [imagePath])
 
   // The detail view lays images out from the top; nudge the keycap to the
   // vertical center of the launcher window.
@@ -166,6 +173,14 @@ function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps)
             content={entry.description}
             icon={Icon.Text}
           />
+          {entry.chords.length > 0 ? (
+            <Action
+              title="Run Keybinding"
+              icon={Icon.Play}
+              shortcut={{ modifiers: ["ctrl"], key: "return" }}
+              onAction={() => void runKeybinding(entry)}
+            />
+          ) : null}
           {onBack ? (
             <Action
               title="Back to Applications"
@@ -178,6 +193,43 @@ function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps)
       }
     />
   )
+}
+
+async function sendWtype(args: string[]) {
+  const home = process.env["HOME"]
+  const candidates = home ? ["wtype", `${home}/.nix-profile/bin/wtype`] : ["wtype"]
+  let lastError: unknown
+
+  for (const candidate of candidates) {
+    try {
+      await execFileAsync(candidate, args)
+      return
+    } catch (error) {
+      lastError = error
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("wtype is not available")
+}
+
+async function runKeybinding(entry: Keybind) {
+  await closeMainWindow()
+  await new Promise((resolve) => setTimeout(resolve, 350))
+
+  for (const chord of entry.chords) {
+    const parts = chord.split("+")
+    const key = parts.pop()
+    if (!key) continue
+    if (![key, ...parts].every((part) => /^[A-Za-z0-9_]+$/.test(part))) continue
+
+    const args = parts.flatMap((part) => ["-M", part])
+    args.push("-k", key)
+    try {
+      await sendWtype(args)
+    } catch (error) {
+      console.error("Could not replay keybinding", error)
+    }
+    await new Promise((resolve) => setTimeout(resolve, 60))
+  }
 }
 
 interface AppKeybindsProps {

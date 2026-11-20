@@ -46,7 +46,7 @@
     version = "0";
   };
 in {
-  home.packages = [keybinds];
+  home.packages = [keybinds pkgs.wtype];
 
   programs.vicinae = {
     enable = true;

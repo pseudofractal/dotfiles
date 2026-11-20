@@ -96,6 +96,77 @@ BOXED_DIGITS = {
     "9": "\U000f03bc",
 }
 
+# XKB keysyms used by wtype to replay a binding.
+XKB_KEYS = {
+    "enter": "Return",
+    "return": "Return",
+    "esc": "Escape",
+    "escape": "Escape",
+    "tab": "Tab",
+    "space": "space",
+    "backspace": "BackSpace",
+    "caps": "Caps_Lock",
+    "delete": "Delete",
+    "insert": "Insert",
+    "home": "Home",
+    "end": "End",
+    "pageup": "Page_Up",
+    "pgup": "Page_Up",
+    "pagedown": "Page_Down",
+    "pgdn": "Page_Down",
+    "backtab": "ISO_Left_Tab",
+    "print": "Print",
+    "pause": "Pause",
+    "menu": "Menu",
+    "left": "Left",
+    "right": "Right",
+    "up": "Up",
+    "down": "Down",
+    "-": "minus",
+    "=": "equal",
+    "[": "bracketleft",
+    "]": "bracketright",
+    "/": "slash",
+    ",": "comma",
+    ".": "period",
+    "?": "question",
+    ";": "semicolon",
+    "'": "apostrophe",
+    "\\": "backslash",
+    "`": "grave",
+    "+": "plus",
+    "*": "asterisk",
+    "<": "less",
+    ">": "greater",
+    ":": "colon",
+    "@": "at",
+    "#": "numbersign",
+    "$": "dollar",
+    "%": "percent",
+    "^": "asciicircum",
+    "&": "ampersand",
+    "(": "parenleft",
+    ")": "parenright",
+    "_": "underscore",
+    "|": "bar",
+    "~": "asciitilde",
+    '"': "quotedbl",
+}
+
+EXEC_MODIFIERS = {
+    "mod": "logo",
+    "super": "logo",
+    "meta": "logo",
+    "win": "logo",
+    "cmd": "logo",
+    "command": "logo",
+    "ctrl": "ctrl",
+    "control": "ctrl",
+    "shift": "shift",
+    "alt": "alt",
+    "option": "alt",
+}
+
 FKEY_GLYPHS = {
     1: "\U000f12ab",
     2: "\U000f12ac",
@@ -544,6 +615,82 @@ def format_token(token: str, app: str) -> str:
     return " · ".join(format_char(char, app, shift_present=False) for char in token)
 
 
+def exec_key(part: str, app: str, shift_present: bool = False) -> str | None:
+    lower = part.lower()
+    if lower in EXEC_MODIFIERS:
+        return None
+    if lower in XKB_KEYS:
+        return XKB_KEYS[lower]
+    function_key = re.fullmatch(r"[Ff](\d{1,2})", part)
+    if function_key:
+        return f"F{int(function_key.group(1))}"
+    if part.startswith("XF86"):
+        return part
+    if len(part) != 1:
+        return part
+    char = part
+    if char.isalpha() and char.isupper():
+        char = char.lower()
+        if app != "Niri" and not shift_present:
+            return f"shift+{char}"
+    return XKB_KEYS.get(char, char)
+
+
+def exec_combination(token: str, app: str) -> str | None:
+    separator = "+" if "+" in token else "-"
+    parts = [part for part in token.split(separator) if part]
+    modifiers: list[str] = []
+    key_part: str | None = None
+    for part in parts:
+        modifier = EXEC_MODIFIERS.get(part.lower())
+        if modifier:
+            if modifier not in modifiers:
+                modifiers.append(modifier)
+        else:
+            key_part = part
+    if key_part is None:
+        return None
+    key = exec_key(key_part, app, shift_present="shift" in modifiers)
+    if key is None:
+        return None
+    if key.startswith("shift+"):
+        if "shift" not in modifiers:
+            modifiers.append("shift")
+        key = key.split("+", 1)[1]
+    return "+".join([*modifiers, key])
+
+
+def exec_chords(key: str, app: str) -> list[str]:
+    """Turn a binding into wtype chords, using the first alternative."""
+    tokens = re.split(r"\s+then\s+|\s+", key.strip())
+    chords: list[str] = []
+    for token in tokens:
+        if not token:
+            continue
+        token = token.split("/")[0]
+        first = re.split(r"[+-]", token, maxsplit=1)[0].lower()
+        if first in COMBINATION_PREFIXES and re.search(r"[+-]", token):
+            chord = exec_combination(token, app)
+            if chord:
+                chords.append(chord)
+            continue
+        if (
+            len(token) == 1
+            or token.lower() in XKB_KEYS
+            or re.fullmatch(r"[Ff]\d{1,2}", token)
+            or token.startswith("XF86")
+        ):
+            chord = exec_key(token, app)
+            if chord:
+                chords.append(chord)
+            continue
+        for char in token:
+            chord = exec_key(char, app)
+            if chord:
+                chords.append(chord)
+    return chords
+
+
 def display_key(key: str, app: str) -> str:
     """Render keys as keycaps, with sequences joined by a middle dot."""
     tokens = re.split(r"\s+then\s+|\s+", key.strip())
@@ -566,7 +713,11 @@ def command_list(entries: list[Entry]) -> int:
 
 def command_json(entries: list[Entry]) -> int:
     payload = [
-        {**asdict(entry), "display": display_key(entry.key, entry.app)}
+        {
+            **asdict(entry),
+            "display": display_key(entry.key, entry.app),
+            "chords": exec_chords(entry.key, entry.app),
+        }
         for entry in entries
     ]
     print(json.dumps(payload, ensure_ascii=False))
