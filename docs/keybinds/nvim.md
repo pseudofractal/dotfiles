@@ -193,8 +193,6 @@ have Vitest configured.
   operator-pending)
 - `gs` in visual mode stores the selection for the wrapping snippets
   (`wrapb`, `wrapi`, `wrapl` in Markdown and Typst)
-- `fig`, `tbl`, `eq` and `pkg` scaffold Typst figures, tables, labeled
-  equations and package imports
 - `af`/`if` around/inside a function, `ac`/`ic` a class, and the rest of
   mini.ai's text objects
 - `-` open yazi at current file, `ctrl-up` resume last yazi session
@@ -202,6 +200,11 @@ have Vitest configured.
 - `n` and `N` next and previous search match
 - `]]` and `[[` next and previous reference
 - `?` buffer-local keymap popup
+
+## Snippets
+
+- `fig`, `tbl`, `eq` and `pkg` scaffold Typst figures, tables, labeled
+  equations and package imports
 
 In insert mode with completions open: `tab` accepts, `up` and
 `down` cycle, `ctrl-space` opens the menu, `ctrl-l` jumps the

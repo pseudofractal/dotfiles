@@ -4,9 +4,10 @@
 application list with icons; selecting an application shows its bindings
 grouped by category. Typing in the search bar switches to results across every
 application, prefixed with the application name. Selecting a binding copies
-its plain key combination to the clipboard. Displayed keys use Nerd Font
-modifiers and special-key glyphs from Maple Mono NF CN, and a sequence such as
-`g` then `m` is shown with an arrow instead of the word "then".
+its plain key combination to the clipboard. Displayed keys are built from Nerd Font
+keycaps: single keys are boxed with the combining enclosing keycap, modifiers
+use the keyboard glyphs, Mod is the Linux Tux icon, and sequences use a middle
+dot (`g · m`). Separators are spaced (`Mod + T`).
 
 The same command is available from Vicinae's root search as **Keybindings**.
 In a terminal, `keybinds list` prints the index, `keybinds json` prints it as

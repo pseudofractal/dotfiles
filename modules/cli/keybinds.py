@@ -41,31 +41,57 @@ APP_ORDER = ["Niri", "Neovim"]
 
 # Nerd Font key glyphs, available in Maple Mono NF CN. The raw key stays
 # unchanged for searching and copying; only the displayed form uses glyphs.
-KEY_GLYPHS = {
-    "alt": "\U000f0635",
-    "backspace": "\U000f030d",
-    "caps": "\U000f0632",
-    "control": "\U000f0634",
+SPECIAL_KEYS = {
+    "mod": "\uf31a",  # Tux: Mod is the Super/Windows key
+    "super": "\uf31a",
+    "meta": "\uf31a",
+    "win": "\uf31a",
     "ctrl": "\U000f0634",
-    "down": "\U000f0045",
+    "control": "\U000f0634",
+    "shift": "\U000f0636",
+    "alt": "\U000f0635",
+    "option": "\U000f0635",
     "enter": "\U000f0311",
+    "return": "\U000f0311",
     "esc": "\U000f12b7",
     "escape": "\U000f12b7",
-    "left": "\U000f004d",
-    "option": "\U000f0635",
-    "return": "\U000f0311",
-    "right": "\U000f0054",
-    "shift": "\U000f0636",
-    "space": "\U000f1050",
     "tab": "\U000f0312",
-    "then": "\U000f0054",
-    "up": "\U000f005d",
+    "space": "\U000f1050",
+    "caps": "\U000f030e",
+    "backspace": "⌫",
+    "delete": "⌦",
+    "insert": "Insert",
+    "home": "Home",
+    "end": "End",
+    "pageup": "PgUp",
+    "pgup": "PgUp",
+    "pagedown": "PgDn",
+    "pgdn": "PgDn",
+    "backtab": "⇤",
+    "print": "Print",
+    "pause": "Pause",
+    "menu": "Menu",
+    "left": "\U000f06c1",
+    "right": "\U000f06c2",
+    "up": "\U000f06c3",
+    "down": "\U000f06c0",
 }
 
-KEY_GLYPH_RE = re.compile(
-    r"\b(" + "|".join(KEY_GLYPHS) + r")\b",
-    re.IGNORECASE,
-)
+FKEY_GLYPHS = {
+    1: "\U000f12ab",
+    2: "\U000f12ac",
+    3: "\U000f12ad",
+    4: "\U000f12ae",
+    5: "\U000f12af",
+    6: "\U000f12b0",
+    7: "\U000f12b1",
+    8: "\U000f12b2",
+    9: "\U000f12b3",
+    10: "\U000f12b4",
+    11: "\U000f12b5",
+    12: "\U000f12b6",
+}
+
 # Bare keys that are names rather than prose. Multi-letter bare keys in other
 # applications are usually commands mentioned in a description (for example
 # `bat` in nchat's "open message in `bat`").
@@ -106,7 +132,10 @@ MODIFIER_PREFIXES = {
     "shift",
     "space",
     "super",
+    "win",
 }
+
+COMBINATION_PREFIXES = MODIFIER_PREFIXES - {"space"}
 
 NIRI_KEY_NAMES = {
     "BracketLeft": "[",
@@ -406,7 +435,8 @@ def parse_doc(path: Path) -> list[Entry]:
 
         index += 1
 
-    return [entry for entry in entries if entry.category.lower() != "reserved"]
+    skip_categories = {"reserved", "snippets"}
+    return [entry for entry in entries if entry.category.lower() not in skip_categories]
 
 
 def collect(docs_dir: Path, niri_config: Path) -> list[Entry]:
@@ -436,17 +466,52 @@ def collect(docs_dir: Path, niri_config: Path) -> list[Entry]:
     return result
 
 
+def boxed_key(char: str) -> str:
+    """Wrap one key in a keycap box using the combining enclosing keycap."""
+    if char == "-":
+        char = "−"
+    return f"{char}\u20e3"
+
+
+def format_part(part: str) -> str:
+    lower = part.lower()
+    if lower in SPECIAL_KEYS:
+        return SPECIAL_KEYS[lower]
+    function_key = re.fullmatch(r"[Ff](\d{1,2})", part)
+    if function_key and int(function_key.group(1)) in FKEY_GLYPHS:
+        return FKEY_GLYPHS[int(function_key.group(1))]
+    if part.startswith("XF86") or len(part) != 1:
+        return part
+    return boxed_key(part)
+
+
+def format_combination(token: str) -> str:
+    separator = "+" if "+" in token else "-"
+    parts = (format_part(part) for part in token.split(separator) if part)
+    return " + ".join(parts)
+
+
+def format_token(token: str) -> str:
+    if "/" in token:
+        alternatives = (format_token(part) for part in token.split("/") if part)
+        return " / ".join(alternatives)
+    lower = token.lower()
+    if lower in SPECIAL_KEYS:
+        return SPECIAL_KEYS[lower]
+    if re.fullmatch(r"[Ff]\d{1,2}", token) or token.startswith("XF86"):
+        return format_part(token)
+    first = re.split(r"[+-]", token, maxsplit=1)[0].lower()
+    if first in COMBINATION_PREFIXES and re.search(r"[+-]", token):
+        return format_combination(token)
+    if len(token) == 1:
+        return boxed_key(token)
+    return " · ".join(boxed_key(char) for char in token)
+
+
 def display_key(key: str) -> str:
-    """Render a key with Nerd Font glyphs for modifiers and special keys."""
-    # `ctrl-shift-m` reads better as `ctrl+shift+m`; leave minus keys alone.
-    display = re.sub(r"(?<=[0-9A-Za-z\]])-(?=[0-9A-Za-z])", "+", key)
-    display = KEY_GLYPH_RE.sub(
-        lambda match: KEY_GLYPHS[match.group(1).lower()], display
-    )
-    # Standalone and trailing hyphens are minus keys, not separators.
-    display = re.sub(r"(^|[+\s])-(?=$|[+\s])", r"\1−", display)
-    display = re.sub(r"(?<=[0-9A-Za-z])-$", "−", display)
-    return display
+    """Render keys as keycaps, with sequences joined by a middle dot."""
+    tokens = re.split(r"\s+then\s+|\s+", key.strip())
+    return " · ".join(format_token(token) for token in tokens if token)
 
 
 def format_entry(entry: Entry) -> str:
