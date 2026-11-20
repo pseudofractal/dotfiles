@@ -5,11 +5,12 @@ application list with icons; selecting an application shows its bindings
 grouped by category. Typing in the search bar switches to results across every
 application, prefixed with the application name. Selecting a binding copies
 its plain key combination to the clipboard. Displayed keys are built from Nerd Font
-keycaps: single keys are boxed with the combining enclosing keycap, modifiers
-use the keyboard glyphs, Mod is the Linux Tux icon, and sequences use a middle
-dot (`g · m`). Separators are spaced (`Mod + T`). An uppercase letter in a
-cheat sheet means Shift plus the lowercase key (`M` becomes `Shift + m`);
-Niri keys are shown in lowercase because its config spells Shift explicitly.
+keycaps: letters and digits use the Material boxed glyphs, modifiers use the
+keyboard glyphs, Mod is the Linux Tux icon, and sequences use a middle dot
+(`g · m`). Separators are spaced (`Mod + T`). Keys without a boxed glyph, such
+as punctuation, Tab, and PgUp, stay plain text. An uppercase letter in a cheat
+sheet means Shift plus the lowercase key (`M` becomes `Shift + m`); Niri keys
+are shown in lowercase because its config spells Shift explicitly.
 
 The same command is available from Vicinae's root search as **Keybindings**.
 In a terminal, `keybinds list` prints the index, `keybinds json` prints it as

@@ -55,9 +55,9 @@ SPECIAL_KEYS = {
     "return": "\U000f0311",
     "esc": "\U000f12b7",
     "escape": "\U000f12b7",
-    "tab": "\U000f0312",
+    "tab": "Tab",
     "space": "\U000f1050",
-    "caps": "\U000f030e",
+    "caps": "Caps",
     "backspace": "⌫",
     "delete": "⌦",
     "insert": "Insert",
@@ -75,6 +75,25 @@ SPECIAL_KEYS = {
     "right": "\U000f06c2",
     "up": "\U000f06c3",
     "down": "\U000f06c0",
+}
+
+# Material Design boxed letters/digits. They are uppercase glyphs, but the
+# display now spells out Shift for uppercase keys, so the box is only a keycap.
+BOXED_LETTERS = {
+    letter: chr(0xF0B08 + index)
+    for index, letter in enumerate("abcdefghijklmnopqrstuvwxyz")
+}
+BOXED_DIGITS = {
+    "0": "\U000f03a1",
+    "1": "\U000f03a4",
+    "2": "\U000f03a7",
+    "3": "\U000f03aa",
+    "4": "\U000f03ad",
+    "5": "\U000f03b1",
+    "6": "\U000f03b3",
+    "7": "\U000f03b6",
+    "8": "\U000f03b9",
+    "9": "\U000f03bc",
 }
 
 FKEY_GLYPHS = {
@@ -467,10 +486,12 @@ def collect(docs_dir: Path, niri_config: Path) -> list[Entry]:
 
 
 def boxed_key(char: str) -> str:
-    """Wrap one key in a keycap box using the combining enclosing keycap."""
-    if char == "-":
-        char = "−"
-    return f"{char}\u20e3"
+    """Render one key as a Material keycap, falling back to plain text."""
+    if char in BOXED_LETTERS:
+        return BOXED_LETTERS[char]
+    if char in BOXED_DIGITS:
+        return BOXED_DIGITS[char]
+    return "−" if char == "-" else char
 
 
 def format_char(char: str, app: str, shift_present: bool) -> str:
