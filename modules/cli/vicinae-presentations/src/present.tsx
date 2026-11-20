@@ -170,16 +170,6 @@ async function openInSioyek(path: string): Promise<void> {
   await closeMainWindow()
 }
 
-async function openTerminalPicker(): Promise<void> {
-  const child = spawn(resolveBinary("kitty"), ["--title", "Present PDF", "fish", "-c", "present"], {
-    detached: true,
-    stdio: "ignore",
-  })
-  child.on("error", (error) => console.error("Could not start the terminal picker", error))
-  child.unref()
-  await closeMainWindow()
-}
-
 function PdfItem({ pdf, showRoot = false }: { pdf: PdfEntry; showRoot?: boolean }) {
   const location = showRoot
     ? pdf.relativeDir
@@ -203,11 +193,6 @@ function PdfItem({ pdf, showRoot = false }: { pdf: PdfEntry; showRoot?: boolean 
             onAction={() => void openInSioyek(pdf.path)}
           />
           <Action.CopyToClipboard title="Copy Path" content={pdf.path} icon={Icon.CopyClipboard} />
-          <Action
-            title="Terminal Picker"
-            icon={Icon.Terminal}
-            onAction={() => void openTerminalPicker()}
-          />
         </ActionPanel>
       }
     />
@@ -289,46 +274,23 @@ export default function PresentPdfs() {
         pdfs.map((pdf) => <PdfItem key={pdf.path} pdf={pdf} showRoot />)
       ) : (
         <>
-          <List.Section title="Folders">
-            {roots.map((root) => (
-              <List.Item
-                key={root.path}
-                title={root.label}
-                subtitle={`${root.pdfs.length} PDFs`}
-                icon={root.icon}
-                actions={
-                  <ActionPanel>
-                    <Action.Push
-                      title={`Browse ${root.label}`}
-                      icon={root.icon}
-                      target={<RootPdfs root={root} />}
-                    />
-                    <Action
-                      title="Terminal Picker"
-                      icon={Icon.Terminal}
-                      onAction={() => void openTerminalPicker()}
-                    />
-                  </ActionPanel>
-                }
-              />
-            ))}
-          </List.Section>
-          <List.Section title="Tools">
+          {roots.map((root) => (
             <List.Item
-              title="Terminal picker"
-              subtitle="fzf with first-page previews"
-              icon={{ source: Icon.Terminal, tintColor: Color.Green }}
+              key={root.path}
+              title={root.label}
+              subtitle={`${root.pdfs.length} PDFs`}
+              icon={root.icon}
               actions={
                 <ActionPanel>
-                  <Action
-                    title="Open Terminal Picker"
-                    icon={Icon.Terminal}
-                    onAction={() => void openTerminalPicker()}
+                  <Action.Push
+                    title={`Browse ${root.label}`}
+                    icon={root.icon}
+                    target={<RootPdfs root={root} />}
                   />
                 </ActionPanel>
               }
             />
-          </List.Section>
+          ))}
         </>
       )}
     </List>

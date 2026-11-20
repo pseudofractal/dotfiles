@@ -34,9 +34,6 @@ and Vault with PDF counts. Typing searches every PDF in those folders; Enter
 starts pdfpc on the selected file. The action panel also has **Open in Sioyek**
 and **Copy Path**.
 
-The **Terminal picker** item in the Tools section opens the `fzf` picker with
-first-page `chafa` previews in a terminal.
-
 ## Why pdfpc
 
 - Works with any PDF, including Typst and LaTeX exports.
