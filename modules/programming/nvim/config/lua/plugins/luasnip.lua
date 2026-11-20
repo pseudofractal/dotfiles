@@ -8,9 +8,15 @@ return {
       enable_autosnippets = true,
       history = true,
       updateevents = "TextChanged,TextChangedI",
+      region_check_events = "CursorMoved",
+      delete_check_events = "TextChanged",
+      store_selection_keys = "gs",
     })
 
-    require("luasnip.loaders.from_lua").lazy_load({ paths = vim.fn.stdpath("config") .. "/snippets" })
-    require("luasnip.loaders.from_vscode").lazy_load()
+    require("luasnip.loaders.from_lua").lazy_load({
+      paths = vim.fn.stdpath("config") .. "/snippets",
+      default_priority = 2000,
+    })
+    require("luasnip.loaders.from_vscode").lazy_load({ default_priority = 1000 })
   end,
 }

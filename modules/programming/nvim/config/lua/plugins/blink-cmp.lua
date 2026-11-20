@@ -102,6 +102,7 @@ return {
         },
         snippets = {
           score_offset = -200,
+          opts = { use_label_description = true },
         },
         latex = {
           name = "latex",

@@ -191,6 +191,10 @@ have Vitest configured.
 - `alt-space` grow selection in visual mode
 - `s` flash jump, `S` flash to a treesitter node (normal, visual and
   operator-pending)
+- `gs` in visual mode stores the selection for the wrapping snippets
+  (`wrapb`, `wrapi`, `wrapl` in Markdown and Typst)
+- `fig`, `tbl`, `eq` and `pkg` scaffold Typst figures, tables, labeled
+  equations and package imports
 - `af`/`if` around/inside a function, `ac`/`ic` a class, and the rest of
   mini.ai's text objects
 - `-` open yazi at current file, `ctrl-up` resume last yazi session
