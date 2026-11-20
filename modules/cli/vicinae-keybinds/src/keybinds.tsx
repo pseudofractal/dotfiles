@@ -94,9 +94,10 @@ interface KeybindItemProps {
 function zoomSvg(display: string): string {
   const text = display.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
   const fontSize = Math.round(Math.min(220, 1400 / Math.max(1, display.length * 0.7)))
+  const baseline = 250 + Math.round(fontSize * 0.35)
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="500" viewBox="0 0 1600 500">
   <rect x="30" y="30" width="1540" height="440" rx="48" fill="#313244" stroke="#585b70" stroke-width="4"/>
-  <text x="800" y="250" text-anchor="middle" dominant-baseline="middle" font-family="Maple Mono NF CN, monospace" font-size="${fontSize}" font-weight="bold" fill="#cdd6f4">${text}</text>
+  <text x="800" y="${baseline}" text-anchor="middle" font-family="Maple Mono NF CN, monospace" font-size="${fontSize}" font-weight="bold" fill="#cdd6f4">${text}</text>
 </svg>`
 }
 
