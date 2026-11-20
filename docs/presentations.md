@@ -7,8 +7,13 @@ and next slide, speaker notes, a timer, and an overview.
 ## Quick start
 
 ```fish
-present slides.pdf
+present            # fuzzy PDF picker
+present slides.pdf # open a specific deck
 ```
+
+With no arguments, `present` opens a fuzzy PDF picker over `~/Downloads`,
+`~/Documents`, `~/GitHub`, and `~/vault`. It uses `fd` to find PDFs and `fzf` to
+search them, with a first-page preview rendered by `chafa`.
 
 `present` passes every argument through to `pdfpc`; pdfpc has no subcommands,
 only flags. By default it adds `-w both` so the presenter and presentation
