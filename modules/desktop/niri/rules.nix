@@ -165,7 +165,7 @@ in {
         })
       ]
       [{open-focused = false;}])
-    (onWorkspace ["sioyek" "nvim"] "Work")
+    (onWorkspace ["sioyek" "nvim" "papyri" "com.t3tools.T3Code"] "Work")
     (onWorkspace ["zen" "yazi" "kitty"] "Utilities")
     (onWorkspace ["nchat" "discord" "Discord" "concord" "YouTube Music Desktop App"] "Entertainment")
     (rule
