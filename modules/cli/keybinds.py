@@ -39,6 +39,75 @@ DOC_APP_NAMES = {
 
 APP_ORDER = ["Niri", "Neovim"]
 
+# Nerd Font key glyphs, available in Maple Mono NF CN. The raw key stays
+# unchanged for searching and copying; only the displayed form uses glyphs.
+KEY_GLYPHS = {
+    "alt": "\U000f0635",
+    "backspace": "\U000f030d",
+    "caps": "\U000f0632",
+    "control": "\U000f0634",
+    "ctrl": "\U000f0634",
+    "down": "\U000f0045",
+    "enter": "\U000f0311",
+    "esc": "\U000f12b7",
+    "escape": "\U000f12b7",
+    "left": "\U000f004d",
+    "option": "\U000f0635",
+    "return": "\U000f0311",
+    "right": "\U000f0054",
+    "shift": "\U000f0636",
+    "space": "\U000f1050",
+    "tab": "\U000f0312",
+    "then": "\U000f0054",
+    "up": "\U000f005d",
+}
+
+KEY_GLYPH_RE = re.compile(
+    r"\b(" + "|".join(KEY_GLYPHS) + r")\b",
+    re.IGNORECASE,
+)
+# Bare keys that are names rather than prose. Multi-letter bare keys in other
+# applications are usually commands mentioned in a description (for example
+# `bat` in nchat's "open message in `bat`").
+BARE_KEYS = {
+    "backspace",
+    "backtab",
+    "caps",
+    "delete",
+    "down",
+    "end",
+    "enter",
+    "esc",
+    "escape",
+    "home",
+    "insert",
+    "left",
+    "pagedown",
+    "pageup",
+    "pgdn",
+    "pgup",
+    "print",
+    "return",
+    "right",
+    "space",
+    "tab",
+    "up",
+}
+
+MODIFIER_PREFIXES = {
+    "alt",
+    "cmd",
+    "command",
+    "control",
+    "ctrl",
+    "meta",
+    "mod",
+    "option",
+    "shift",
+    "space",
+    "super",
+}
+
 NIRI_KEY_NAMES = {
     "BracketLeft": "[",
     "BracketRight": "]",
@@ -76,17 +145,35 @@ def clean_text(text: str) -> str:
     return text.strip(" ,;:.")
 
 
-def looks_like_key(key: str) -> bool:
+def looks_like_key(key: str, app: str) -> bool:
     """Reject backticked prose such as file names or shell commands."""
     words = key.split()
     if not words or key.startswith("."):
         return False
     if len(words) > 3:
         return False
-    return len(words) == 1 or words[0] == "space"
+    if len(words) > 1 and words[0] != "space":
+        return False
+    if (
+        key.isalpha()
+        and key.islower()
+        and len(key) >= 3
+        and key not in BARE_KEYS
+        and app != "Neovim"
+    ):
+        return False
+    if key in {"-", "+", "=", "/", "?", ",", "."}:
+        return True
+    if len(key) <= 3:
+        return True
+    if "-" in key and "+" not in key:
+        prefix = key.split()[0].split("-", 1)[0].lower()
+        if prefix not in MODIFIER_PREFIXES:
+            return False
+    return True
 
 
-def key_groups(text: str) -> list[tuple[str, int, int]]:
+def key_groups(text: str, app: str) -> list[tuple[str, int, int]]:
     """Return (key, start, end) groups, merging sequences joined by 'then' or '/'.
 
     Keys inside parentheses are examples mentioned by a binding's description,
@@ -96,7 +183,7 @@ def key_groups(text: str) -> list[tuple[str, int, int]]:
     previous_end: int | None = None
     for match in KEY_RE.finditer(text):
         key = match.group(1).strip()
-        if not key or not looks_like_key(key):
+        if not key or not looks_like_key(key, app):
             continue
         before = text[: match.start()]
         if before.count("(") > before.count(")"):
@@ -272,7 +359,7 @@ def parse_doc(path: Path) -> list[Entry]:
                     continue
                 description = clean_text(cells[0])
                 keys_cell = " | ".join(cells[1:])
-                groups = key_groups(keys_cell)
+                groups = key_groups(keys_cell, app)
                 if not description or not groups:
                     continue
                 for key, _start, _end in groups:
@@ -303,7 +390,7 @@ def parse_doc(path: Path) -> list[Entry]:
                 index += 1
             text = " ".join(part.strip() for part in block)
             text = BULLET_RE.sub("", text, count=1)
-            groups = key_groups(text)
+            groups = key_groups(text, app)
             if not groups:
                 continue
             for key, description in entry_descriptions(text, groups):
@@ -349,12 +436,25 @@ def collect(docs_dir: Path, niri_config: Path) -> list[Entry]:
     return result
 
 
+def display_key(key: str) -> str:
+    """Render a key with Nerd Font glyphs for modifiers and special keys."""
+    # `ctrl-shift-m` reads better as `ctrl+shift+m`; leave minus keys alone.
+    display = re.sub(r"(?<=[0-9A-Za-z\]])-(?=[0-9A-Za-z])", "+", key)
+    display = KEY_GLYPH_RE.sub(
+        lambda match: KEY_GLYPHS[match.group(1).lower()], display
+    )
+    # Standalone and trailing hyphens are minus keys, not separators.
+    display = re.sub(r"(^|[+\s])-(?=$|[+\s])", r"\1−", display)
+    display = re.sub(r"(?<=[0-9A-Za-z])-$", "−", display)
+    return display
+
+
 def format_entry(entry: Entry) -> str:
     if entry.category and entry.category.lower() != entry.app.lower():
         context = f"{entry.app} / {entry.category}"
     else:
         context = entry.app
-    return f"{entry.key} — {entry.description} ({context})"
+    return f"{display_key(entry.key)} — {entry.description} ({context})"
 
 
 def command_list(entries: list[Entry]) -> int:
@@ -364,7 +464,10 @@ def command_list(entries: list[Entry]) -> int:
 
 
 def command_json(entries: list[Entry]) -> int:
-    print(json.dumps([asdict(entry) for entry in entries], ensure_ascii=False))
+    payload = [
+        {**asdict(entry), "display": display_key(entry.key)} for entry in entries
+    ]
+    print(json.dumps(payload, ensure_ascii=False))
     return 0
 
 

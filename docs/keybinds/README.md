@@ -4,7 +4,9 @@
 application list with icons; selecting an application shows its bindings
 grouped by category. Typing in the search bar switches to results across every
 application, prefixed with the application name. Selecting a binding copies
-its key combination to the clipboard.
+its plain key combination to the clipboard. Displayed keys use Nerd Font
+modifiers and special-key glyphs from Maple Mono NF CN, and a sequence such as
+`g` then `m` is shown with an arrow instead of the word "then".
 
 The same command is available from Vicinae's root search as **Keybindings**.
 In a terminal, `keybinds list` prints the index, `keybinds json` prints it as

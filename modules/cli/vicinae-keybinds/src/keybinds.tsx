@@ -18,6 +18,7 @@ interface Keybind {
   app: string
   category: string
   key: string
+  display: string
   description: string
 }
 
@@ -90,8 +91,16 @@ function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps)
     <List.Item
       title={showApp ? `${entry.app}: ${entry.description}` : entry.description}
       icon={icon}
-      keywords={[entry.app, entry.key, entry.description, entry.category].filter(Boolean)}
-      accessories={[{ tag: { value: entry.key, color: Color.SecondaryText } }]}
+      keywords={[
+        entry.app,
+        entry.key,
+        entry.display,
+        entry.key.replaceAll(" then ", " "),
+        entry.key.replaceAll(" then ", ""),
+        entry.description,
+        entry.category,
+      ].filter(Boolean)}
+      accessories={[{ tag: { value: entry.display, color: Color.SecondaryText } }]}
       actions={
         <ActionPanel>
           <Action.CopyToClipboard
