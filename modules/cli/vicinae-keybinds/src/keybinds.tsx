@@ -89,7 +89,11 @@ interface KeybindItemProps {
 function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps) {
   return (
     <List.Item
-      title={showApp ? `${entry.app}: ${entry.description}` : entry.description}
+      title={
+        showApp
+          ? `${entry.display} — ${entry.app}: ${entry.description}`
+          : `${entry.display} — ${entry.description}`
+      }
       icon={icon}
       keywords={[
         entry.app,
@@ -100,7 +104,6 @@ function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps)
         entry.description,
         entry.category,
       ].filter(Boolean)}
-      accessories={[{ tag: { value: entry.display, color: Color.SecondaryText } }]}
       actions={
         <ActionPanel>
           <Action.CopyToClipboard

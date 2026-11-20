@@ -10,7 +10,9 @@ keyboard glyphs, Mod is the Linux Tux icon, and sequences use a middle dot
 (`g · m`). Separators are spaced (`Mod + T`). Keys without a boxed glyph, such
 as punctuation, Tab, and PgUp, stay plain text. An uppercase letter in a cheat
 sheet means Shift plus the lowercase key (`M` becomes `Shift + m`); Niri keys
-are shown in lowercase because its config spells Shift explicitly.
+are shown in lowercase because its config spells Shift explicitly. Each row
+starts with the keycaps in the title font, followed by an em dash and the
+action description; search results also include the application name.
 
 The same command is available from Vicinae's root search as **Keybindings**.
 In a terminal, `keybinds list` prints the index, `keybinds json` prints it as
