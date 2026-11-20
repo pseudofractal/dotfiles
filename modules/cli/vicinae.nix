@@ -26,7 +26,31 @@
     inputs.vicinae.lib.${system}.mkRayCastExtension {
       inherit name rev hash;
     };
+  keybinds = pkgs.writeShellApplication {
+    name = "keybinds";
+    runtimeInputs = [pkgs.python3 pkgs.wl-clipboard];
+    text = ''
+      exec python3 ${./keybinds.py} --docs ${../../docs/keybinds} "$@"
+    '';
+  };
 in {
+  home.packages = [keybinds];
+
+  # Vicinae scans this directory for Raycast-style script commands.
+  xdg.dataFile."vicinae/scripts/keybinds.sh" = {
+    executable = true;
+    text = ''
+      #!/usr/bin/env bash
+      # @vicinae.schemaVersion 1
+      # @vicinae.title Search Keybindings
+      # @vicinae.description Search every configured keybinding
+      # @vicinae.mode silent
+      # @vicinae.keywords ["keybind", "shortcut", "keys", "cheatsheet"]
+
+      exec keybinds open
+    '';
+  };
+
   programs.vicinae = {
     enable = true;
     package = config.dotfiles.graphical.nixgl.maybeWrap {

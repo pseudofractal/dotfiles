@@ -61,7 +61,7 @@ in
   // {
     "Mod+Escape".close-window = {};
     "Mod+Space".spawn = ["vicinae" "toggle"];
-    "Mod+F1" = app "Keybind Cheatsheet" [noctalia "msg" "panel-toggle" "kenn/keybind-cheatsheet:cheatsheet"];
+    "Mod+F1" = app "Search Keybindings" ["keybinds" "open"];
     "Mod+M" = app "Logout" [noctalia "msg" "panel-toggle" "session"];
     "Mod+T" = app "Terminal" ["kitty"];
     "Mod+Shift+E" = app "GUI File Browser" ["thunar"];

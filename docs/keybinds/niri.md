@@ -12,7 +12,7 @@ keys and work on the lock screen too.
 - `Mod-shift-e` GUI file browser (thunar)
 - `Mod-c` communication apps (kitty session with nchat, aerc, and Concord tabs)
 - `Mod-space` app launcher (vicinae)
-- `Mod-F1` searchable keybind cheatsheet (noctalia panel)
+- `Mod-F1` searchable keybind cheatsheet (Vicinae)
 - `Mod-m` logout and power menu (noctalia panel)
 
 ## Focus and workspaces
