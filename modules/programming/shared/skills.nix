@@ -41,26 +41,63 @@
     rev = "70215303d44a81a0db3219428f4825b604fc6061";
     hash = "sha256-3aVvQoM/n7MOkYg0j+yfP+6Pkqf8oB8ycVS2M2umuNU=";
   };
-in {
-  dotfiles.programming.agents.skills = {
+  tstack = pkgs.fetchFromGitHub {
+    owner = "t3dotgg";
+    repo = "tstack";
+    rev = "11e37a74d0a6868c121cd0910ab2b3bd9873b92a";
+    hash = "sha256-1N0fxvcM44NcGOZeYJiX/EAJuI9GoAj5rEXmu7mJc3w=";
+  };
+  # Upstream pstack is a Cursor plugin. This port tracks it with harness
+  # mappings for Claude Code, Codex, Copilot CLI, and OpenCode.
+  pstack = pkgs.fetchFromGitHub {
+    owner = "michael-denyer";
+    repo = "pstack-claude";
+    rev = "412990b837ddb5e41ee589d770ba1bff24144654";
+    hash = "sha256-ZrXpvZIJgmbRO6n3//G/cg3/yc75XtQ8b+xzdxpOEv0=";
+  };
+  pstackSkills = let
+    skillsDir = "${pstack}/plugins/pstack/skills";
+    # Keep the existing tdd skill instead of shadowing it with pstack's copy;
+    # poteto-mode can still route to the installed tdd workflow.
+    skillNames = builtins.filter (name: name != "tdd") (builtins.attrNames (builtins.readDir skillsDir));
+  in
+    builtins.listToAttrs (map (name: {
+        inherit name;
+        value = "${skillsDir}/${name}";
+      })
+      skillNames);
+  # Copilot rejects SKILL.md descriptions over 1024 characters. The upstream
+  # scientific pack's description is longer, so keep its body and shorten only
+  # the discovery metadata.
+  experimentalDesignSkill = pkgs.runCommandLocal "experimental-design-skill" {} ''
+    cp -R ${scientific-skills}/skills/experimental-design $out
+    chmod -R u+w $out
+    ${pkgs.perl}/bin/perl -0pi -e 's/^description: .*$/description: Design experiments and studies before collecting data; randomization, blocking, controls, factorial and fractional-factorial designs, response-surface optimization, crossover and repeated-measures designs, cluster randomization, and sample layouts. Use when planning a study, assigning subjects or samples to groups, avoiding confounding, or choosing a design of experiments (DOE). For sample size or power after the design is chosen, use statistical-power; for analyzing collected data, use statistical-analysis./m' $out/SKILL.md
+  '';
+  baseSkills = {
     # keep-sorted start
     "aeon" = "${scientific-skills}/skills/aeon";
     "agents-sdk" = "${cloudflare-skills}/skills/agents-sdk";
     "astropy" = "${scientific-skills}/skills/astropy";
     "autoskill" = "${scientific-skills}/skills/autoskill";
+    "babysit-pr" = "${tstack}/skills/babysit-pr";
     "citation-management" = "${scientific-skills}/skills/citation-management";
     "cloudflare" = "${cloudflare-skills}/skills/cloudflare";
     "cloudflare-email-service" = "${cloudflare-skills}/skills/cloudflare-email-service";
     "cloudflare-one" = "${cloudflare-skills}/skills/cloudflare-one";
     "cloudflare-one-migrations" = "${cloudflare-skills}/skills/cloudflare-one-migrations";
+    "council" = "${tstack}/skills/council";
     "dask" = "${scientific-skills}/skills/dask";
     "database-lookup" = "${scientific-skills}/skills/database-lookup";
     "docx" = "${scientific-skills}/skills/docx";
     "durable-objects" = "${cloudflare-skills}/skills/durable-objects";
     "exa-search" = "${scientific-skills}/skills/exa-search";
-    "experimental-design" = "${scientific-skills}/skills/experimental-design";
+    "experimental-design" = experimentalDesignSkill;
     "exploratory-data-analysis" = "${scientific-skills}/skills/exploratory-data-analysis";
+    "file-pr" = "${tstack}/skills/file-pr";
     "fluidsim" = "${scientific-skills}/skills/fluidsim";
+    "full-send" = "${tstack}/skills/full-send";
+    "full-stop" = "${tstack}/skills/full-stop";
     "generate-image" = "${scientific-skills}/skills/generate-image";
     "get-available-resources" = "${scientific-skills}/skills/get-available-resources";
     "grill-me" = "${matt-pocock-skills}/grill-me";
@@ -86,6 +123,7 @@ in {
     "julia-toml" = "${julia-skills}/julia-toml";
     "julia-yaml" = "${julia-skills}/julia-yaml";
     "latex-posters" = "${scientific-skills}/skills/latex-posters";
+    "leaving-pr-comments" = "${tstack}/skills/leaving-pr-comments";
     "linux-desktop" = ./skills/linux-desktop;
     "literature-review" = "${scientific-skills}/skills/literature-review";
     "markdown-mermaid-writing" = "${scientific-skills}/skills/markdown-mermaid-writing";
@@ -93,6 +131,7 @@ in {
     "matlab" = "${scientific-skills}/skills/matlab";
     "matplotlib" = "${scientific-skills}/skills/matplotlib";
     "modal" = "${scientific-skills}/skills/modal";
+    "modernize" = "${tstack}/skills/modernize";
     "neovim-configuration" = ./skills/neovim-configuration;
     "networkx" = "${scientific-skills}/skills/networkx";
     "nextflow" = "${scientific-skills}/skills/nextflow";
@@ -129,6 +168,7 @@ in {
     "shadcn-svelte" = "${j13z-svelte-essentials}/agent-skills/dist/shadcn-svelte";
     "shap" = "${scientific-skills}/skills/shap";
     "simpy" = "${scientific-skills}/skills/simpy";
+    "sol-loop" = "${tstack}/skills/sol-loop";
     "stable-baselines3" = "${scientific-skills}/skills/stable-baselines3";
     "statistical-analysis" = "${scientific-skills}/skills/statistical-analysis";
     "statistical-power" = "${scientific-skills}/skills/statistical-power";
@@ -138,6 +178,7 @@ in {
     "sympy" = "${scientific-skills}/skills/sympy";
     "systemd-services" = ./skills/systemd-services;
     "tailwind-design-system" = "${ag-opencode-skills}/skills/frontend/tailwind-design-system";
+    "takeover" = "${tstack}/skills/takeover";
     "tdd" = "${matt-pocock-skills}/tdd";
     "timesfm-forecasting" = "${scientific-skills}/skills/timesfm-forecasting";
     "torch-geometric" = "${scientific-skills}/skills/torch-geometric";
@@ -156,4 +197,6 @@ in {
     "zarr-python" = "${scientific-skills}/skills/zarr-python";
     # keep-sorted end
   };
+in {
+  dotfiles.programming.agents.skills = baseSkills // pstackSkills;
 }

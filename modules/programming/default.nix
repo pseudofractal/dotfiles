@@ -41,6 +41,7 @@ in {
     # keep-sorted start
     ./claude-code.nix
     ./codex.nix
+    ./copilot-cli.nix
     ./nvim
     ./opencode
     ./shared

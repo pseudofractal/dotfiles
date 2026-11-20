@@ -4,6 +4,7 @@ return {
   opts = {
     spec = {
       -- keep-sorted start case=no
+      { "<leader>a", group = "AI" },
       { "<leader>c", group = "Code Actions" },
       { "<leader>d", group = "Debug & Diagnostics" },
       { "<leader>f", group = "Find" },

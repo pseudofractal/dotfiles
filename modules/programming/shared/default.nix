@@ -11,12 +11,12 @@ in {
     instructions = lib.mkOption {
       type = lib.types.lines;
       default = builtins.readFile ./instructions.md;
-      description = "Global instructions shared by OpenCode, Codex, and Claude Code.";
+      description = "Global instructions shared by OpenCode, Codex, Claude Code, and Copilot CLI.";
     };
     skills = lib.mkOption {
       type = lib.types.attrsOf (lib.types.either lib.types.lines lib.types.path);
       default = {};
-      description = "Named skill directories or SKILL.md content installed for all three agents.";
+      description = "Named skill directories or SKILL.md content installed for all agents, including Copilot CLI.";
     };
   };
 
@@ -40,6 +40,10 @@ in {
       skills = cfg.skills;
     };
     programs.claude-code = {
+      context = cfg.instructions;
+      skills = cfg.skills;
+    };
+    programs.github-copilot-cli = {
       context = cfg.instructions;
       skills = cfg.skills;
     };

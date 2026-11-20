@@ -1,21 +1,26 @@
 # Coding agents
 
-OpenCode, Codex, and Claude Code share instructions, skills, and MCP servers.
-T3 Code nightly is the desktop interface to those same configured CLIs. It is
-disabled on Android; the terminal agents remain available there.
+OpenCode, Codex, Claude Code, and Copilot CLI share instructions, skills, and
+MCP servers. T3 Code nightly is the desktop interface to those same configured
+CLIs. It is disabled on Android; the terminal agents remain available there.
 
 ## Edit once, apply to all agents
 
 - `shared/instructions.md`: global behavioral instructions. Home Manager writes
-  the same content to Codex's `AGENTS.md`, Claude's `CLAUDE.md`, and OpenCode's
-  instruction file. Repository instructions still work normally.
+  the same content to Codex's `AGENTS.md`, Claude's `CLAUDE.md`, OpenCode's
+  instruction file, and Copilot CLI's `copilot-instructions.md`. Repository
+  instructions still work normally.
 - `shared/skills.nix`: one named collection of skill sources, installed through
   each provider's native Home Manager skills option. Add a skill here once.
   Directory sources include scripts, references, and other supporting files.
+  The collection includes Theo Browne's `tstack` delivery skills and poteto's
+  `pstack` engineering workflow, the latter through its cross-harness port.
+  pstack's `tdd` is skipped because the existing `tdd` skill keeps that name.
 - `shared/mcps.nix`: shared `programs.mcp.servers`; Home Manager translates these
-  into each provider's schema. Use absolute executable paths. Never put secrets
-  directly into Nix settings; local-server environment variables can use
-  `env.NAME.file` to load a secret file at runtime.
+  into each provider's schema, including Copilot CLI's `mcp-config.json`. Use
+  absolute executable paths. Never put secrets directly into Nix settings;
+  local-server environment variables can use `env.NAME.file` to load a secret
+  file at runtime.
 
 Run `rebuild` after editing. Existing agent sessions may retain loaded instructions
 or skills: start a fresh session to pick up changes. In T3, refresh OpenCode's
@@ -34,6 +39,8 @@ does not install the Python packages or commands mentioned in it.
   Catppuccin theme and notification-plugin selection.
 - `codex.nix`: Codex settings and package selection.
 - `claude-code.nix`: Claude settings and package selection.
+- `copilot-cli.nix`: Copilot CLI package and settings. Shared skills, global
+  instructions, and MCP servers are installed into `~/.copilot`.
 - `t3code.nix`: nightly desktop package and provider instances. Only OpenCode,
   Codex, and Claude are enabled. CLI paths are explicit; launching from the desktop
   menu also includes Home Manager's binaries on PATH.
@@ -43,12 +50,18 @@ Kitty through `nvim-terminal`; Android uses `nvim` directly. The Neovim desktop
 entry uses the same launcher and its own icon. Start a new login session after
 activation so graphical applications receive the new environment variables.
 
+Neovim uses `sidekick.nvim` for agentic work. `<leader>ac` opens Copilot CLI in
+the project, while `<leader>af`, `<leader>av`, and `<leader>at` send the current
+file, selection, or symbol as context. Copilot CLI reads the same
+`~/.copilot/skills` and `~/.copilot/mcp-config.json` installed for the other
+agents, so Neovim gets every shared skill and MCP server without a second copy.
+
 T3's editor menu is left unpatched: this nightly does not support Neovim or custom
 editor commands. Upstream's terminal-editor proposal is
 [PR #20912](https://github.com/pingdotgg/t3code/pull/20912), with a related Linux
 default-editor proposal in [PR #18661](https://github.com/pingdotgg/t3code/pull/18661).
 
-Codex, Claude, and T3 settings stay writable. Declared settings win at activation;
+Codex, Claude, Copilot, and T3 settings stay writable. Declared settings win at activation;
 undeclared runtime settings remain. Removing a declaration does not necessarily
 delete the corresponding saved setting. Review it in the application when removing
 an old setting. Skills and instruction files themselves are managed by Nix.
@@ -100,6 +113,7 @@ Authenticate each native CLI once:
 opencode auth login
 codex login
 claude auth login
+copilot login
 ```
 
 OpenCode's model-provider logins are separate from T3's native Claude and Codex
