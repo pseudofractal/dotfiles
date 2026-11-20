@@ -115,7 +115,17 @@ function KeyZoom({ entry, imagePath }: { entry: Keybind; imagePath: string }) {
     }
   }, [pop, imagePath])
 
-  return <Detail markdown={`![](${imagePath})`} navigationTitle={entry.description} />
+  // The detail view lays images out from the top; nudge the keycap to the
+  // vertical center of the launcher window.
+  const topSpacing = "<br>".repeat(2)
+  return (
+    <Detail
+      markdown={`${topSpacing}
+
+![](${imagePath})`}
+      navigationTitle={entry.description}
+    />
+  )
 }
 
 function KeybindItem({ entry, icon, showApp = false, onBack }: KeybindItemProps) {
