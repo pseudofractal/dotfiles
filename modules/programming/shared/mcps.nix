@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   pkgs,
   ...
@@ -40,23 +41,98 @@
         --project "$source_dir" arxiv-latex-mcp "$@"
     '';
   };
+  home = config.home.homeDirectory;
+  artcraftPkgs = inputs.artcraft.packages.${pkgs.stdenv.hostPlatform.system};
+  artcraftWriteRoot = "${home}/ArtCraft";
+  artcraftReadRoots = [
+    "${home}/Documents"
+    "${home}/Downloads"
+    "${home}/GitHub"
+    "${home}/Music"
+    "${home}/Pictures"
+    "${home}/Videos"
+    "${home}/dotfiles"
+    "${home}/vault"
+  ];
+
+  # The official single `ArtCraft` MCP gateway ships inside the launcher's
+  # Flatpak, so register each app's CLI directly. Agents read user files but
+  # write only under ~/ArtCraft; apps without root flags run there as their
+  # working directory.
+  artcraftRootArgs =
+    lib.concatMap (root: ["--automation-read-root" root])
+    artcraftReadRoots
+    ++ ["--automation-write-root" artcraftWriteRoot];
+  artcraftTextureRootArgs =
+    lib.concatMap (root: ["--read-root" root])
+    artcraftReadRoots
+    ++ ["--write-root" artcraftWriteRoot];
+  artcraftCwdApps = [
+    "anicraft"
+    "cadcraft"
+    "filmcraft"
+    "gridcraft"
+    "lightcraft"
+    "materialcraft"
+  ];
+  artcraftScript = name:
+    pkgs.writeShellScript "artcraft-${name}-mcp" ''
+      cd ${lib.escapeShellArg artcraftWriteRoot}
+      exec ${lib.getExe' artcraftPkgs.${name} "${name}-cli"} "$@"
+    '';
+  artcraftCommand = name:
+    if builtins.elem name artcraftCwdApps
+    then "${artcraftScript name}"
+    else lib.getExe' artcraftPkgs.${name} "${name}-cli";
+  artcraftMcpArgs = {
+    anicraft = [];
+    cadcraft = [];
+    craft-anything = ["--project" "${artcraftWriteRoot}/craft-anything"];
+    deckcraft = artcraftRootArgs;
+    designcraft = artcraftRootArgs;
+    effectcraft = artcraftRootArgs;
+    figcraft = artcraftRootArgs;
+    filmcraft = [];
+    gridcraft = [];
+    lightcraft = ["--compact"];
+    materialcraft = [];
+    pdfcraft = ["--compact" "--automation-read-root" "${home}/Documents" "--automation-write-root" artcraftWriteRoot];
+    photocraft = artcraftRootArgs;
+    soundcraft = artcraftRootArgs;
+    texturecraft = artcraftTextureRootArgs;
+    vectorcraft = ["--headless"] ++ artcraftRootArgs;
+    wordcraft = ["--automation-read-root" "${home}/Documents" "--automation-write-root" artcraftWriteRoot];
+  };
+
+  artcraftServers = lib.mapAttrs' (name: extraArgs:
+    lib.nameValuePair "artcraft-${name}" {
+      command = artcraftCommand name;
+      args = ["mcp"] ++ extraArgs;
+    })
+  artcraftMcpArgs;
 in {
+  home.activation.createArtcraftDir = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p ${lib.escapeShellArg artcraftWriteRoot}
+  '';
+
   programs.mcp = {
     enable = true;
-    servers = {
-      context7 = {
-        url = "https://mcp.context7.com/mcp";
+    servers =
+      artcraftServers
+      // {
+        context7 = {
+          url = "https://mcp.context7.com/mcp";
+        };
+        playwright = {
+          command = lib.getExe pkgs.playwright-mcp;
+          args = ["--isolated" "--headless"];
+        };
+        arxiv = {
+          command = lib.getExe arxivMcp;
+        };
+        nix = {
+          command = lib.getExe pkgs.mcp-nixos;
+        };
       };
-      playwright = {
-        command = lib.getExe pkgs.playwright-mcp;
-        args = ["--isolated" "--headless"];
-      };
-      arxiv = {
-        command = lib.getExe arxivMcp;
-      };
-      nix = {
-        command = lib.getExe pkgs.mcp-nixos;
-      };
-    };
   };
 }
