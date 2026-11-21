@@ -72,6 +72,12 @@ in {
   programs.fish.interactiveShellInit = ''
     if test -f ${config.sops.templates."exported-vars.fish".path}
       source ${config.sops.templates."exported-vars.fish".path}
+      if set -q GITHUB_PERSONAL_ACCESS_TOKEN; and test -n "$GITHUB_PERSONAL_ACCESS_TOKEN"
+        # Nix resolves flake inputs through api.github.com; authenticate it so
+        # rebuilds don't fall back to the 60/hour anonymous limit.
+        set -gx NIX_CONFIG "access-tokens = github.com=$GITHUB_PERSONAL_ACCESS_TOKEN
+    $NIX_CONFIG"
+      end
     end
   '';
 
