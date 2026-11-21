@@ -33,4 +33,4 @@ edit, and the extra help popup.
 - `alt-e` emoji picker, `alt-2` mention picker
 - Drafts edited externally open in neovim
   (`message_edit_command`); pasting images goes through
-  `wl-paste`, notifications through `notify-send`.
+  `wl-paste`; desktop notifications are disabled.

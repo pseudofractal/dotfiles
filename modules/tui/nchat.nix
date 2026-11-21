@@ -53,7 +53,6 @@ in
     home.packages = with pkgs; [
       # keep-sorted start
       (aspellWithDicts (dicts: [dicts.en]))
-      libnotify
       nchatUpstream
       wl-clipboard
       xdg-utils
@@ -75,8 +74,7 @@ in
         force = true;
         text = ''
           attachment_open_command=${lib.getExe' pkgs.xdg-utils "xdg-open"} >/dev/null 2>&1 '%1' &
-          desktop_notify_command=${lib.getExe' pkgs.libnotify "notify-send"} 'nchat' '%1: %2'
-          desktop_notify_enabled=1
+          desktop_notify_enabled=0
           linefeed_on_enter=0
           link_open_command=${lib.getExe' pkgs.xdg-utils "xdg-open"} >/dev/null 2>&1 '%1' &
           list_width=20
