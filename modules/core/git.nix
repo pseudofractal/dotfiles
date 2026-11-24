@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   programs.git = {
     enable = true;
     signing.format = "openpgp";
@@ -16,8 +16,12 @@
 
       color.ui = "auto";
       core.editor = "nvim";
+      core.excludesFile = "${config.xdg.configHome}/git/ignore";
     };
   };
+  xdg.configFile."git/ignore".text = ''
+    .julia-depot/
+  '';
   programs.gh = {
     enable = true;
     gitCredentialHelper = {

@@ -226,6 +226,27 @@ return {
           },
           filetypes = { "julia" },
           root_markers = { "Project.toml", ".git" },
+          before_init = function(params, config)
+            local workspace_uri = params.rootUri
+            if not workspace_uri then
+              return
+            end
+
+            local workspace_root = vim.uri_to_fname(workspace_uri)
+            local project_root = vim.fs.root(workspace_root, ".git")
+            if not project_root then
+              return
+            end
+
+            config.cmd_env = vim.tbl_extend("force", config.cmd_env or {}, {
+              JULIA_PROJECT = workspace_root,
+              JULIA_DEPOT_PATH = table.concat({
+                vim.fs.joinpath(project_root, ".julia-depot"),
+                vim.fs.joinpath(vim.env.HOME, ".julia"),
+              }, ":"),
+              XDG_CACHE_HOME = vim.fs.joinpath(project_root, ".cache"),
+            })
+          end,
           init_options = {
             reuse_native_inference = true,
           },
