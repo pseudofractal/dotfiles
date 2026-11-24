@@ -24,6 +24,11 @@ generation. See [nectarlink.md](nectarlink.md#nightly-updates).
 `rebuild --system` and Nix-on-Droid skip the NectarLink step because it only
 exists on the desktop.
 
+Every Home Manager activation also reruns JETLS's Julia app installer against
+the upstream `release` ref, so the installed language server follows the latest
+published release. This requires network access; if updating fails, the existing
+JETLS installation is kept.
+
 Run it after changing anything under `modules/` or `hosts/arch/default.nix`: packages, dotfiles, user services, niri settings, Noctalia, Vicinae.
 
 A logout is usually unnecessary. Log out and back in when changing how the niri session starts, or when the running compositor ignores a config change.
