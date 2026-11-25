@@ -5,6 +5,7 @@
     ./cad.nix
     ./carta.nix
     ./discord.nix
+    ./ferdium.nix
     ./gimp-inkscape.nix
     ./google-chrome.nix
     ./ime.nix

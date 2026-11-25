@@ -115,6 +115,7 @@ in {
         "kitty"
         "nchat"
         "nvim"
+        "ferdium"
         "yazi"
       ]) [
         {
@@ -167,7 +168,7 @@ in {
       [{open-focused = false;}])
     (onWorkspace ["sioyek" "nvim" "papyri" "com.t3tools.T3Code"] "Work")
     (onWorkspace ["zen" "yazi" "kitty"] "Utilities")
-    (onWorkspace ["nchat" "discord" "Discord" "concord" "YouTube Music Desktop App"] "Entertainment")
+    (onWorkspace ["ferdium" "nchat" "discord" "Discord" "concord" "YouTube Music Desktop App"] "Entertainment")
     (rule
       [
         (match {app-id = "Ds9.tcl";})

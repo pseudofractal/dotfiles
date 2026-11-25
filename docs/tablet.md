@@ -91,7 +91,7 @@ Extra scrcpy flags pass through (`tablet --no-audio`). `--turn-screen-off` works
 The aspect match is used in niri (`modules/desktop/niri/rules.nix`):
 
 - A rule on `title = "Tablet"` (set by the `tablet` function itself, so it holds whatever the device model is, unlike the default `SM-X400` title) forces `open-fullscreen` with no exceptions.
-- `tablet-mirror.desktop` (`modules/graphical/tablet.nix`) ties the scrcpy window (`StartupWMClass=.scrcpy-wrapped`) to the Adwaita `phone` icon. Same trick as the nchat/WhatsApp logo (`Mod+C` spawns kitty with `--app-id=nchat`, whose desktop entry carries the WhatsApp SVG). The filename stays distinct so it never clashes with upstream's `scrcpy.desktop`.
+- `tablet-mirror.desktop` (`modules/graphical/tablet.nix`) ties the scrcpy window (`StartupWMClass=.scrcpy-wrapped`) to the Adwaita `phone` icon. The nchat desktop entry uses a separate WhatsApp SVG icon and stays distinct from upstream's `scrcpy.desktop`; `Mod+C` now opens Ferdium.
 
 Manual override for any window: `Mod+Ctrl+F` toggles fullscreen, `Mod+Shift+F` maximizes to edges, `Mod+F` maximizes the column.
 

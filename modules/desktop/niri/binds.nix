@@ -19,15 +19,6 @@
 
   utils = "${niriUtils}/bin/niri-utils";
   syncshot = "${syncshotRunner}/bin/syncshot-runner";
-  nchatSession = pkgs.writeText "nchat.kitty-session" ''
-    new_tab Whatsapp
-    launch nchat
-    new_tab Email
-    launch aerc
-    new_tab Concord
-    launch concord
-    focus_tab 0
-  '';
   projectTabs = pkgs.writeShellApplication {
     name = "kitty-project-tabs";
     runtimeInputs = [pkgs.kitty pkgs.zoxide];
@@ -67,7 +58,7 @@ in
     "Mod+T" = app "Terminal" ["kitty"];
     "Mod+Shift+E" = app "GUI File Browser" ["thunar"];
     "Mod+E" = app "File Browser" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=yazi" "yazi"];
-    "Mod+C" = app "Communication" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=nchat" "--session" "${nchatSession}"];
+    "Mod+C" = app "Ferdium" ["ferdium"];
     "Mod+N" = app "Code Editor" ["kitty" "-o" "confirm_os_close_window=0" "--app-id=nvim" "--session" "${nvimSession}"];
     "Mod+B" = app "Zen Browser" ["zen-twilight"];
     "Mod+Shift+B".spawn = ["zen-twilight" "--private-window"];
