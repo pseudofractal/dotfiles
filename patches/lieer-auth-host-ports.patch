@@ -1,11 +1,22 @@
 --- a/lieer/gmailieer.py
 +++ b/lieer/gmailieer.py
-@@ -442,7 +442,7 @@
+@@ -276,6 +276,10 @@
+             help="Port web server should listen on",
+         )
+         parser_auth.add_argument(
++            "--auth-login-hint",
++            help="Email address to preselect on the OAuth sign-in page",
++        )
++        parser_auth.add_argument(
+             "--noauth_local_webserver",
+             action="store_true",
+             default=False,
+@@ -442,7 +446,7 @@
      def authorize(self, args):
          print("authorizing..")
          self.setup(args, False, True)
 -        self.remote.authorize(args.force)
-+        self.remote.authorize(args.force, args.auth_host_name, args.auth_host_port)
++        self.remote.authorize(args.force, args.auth_host_name, args.auth_host_port, args.auth_login_hint)
  
      def setup(self, args, dry_run=False, load=False, block=False):
          global tqdm
@@ -24,7 +35,7 @@
          return result
  
 -    def authorize(self, reauth=False):
-+    def authorize(self, reauth=False, auth_host_name="localhost", auth_host_ports=None):
++    def authorize(self, reauth=False, auth_host_name="localhost", auth_host_ports=None, auth_login_hint=None):
          if reauth:
              credential_path = self.gmailieer.local.credentials_f
              if os.path.exists(credential_path):
@@ -32,7 +43,7 @@
                  os.unlink(credential_path)
  
 -        self.credentials = self.__get_credentials__()
-+        self.credentials = self.__get_credentials__(auth_host_name, auth_host_ports)
++        self.credentials = self.__get_credentials__(auth_host_name, auth_host_ports, auth_login_hint)
  
          timeout = self.gmailieer.local.config.timeout
          if timeout == 0:
@@ -41,20 +52,26 @@
              storage.write(credentials.to_json())
  
 -    def __get_credentials__(self):
-+    def __get_credentials__(self, auth_host_name="localhost", auth_host_ports=None):
++    def __get_credentials__(self, auth_host_name="localhost", auth_host_ports=None, auth_login_hint=None):
          """
          Gets valid user credentials from storage.
  
-@@ -518,5 +519,17 @@
+@@ -518,6 +519,24 @@
          Returns:
              Credentials, the obtained credential.
          """
 +        def run_local_server(flow):
 +            ports = auth_host_ports or [8080]
++            oauth_kwargs = {}
++            if auth_login_hint:
++                oauth_kwargs["login_hint"] = auth_login_hint
++
 +            last_error = None
 +            for port in ports:
 +                try:
-+                    return flow.run_local_server(host=auth_host_name, port=port)
++                    return flow.run_local_server(
++                        host=auth_host_name, port=port, **oauth_kwargs
++                    )
 +                except OSError as error:
 +                    if error.errno not in (errno.EADDRINUSE, errno.EADDRNOTAVAIL):
 +                        raise
@@ -63,17 +80,22 @@
 +
          credentials = None
          credential_path = self.gmailieer.local.credentials_f
-@@ -542,5 +555,5 @@
+ 
+@@ -542,7 +561,7 @@
                  flow = InstalledAppFlow.from_client_secrets_file(
                      self.CLIENT_SECRET_FILE, self.SCOPES
                  )
 -                credentials = flow.run_local_server()
 +                credentials = run_local_server(flow)
                  self.__store_credentials__(credential_path, credentials)
-@@ -556,5 +569,5 @@
+ 
+             else:
+@@ -556,7 +575,7 @@
                      }
                  }
                  flow = InstalledAppFlow.from_client_config(client_config, self.SCOPES)
 -                credentials = flow.run_local_server()
 +                credentials = run_local_server(flow)
                  self.__store_credentials__(credential_path, credentials)
+ 
+         return credentials

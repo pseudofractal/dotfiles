@@ -21,8 +21,11 @@ lieer-auth all --force
 
 `lieer-auth all --force` starts both accounts at once on separate local
 callback ports: IISER uses `8080` (falling back to `8090`) and personal Gmail
-uses `8081` (falling back to `8091`). This lets you authorize them in separate
-browser tabs. For a single mailbox, use `lieer-auth iiser --force` or
+uses `8081` (falling back to `8091`). Each Google sign-in URL also includes that
+mailbox's `login_hint`, so Google preselects or prefills the expected email.
+Still verify the account shown by Google before approving access: the hint guides
+account selection but does not lock the sign-in to that account. For a single
+mailbox, use `lieer-auth iiser --force` or
 `lieer-auth personal --force`. The helper keeps the token files private and
 waits for any sync holding that mailbox's lock before reauthorizing it.
 

@@ -338,16 +338,23 @@
         case "$account" in
           iiser)
             echo "Authorize the IISER mailbox: ms22174@iisermohali.ac.in"
+            auth_login_hint="ms22174@iisermohali.ac.in"
             auth_ports=(8080 8090)
             ;;
           personal)
             echo "Authorize the personal mailbox: kshitishkumarratha@gmail.com"
+            auth_login_hint="kshitishkumarratha@gmail.com"
             auth_ports=(8081 8091)
             ;;
         esac
 
         (
-          args=(--path "${mailRoot}/$account" --credentials "$client_file" --auth-host-port "''${auth_ports[@]}")
+          args=(
+            --path "${mailRoot}/$account"
+            --credentials "$client_file"
+            --auth-host-port "''${auth_ports[@]}"
+            --auth-login-hint "$auth_login_hint"
+          )
           if (( force )); then
             args+=(--force)
           fi
