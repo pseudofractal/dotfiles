@@ -18,7 +18,6 @@
       if zenBrowserSettings.icon != null
       then zenBrowserSettings.icon
       else "zen-twilight";
-    nativeMessagingHosts = [pkgs.tridactyl-native];
   };
   zenTwilightPackage = config.dotfiles.graphical.nixgl.maybeWrap {
     package = zenRewrapped;
@@ -73,20 +72,6 @@ in {
   };
 
   xdg.mimeApps.enable = true;
-  xdg.configFile."tridactyl/tridactylrc".text = ''
-    " Keep the default Vim-style bindings and use Poros as the default search.
-    set searchurls.poros https://pseudofractal.github.io/Poros/?query=%s
-    set searchengine poros
-
-    " Named searches are available as `:open google query`, etc.
-    set searchurls.google https://www.google.com/search?q=%s
-    set searchurls.youtube https://www.youtube.com/results?search_query=%s
-    set searchurls.github https://github.com/search?q=%s
-
-    " Edit focused web text fields in Neovim using the existing Kitty launcher.
-    set editorcmd nvim-terminal %f
-  '';
-
   xdg.mimeApps.defaultApplications = {
     "application/xhtml+xml" = ["zen-twilight.desktop"];
     "text/html" = ["zen-twilight.desktop"];
