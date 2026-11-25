@@ -6,6 +6,9 @@
   ...
 }: let
   mailRoot = "${config.home.homeDirectory}/mails";
+  lieerPackage = pkgs.lieer.overridePythonAttrs (old: {
+    patches = (old.patches or []) ++ [../../patches/lieer-auth-host-ports.patch];
+  });
   llamaPkgs = import inputs.nixpkgs-llama {
     system = pkgs.stdenv.hostPlatform.system;
     config.allowUnfree = true;
@@ -285,7 +288,7 @@
   lieerSync = account:
     pkgs.writeShellApplication {
       name = "lieer-sync-${account}";
-      runtimeInputs = [pkgs.lieer pkgs.notmuch pkgs.util-linux];
+      runtimeInputs = [lieerPackage pkgs.notmuch pkgs.util-linux];
       text = withGmiLock "lieer-sync-${account}" account ''
         ${pullAndClassify account}
         gmi push
@@ -293,7 +296,7 @@
     };
   lieerAuth = pkgs.writeShellApplication {
     name = "lieer-auth";
-    runtimeInputs = [pkgs.coreutils pkgs.lieer pkgs.notmuch pkgs.util-linux];
+    runtimeInputs = [pkgs.coreutils lieerPackage pkgs.notmuch pkgs.util-linux];
     text = ''
       account="''${1:-}"
       shift || true
@@ -330,26 +333,44 @@
       state_dir="${config.xdg.stateHome}/lieer"
       mkdir -p "$state_dir"
 
+      auth_pids=()
       for account in "''${accounts[@]}"; do
         case "$account" in
           iiser)
             echo "Authorize the IISER mailbox: ms22174@iisermohali.ac.in"
+            auth_ports=(8080 8090)
             ;;
           personal)
             echo "Authorize the personal mailbox: kshitishkumarratha@gmail.com"
+            auth_ports=(8081 8091)
             ;;
         esac
 
-        args=(--path "${mailRoot}/$account" --credentials "$client_file")
-        if (( force )); then
-          args+=(--force)
-        fi
+        (
+          args=(--path "${mailRoot}/$account" --credentials "$client_file" --auth-host-port "''${auth_ports[@]}")
+          if (( force )); then
+            args+=(--force)
+          fi
 
-        flock "${mailRoot}/$account/.gmi.lock" gmi auth "''${args[@]}"
-        if (( force )); then
-          date +%s > "$state_dir/reauth-$account"
+          flock "${mailRoot}/$account/.gmi.lock" gmi auth "''${args[@]}"
+          if (( force )); then
+            date +%s > "$state_dir/reauth-$account"
+          fi
+        ) &
+        auth_pids+=("$!")
+      done
+
+      auth_failed=0
+      for auth_pid in "''${auth_pids[@]}"; do
+        if ! wait "$auth_pid"; then
+          auth_failed=1
         fi
       done
+
+      if (( auth_failed )); then
+        echo "One or more Gmail authorizations failed." >&2
+        exit 1
+      fi
     '';
   };
   lieerReauthReminder = pkgs.writeShellApplication {
@@ -465,7 +486,7 @@
   };
   classifyBackfill = pkgs.writeShellApplication {
     name = "classify-backfill";
-    runtimeInputs = [pkgs.gawk pkgs.lieer pkgs.notmuch pkgs.util-linux];
+    runtimeInputs = [pkgs.gawk lieerPackage pkgs.notmuch pkgs.util-linux];
     text = ''
         minAvailKB=$((4 * 1024 * 1024))
         avail_kb="$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)"

@@ -1,0 +1,79 @@
+--- a/lieer/gmailieer.py
++++ b/lieer/gmailieer.py
+@@ -442,7 +442,7 @@
+     def authorize(self, args):
+         print("authorizing..")
+         self.setup(args, False, True)
+-        self.remote.authorize(args.force)
++        self.remote.authorize(args.force, args.auth_host_name, args.auth_host_port)
+ 
+     def setup(self, args, dry_run=False, load=False, block=False):
+         global tqdm
+--- a/lieer/remote.py
++++ b/lieer/remote.py
+@@ -16,6 +16,7 @@
+ # along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ 
+ import os
++import errno
+ import time
+ import googleapiclient
+ from apiclient import discovery
+@@ -485,14 +486,14 @@
+ 
+         return result
+ 
+-    def authorize(self, reauth=False):
++    def authorize(self, reauth=False, auth_host_name="localhost", auth_host_ports=None):
+         if reauth:
+             credential_path = self.gmailieer.local.credentials_f
+             if os.path.exists(credential_path):
+                 print("reauthorizing..")
+                 os.unlink(credential_path)
+ 
+-        self.credentials = self.__get_credentials__()
++        self.credentials = self.__get_credentials__(auth_host_name, auth_host_ports)
+ 
+         timeout = self.gmailieer.local.config.timeout
+         if timeout == 0:
+@@ -508,7 +509,7 @@
+         with open(path, "w") as storage:
+             storage.write(credentials.to_json())
+ 
+-    def __get_credentials__(self):
++    def __get_credentials__(self, auth_host_name="localhost", auth_host_ports=None):
+         """
+         Gets valid user credentials from storage.
+ 
+@@ -518,5 +519,17 @@
+         Returns:
+             Credentials, the obtained credential.
+         """
++        def run_local_server(flow):
++            ports = auth_host_ports or [8080]
++            last_error = None
++            for port in ports:
++                try:
++                    return flow.run_local_server(host=auth_host_name, port=port)
++                except OSError as error:
++                    if error.errno not in (errno.EADDRINUSE, errno.EADDRNOTAVAIL):
++                        raise
++                    last_error = error
++            raise last_error
++
+         credentials = None
+         credential_path = self.gmailieer.local.credentials_f
+@@ -542,5 +555,5 @@
+                 flow = InstalledAppFlow.from_client_secrets_file(
+                     self.CLIENT_SECRET_FILE, self.SCOPES
+                 )
+-                credentials = flow.run_local_server()
++                credentials = run_local_server(flow)
+                 self.__store_credentials__(credential_path, credentials)
+@@ -556,5 +569,5 @@
+                     }
+                 }
+                 flow = InstalledAppFlow.from_client_config(client_config, self.SCOPES)
+-                credentials = flow.run_local_server()
++                credentials = run_local_server(flow)
+                 self.__store_credentials__(credential_path, credentials)

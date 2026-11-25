@@ -19,8 +19,10 @@ accounts with one command:
 lieer-auth all --force
 ```
 
-Authorize the IISER address first, then the personal Gmail address. For a
-single mailbox, use `lieer-auth iiser --force` or
+`lieer-auth all --force` starts both accounts at once on separate local
+callback ports: IISER uses `8080` (falling back to `8090`) and personal Gmail
+uses `8081` (falling back to `8091`). This lets you authorize them in separate
+browser tabs. For a single mailbox, use `lieer-auth iiser --force` or
 `lieer-auth personal --force`. The helper keeps the token files private and
 waits for any sync holding that mailbox's lock before reauthorizing it.
 
