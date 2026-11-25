@@ -293,21 +293,97 @@
     };
   lieerAuth = pkgs.writeShellApplication {
     name = "lieer-auth";
-    runtimeInputs = [pkgs.lieer pkgs.notmuch];
+    runtimeInputs = [pkgs.coreutils pkgs.lieer pkgs.notmuch pkgs.util-linux];
     text = ''
       account="''${1:-}"
+      shift || true
+
+      force=0
+      if [[ "''${1:-}" == "--force" ]]; then
+        force=1
+        shift
+      fi
+
+      if (( $# > 0 )); then
+        echo "Usage: lieer-auth {iiser|personal|all} [--force]" >&2
+        exit 2
+      fi
+
       case "$account" in
-      ${accountAlternatives}) ;;
+        iiser|personal) accounts=("$account") ;;
+        all) accounts=(iiser personal) ;;
         *)
-          echo "Usage: lieer-auth {${accountAlternatives}}" >&2
+          echo "Usage: lieer-auth {iiser|personal|all} [--force]" >&2
           exit 2
           ;;
       esac
 
+      client_file="${config.xdg.configHome}/lieer/oauth-client.json"
+      if [[ ! -r "$client_file" ]]; then
+        echo "OAuth client JSON is missing or unreadable: $client_file" >&2
+        exit 1
+      fi
+
+      umask 077
       export NOTMUCH_CONFIG=${config.xdg.configHome}/notmuch/default/config
       notmuch new
-      cd "${mailRoot}/$account"
-      exec gmi auth
+      state_dir="${config.xdg.stateHome}/lieer"
+      mkdir -p "$state_dir"
+
+      for account in "''${accounts[@]}"; do
+        case "$account" in
+          iiser)
+            echo "Authorize the IISER mailbox: ms22174@iisermohali.ac.in"
+            ;;
+          personal)
+            echo "Authorize the personal mailbox: kshitishkumarratha@gmail.com"
+            ;;
+        esac
+
+        args=(--path "${mailRoot}/$account" --credentials "$client_file")
+        if (( force )); then
+          args+=(--force)
+        fi
+
+        flock "${mailRoot}/$account/.gmi.lock" gmi auth "''${args[@]}"
+        if (( force )); then
+          date +%s > "$state_dir/reauth-$account"
+        fi
+      done
+    '';
+  };
+  lieerReauthReminder = pkgs.writeShellApplication {
+    name = "lieer-reauth-reminder";
+    runtimeInputs = [pkgs.coreutils pkgs.libnotify];
+    text = ''
+      state_dir="${config.xdg.stateHome}/lieer"
+      now="$(date +%s)"
+      reauth_after_seconds=$((5 * 24 * 60 * 60))
+      due_accounts=()
+
+      for account in iiser personal; do
+        stamp_file="$state_dir/reauth-$account"
+        if [[ ! -r "$stamp_file" ]]; then
+          due_accounts+=("$account")
+          continue
+        fi
+
+        last_reauth="$(<"$stamp_file")"
+        if [[ ! "$last_reauth" =~ ^[0-9]+$ ]] || (( now - last_reauth >= reauth_after_seconds )); then
+          due_accounts+=("$account")
+        fi
+      done
+
+      if (( ''${#due_accounts[@]} == 0 )); then
+        exit 0
+      fi
+
+      due_list="$(IFS=", "; printf '%s' "''${due_accounts[*]}")"
+      notify-send \
+        --app-name="Lieer mail" \
+        --urgency=normal \
+        "Gmail authorization expires soon" \
+        "Reauthorize $due_list with: lieer-auth all --force"
     '';
   };
   emailToggle = pkgs.writeShellApplication {
@@ -520,7 +596,7 @@ in {
 
   home.sessionVariables.NOTMUCH_CONFIG = "${config.xdg.configHome}/notmuch/default/config";
 
-  home.packages = [lieerAuth emailToggle];
+  home.packages = [lieerAuth lieerReauthReminder emailToggle];
 
   home.activation.lieerMaildirs = lib.hm.dag.entryAfter ["writeBoundary"] ''
     mkdir -p \
@@ -540,6 +616,16 @@ in {
     lieer-personal = {
       Unit.ConditionPathExists = lib.mkForce "${mailRoot}/personal/.credentials.gmailieer.json";
       Service.ExecStart = lib.mkForce "${lib.getExe (lieerSync "personal")}";
+    };
+    lieer-reauth-reminder = {
+      Unit = {
+        Description = "Notify when Lieer Gmail authorization is about to expire";
+        After = ["graphical-session.target"];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = lib.getExe lieerReauthReminder;
+      };
     };
   };
 
@@ -588,6 +674,16 @@ in {
     Timer = {
       OnCalendar = "*:0/10";
       RandomizedDelaySec = 120;
+      Persistent = true;
+    };
+    Install.WantedBy = ["timers.target"];
+  };
+
+  systemd.user.timers.lieer-reauth-reminder = {
+    Unit.Description = "Daily check for expiring Lieer Gmail authorization";
+    Timer = {
+      OnCalendar = "*-*-* 09:00:00";
+      RandomizedDelaySec = "10min";
       Persistent = true;
     };
     Install.WantedBy = ["timers.target"];

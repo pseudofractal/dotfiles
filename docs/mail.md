@@ -9,12 +9,25 @@ Each account has a Lieer timer firing every 5 minutes:
 - `lieer-iiser.service` / `lieer-personal.service` (triggered by matching `.timer` units).
 - One run is `gmi pull` (fetch mail and labels), then classifying new mail, then `gmi push` (upload tag changes). The pull runs first so the local repository sees remote changes before it tries to push. If Gmail reports a message changed since the locally recorded history point, Lieer can refuse that message's local update; a later pull may then replace the local tag state with Gmail's state. This can leave an archive or delete action unapplied remotely, or restore a label locally. Check the sync log and Gmail before retrying; do not use `gmi push -f` unless you are prepared to overwrite a concurrent remote label change.
 
-First-time authorization is interactive, once per account:
+OAuth authorization is interactive. The client JSON is stored privately at
+`~/.config/lieer/oauth-client.json`; `lieer-auth` uses it instead of Lieer's
+retired built-in OAuth client. Because this app is External and in Testing,
+Google expires its Gmail refresh tokens after seven days. Reauthorize both
+accounts with one command:
 
 ```bash
-lieer-auth iiser
-lieer-auth personal
+lieer-auth all --force
 ```
+
+Authorize the IISER address first, then the personal Gmail address. For a
+single mailbox, use `lieer-auth iiser --force` or
+`lieer-auth personal --force`. The helper keeps the token files private and
+waits for any sync holding that mailbox's lock before reauthorizing it.
+
+A dismissible desktop notification appears at 09:00 once either authorization
+is five days old, then repeats daily until that account is reauthorized. Closing
+the notification dismisses only that day's prompt; a successful forced auth
+resets the reminder for that account.
 
 `~/mails` is the local Lieer store. There is no second local mail copy configured or
 maintained by this setup. The former mbsync download at `~/Maildir` was discarded on
