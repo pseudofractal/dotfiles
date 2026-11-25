@@ -34,9 +34,6 @@ return {
             return true
           end
         end,
-        function()
-          return require("sidekick").nes_jump_or_apply()
-        end,
         "fallback",
       },
       ["<Down>"] = {
@@ -70,6 +67,14 @@ return {
     snippets = { preset = "luasnip" },
     completion = {
       documentation = { auto_show = true, window = { max_width = 200, max_height = 200 } },
+      trigger = {
+        show_on_blocked_trigger_characters = function()
+          if vim.bo.filetype == "julia" and require("config.julia-import-syntax").context() then
+            return { "\n", "\t" }
+          end
+          return { " ", "\n", "\t" }
+        end,
+      },
       menu = {
         auto_show = true,
         border = "rounded",
@@ -89,7 +94,24 @@ return {
     fuzzy = { implementation = "prefer_rust" },
     sources = {
       default = { "lazydev", "lsp", "latex", "path", "buffer", "snippets" },
+      per_filetype = {
+        julia = function()
+          local import = require("config.julia-import-syntax").context()
+          if import and import.kind == "package" then
+            return { "julia_imports" }
+          end
+          if import then
+            return { "julia_imports", inherit_defaults = true }
+          end
+          return { inherit_defaults = true }
+        end,
+      },
       providers = {
+        julia_imports = {
+          name = "Julia imports",
+          module = "config.julia-import-source",
+          async = true,
+        },
         buffer = {
           enabled = function()
             return vim.fn.getcmdtype() ~= ":"

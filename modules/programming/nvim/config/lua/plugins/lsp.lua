@@ -212,41 +212,66 @@ return {
       })
 
       local capabilities = require("blink.cmp").get_lsp_capabilities()
+      local julia_projects = require("config.julia-projects")
 
       vim.lsp.config(
         "jetls",
         vim.tbl_deep_extend("force", {}, capabilities, {
-          cmd = {
-            "jetls",
-            "--threads=16",
-            "--",
-            "serve",
-            "--clientProcessId",
-            vim.fn.getpid(),
-          },
-          filetypes = { "julia" },
-          root_markers = { "Project.toml", ".git" },
-          before_init = function(params, config)
-            local workspace_uri = params.rootUri
-            if not workspace_uri then
-              return
+          cmd = function(dispatchers, client_config)
+            local context = julia_projects.context(client_config.root_dir or vim.fn.getcwd())
+            local jetls_project = vim.fs.joinpath(vim.env.HOME, ".julia/environments/apps/JETLS")
+            local julia = julia_projects.executable()
+            if julia == "" then
+              error("JETLS requires Julia on Neovim's PATH or JETLS_JULIA_CMD/JULIA_APPS_JULIA_CMD")
+            end
+            if vim.fn.filereadable(vim.fs.joinpath(jetls_project, "Project.toml")) ~= 1 then
+              error("JETLS Julia app environment is missing: " .. jetls_project)
             end
 
-            local workspace_root = vim.uri_to_fname(workspace_uri)
-            local project_root = vim.fs.root(workspace_root, ".git")
-            if not project_root then
-              return
-            end
-
-            config.cmd_env = vim.tbl_extend("force", config.cmd_env or {}, {
-              JULIA_PROJECT = workspace_root,
-              JULIA_DEPOT_PATH = table.concat({
-                vim.fs.joinpath(project_root, ".julia-depot"),
-                vim.fs.joinpath(vim.env.HOME, ".julia"),
-              }, ":"),
-              XDG_CACHE_HOME = vim.fs.joinpath(project_root, ".cache"),
+            local julia_load_path = vim.deepcopy(context.load_path)
+            table.insert(julia_load_path, #julia_load_path, jetls_project)
+            local cmd_env = vim.tbl_extend("force", client_config.cmd_env or {}, context.env, {
+              JULIA_LOAD_PATH = table.concat(julia_load_path, ":"),
             })
+
+            -- The JETLS CLI deliberately replaces LOAD_PATH while serving.
+            -- Start its exported server loop directly so Julia keeps the
+            -- ancestor projects in LOAD_PATH for per-file project activation.
+            local jetls_launcher = [[
+              using JETLS
+
+              core = Base.require(JETLS, :JETLSCore)
+              core.JETLS_VERSION[] = JETLS.JETLS_VERSION
+              core.JETLS_MODULE[] = JETLS
+              client_pid_index = findfirst(==("--clientProcessId"), ARGS)
+              client_pid_index === nothing && error("JETLS requires --clientProcessId")
+              client_pid = parse(Int, ARGS[client_pid_index + 1])
+              exit(core.runserver(stdin, stdout; client_process_id=client_pid))
+            ]]
+
+            return vim.lsp.rpc.start(
+              {
+                julia,
+                "--startup-file=no",
+                "--history-file=no",
+                "--threads=16",
+                "-e",
+                jetls_launcher,
+                "--",
+                "serve",
+                "--stdio",
+                "--clientProcessId",
+                tostring(vim.fn.getpid()),
+              },
+              dispatchers,
+              {
+                cwd = context.workspace,
+                env = cmd_env,
+              }
+            )
           end,
+          filetypes = { "julia" },
+          root_markers = julia_projects.root_markers,
           init_options = {
             reuse_native_inference = true,
           },

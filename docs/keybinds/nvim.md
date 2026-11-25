@@ -16,6 +16,8 @@ Leader is `space`. Uppercase means `shift` plus the key (`dB` is
 - `db` toggle breakpoint
 - `dB` conditional breakpoint
 - `dr` open debug REPL
+- Julia files use the nearest `Project.toml` and the repository `scripts`
+  environment when present; debugger packages stay in the shared Julia app environment
 - `dx` all diagnostics (Trouble)
 - `dX` buffer diagnostics (Trouble)
 - `dl` location list (Trouble)
@@ -124,6 +126,13 @@ These only exist in buffers with an LSP attached.
 - `ld` buffer diagnostics, `lD` workspace diagnostics
 - `lc` run CodeLens
 
+`:JuliaEnv` opens a read-only view of the current file's Julia project, load
+path, depots, and the project providing each package name. Press `q` to close it.
+Julia import completion shows packages from the project stack, local modules
+after leading dots, and explicit `export` or `public` names after a colon.
+Select an imported member to see its declaration, docstring, and source
+location when the completion source can find them.
+
 ## Papyri (`p`)
 
 Papyri previews Markdown and Typst while Neovim keeps the text. Saved
@@ -208,10 +217,10 @@ have Vitest configured.
 
 In insert mode with completions open: `tab` accepts, `up` and
 `down` cycle, `ctrl-space` opens the menu, `ctrl-l` jumps the
-snippet forward, `enter` does nothing to completions. `alt-l`
-accepts the local AI ghost text when the model server is enabled. With
-no completion or snippet to handle it, `tab` jumps to a pending Copilot
-next-edit suggestion; press it again at the edit to apply it.
+snippet forward, `enter` does nothing to completions. In insert mode, `alt-l`
+accepts the local AI inline ghost text when the model server is enabled. In any
+mode, it applies a visible Copilot next-edit suggestion immediately without
+first moving the cursor to the suggested edit.
 `:Sidekick nes update` requests a suggestion, `:Sidekick nes clear`
 dismisses it, and `:Sidekick nes toggle` turns NES on or off.
 

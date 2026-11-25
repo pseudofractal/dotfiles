@@ -10,11 +10,11 @@ return {
           enabled = true,
           auto_trigger = true,
           keymap = {
-            accept = "<M-l>",
+            accept = false,
           },
         },
         nes = {
-          enabled = true,
+          enabled = false,
         },
       })
     end,
@@ -22,10 +22,41 @@ return {
   {
     "folke/sidekick.nvim",
     opts = {
-      nes = { enabled = true },
+      nes = {
+        enabled = true,
+        clear = { esc = false },
+      },
       cli = { mux = { enabled = false } },
     },
     keys = {
+      {
+        "<M-l>",
+        function()
+          if vim.api.nvim_get_mode().mode:sub(1, 1) == "i" then
+            local ok, completion = pcall(require, "blink.cmp")
+            if ok and completion.is_menu_visible() then
+              completion.accept({ index = completion.get_selected_item_idx() or 1 })
+              return ""
+            end
+
+            local suggestion_ok, suggestion = pcall(require, "copilot.suggestion")
+            if suggestion_ok and suggestion.is_visible() then
+              suggestion.accept()
+              return ""
+            end
+          end
+
+          local nes = require("sidekick.nes")
+          if nes.have() then
+            nes.apply()
+          end
+
+          return ""
+        end,
+        mode = { "n", "i", "x" },
+        expr = true,
+        desc = "Accept AI suggestion or apply NES",
+      },
       {
         "<leader>aa",
         function()

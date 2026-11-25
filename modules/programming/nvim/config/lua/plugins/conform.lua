@@ -5,7 +5,14 @@ return {
     {
       "<leader>cf",
       function()
-        require("conform").format({ async = true, lsp_format = "fallback" })
+        local format_options = { async = true, lsp_format = "fallback" }
+        if vim.bo.filetype == "lean" then
+          format_options.lsp_format = "prefer"
+          format_options.filter = function(client)
+            return client.name == "lean-fmt"
+          end
+        end
+        require("conform").format(format_options)
       end,
       desc = "Format the current buffer",
     },
@@ -16,6 +23,7 @@ return {
     conform.setup({
       formatters_by_ft = {
         ["*"] = { "treefmt" },
+        lean = { "treefmt" },
       },
       formatters = {
         treefmt = {
@@ -33,7 +41,14 @@ return {
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return
         end
-        return { lsp_format = "fallback", timeout_ms = 60000 }
+        local format_options = { lsp_format = "fallback", timeout_ms = 60000 }
+        if vim.bo[bufnr].filetype == "lean" then
+          format_options.lsp_format = "prefer"
+          format_options.filter = function(client)
+            return client.name == "lean-fmt"
+          end
+        end
+        return format_options
       end,
     })
 

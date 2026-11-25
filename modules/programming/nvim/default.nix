@@ -70,6 +70,7 @@ in {
     plugins = [];
     extraWrapperArgs =
       ["--set" "JULIA_NUM_THREADS" "4"]
+      ++ lib.optionals (!isAndroid) ["--set" "JETLS_JULIA_CMD" (lib.getExe pkgs.julia)]
       ++ lib.optionals (!isAndroid) ["--set" "LLAMA_LOCAL_ENABLE" "1"];
   };
 

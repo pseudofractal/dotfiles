@@ -22,9 +22,65 @@ return {
     "mfussenegger/nvim-dap",
     dependencies = {
       "rcarriga/nvim-dap-ui",
+      "kdheepak/nvim-dap-julia",
     },
     config = function()
       local dap = require("dap")
+      local julia_dap = require("nvim-dap-julia")
+      local julia_projects = require("config.julia-projects")
+
+      dap.adapters.julia = function(callback, config)
+        local context = julia_projects.for_buffer(0, config.project)
+        local julia = julia_projects.executable()
+        if julia == "" then
+          error("Julia DAP requires Julia on Neovim's PATH or JETLS_JULIA_CMD/JULIA_APPS_JULIA_CMD")
+        end
+
+        local debug_adapter_project = vim.fs.joinpath(vim.env.HOME, ".julia/environments/apps/DebugAdapter")
+        local env = vim.fn.exepath("env")
+        if env == "" then
+          error("Julia DAP requires the env command on Neovim's PATH")
+        end
+
+        callback({
+          type = "server",
+          port = "${port}",
+          executable = {
+            command = env,
+            args = {
+              "JULIA_LOAD_PATH=" .. context.env.JULIA_LOAD_PATH,
+              "JULIA_DEPOT_PATH=" .. context.env.JULIA_DEPOT_PATH,
+              "XDG_CACHE_HOME=" .. context.env.XDG_CACHE_HOME,
+              julia,
+              "--startup-file=no",
+              "--history-file=no",
+              "--project=" .. debug_adapter_project,
+              julia_dap.get_debugger_script(),
+              "${port}",
+            },
+            cwd = config.cwd or context.workspace,
+          },
+          options = { max_retries = 100 },
+        })
+      end
+
+      dap.configurations.julia = {
+        {
+          type = "julia",
+          name = "Debug Julia file",
+          request = "launch",
+          program = "${file}",
+          project = function()
+            local context = julia_projects.for_buffer(0)
+            return context.active_project and context.workspace or nil
+          end,
+          cwd = function()
+            return julia_projects.for_buffer(0).workspace
+          end,
+          stopOnEntry = false,
+          args = {},
+        },
+      }
 
       dap.adapters.codelldb = {
         type = "server",

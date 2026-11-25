@@ -15,7 +15,11 @@
     exec "$HOME/.julia/bin/jetls" "$@"
   '';
 in {
-  home.sessionVariables.TREEFMT_NO_CACHE = "true";
+  home.sessionVariables = {
+    JETLS_JULIA_CMD = lib.getExe pkgs.julia;
+    JUPYTER = lib.getExe pkgs.jupyter;
+    TREEFMT_NO_CACHE = "true";
+  };
 
   home.activation.updateJetls = lib.hm.dag.entryAfter ["writeBoundary"] ''
     jetls_project="$HOME/.julia/environments/apps/JETLS"
@@ -28,6 +32,27 @@ in {
       echo "info: JETLS is up to date with the latest upstream release"
     else
       echo "warning: failed to update JETLS; keeping the existing installation"
+    fi
+  '';
+
+  home.activation.installDebugAdapter = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    debug_adapter_project="$HOME/.julia/environments/apps/DebugAdapter"
+
+    if test ! -f "$debug_adapter_project/Project.toml"; then
+      mkdir -p "$debug_adapter_project"
+      if ! JULIA_LOAD_PATH="@:@stdlib" ${lib.getExe pkgs.julia} \
+        --startup-file=no \
+        --project="$debug_adapter_project" \
+        -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/julia-vscode/DebugAdapter.jl"))'; then
+        echo "warning: failed to install Julia DebugAdapter; keeping the existing environment"
+      fi
+    else
+      if ! JULIA_LOAD_PATH="@:@stdlib" ${lib.getExe pkgs.julia} \
+        --startup-file=no \
+        --project="$debug_adapter_project" \
+        -e 'using Pkg; Pkg.instantiate()'; then
+        echo "warning: failed to instantiate Julia DebugAdapter; keeping the existing environment"
+      fi
     fi
   '';
 
@@ -47,7 +72,9 @@ in {
   home.packages = with pkgs; [
     # keep-sorted start
     devenv
+    elan
     jetls
+    (lib.lowPrio jupyter)
     numbat
     runicfmt
     treefmtEval.config.build.wrapper
