@@ -1,0 +1,30 @@
+GIMP Palette
+Name: Catppuccin Mocha Scientific
+Columns: 8
+# Background and foreground first, then surfaces, overlays, and accents.
+30 30 46 base (background)
+205 214 244 text (foreground)
+24 24 37 mantle
+17 17 27 crust
+49 50 68 surface0
+69 71 90 surface1
+88 91 112 surface2
+108 112 134 overlay0
+127 132 156 overlay1
+147 153 178 overlay2
+166 173 200 subtext0
+186 194 222 subtext1
+245 224 220 rosewater
+242 205 205 flamingo
+245 194 231 pink
+203 166 247 mauve
+243 139 168 red
+235 160 172 maroon
+250 179 135 peach
+249 226 175 yellow
+166 227 161 green
+148 226 213 teal
+137 220 235 sky
+116 199 236 sapphire
+137 180 250 blue
+180 190 254 lavender
