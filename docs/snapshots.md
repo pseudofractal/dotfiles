@@ -34,10 +34,12 @@ requires. The file is 32 GiB against 15 GiB RAM, so hibernate keeps working.
 ## Automatic snapshots
 
 `rebuild --system` (in `modules/core/fish/functions/rebuild.fish`) creates
-a snapshot before switching, and continues with a warning if it fails:
+paired `pre`/`post` snapshots around the switch, and continues with a warning if
+snapshot creation fails:
 
 ```fish
-sudo snapper -c root create --description "pre-rebuild <timestamp>" --cleanup-algorithm number
+sudo snapper -c root create -t pre --print-number --description "pre-rebuild <timestamp>" --cleanup-algorithm number
+sudo snapper -c root create -t post --pre-number <pre-N> --description "post-rebuild <timestamp>" --cleanup-algorithm number
 ```
 
 The hook runs only when the `snapper` binary exists, so machines without

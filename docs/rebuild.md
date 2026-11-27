@@ -7,10 +7,21 @@ Run from the repo root. Both commands pick up uncommitted changes, so a clean tr
 The normal rebuild:
 
 ```bash
+nh home switch -c pseudofractal ~/dotfiles
+# or directly:
 home-manager switch --flake .#pseudofractal
 ```
 
-The fish shortcut is `rebuild`. It automatically moves conflicting local files aside with a unique `.hm-bak-<timestamp>` suffix before Home Manager installs its managed files. `rebuild --system` does System Manager; `rebuild --backup` remains accepted for compatibility and behaves like `rebuild`.
+The fish shortcut is `rebuild`. On Arch it wraps `nh home switch` (falling back to `home-manager switch` before `nh` is installed) so builds show live `rom` progress and a `dix` package/size diff, and automatically moves conflicting local files aside with a unique `.hm-bak-<timestamp>` suffix.
+
+Useful flags:
+
+- `rebuild --system` (`-s`): rebuild System Manager with paired pre/post snapper snapshots and a `dix` closure diff.
+- `rebuild --dry` (`-n`, `--dry-run`): build and preview changes without activating, updating NectarLink, or taking snapshots.
+- `rebuild --ask` (`-a`): show the `dix` package diff and ask before activating (Home Manager).
+- `rebuild --skip-nectarlink`: skip the NectarLink nightly check for fast or offline rebuilds.
+- `rebuild -- <args...>`: forward extra flags (such as `--show-trace` or `--offline`) to the underlying command.
+- `rebuild --backup` (`-b`): accepted for compatibility and behaves like `rebuild`.
 
 Every normal Home Manager rebuild attempts to pin the `nectarlink` input to the
 newest `v*-nightly.*` release with an APK and checksum before the switch.
@@ -54,7 +65,9 @@ System Manager owns the SDDM session entry, `/run/system-manager/sw`, `/run/open
 Run it after changing `hosts/arch/system.nix` or the `systemConfigs.arch` definition in `flake.nix`:
 
 ```bash
-nix run 'github:numtide/system-manager' -- switch --sudo --flake "$PWD#arch"
+system-manager switch --sudo --flake "$PWD#arch"
+# or, before system-manager is on PATH:
+nix run "$PWD#system-manager" -- switch --sudo --flake "$PWD#arch"
 ```
 
 Log out and pick **Niri (Nix)** again if the session wrapper or niri package changed. A Home Manager switch doesn't deploy System Manager changes.
@@ -68,26 +81,28 @@ niri msg outputs
 systemctl --user status noctalia.service
 ```
 
+Both `readlink` commands should land on the same niri store package.
+
 ## Snapshots
 
-`rebuild --system` takes a snapper `pre-rebuild` snapshot of `/` first
+`rebuild --system` takes paired snapper `pre`/`post` snapshots of `/`
 (`snapper -c root`), kept under number cleanup (default: last 50).
 Swap lives in its own `/swap` subvolume so snapshots never trip on it.
 Roll back with `sudo snapper -c root undochange <pre-N>..<post-N>`.
 Full reference, including rescue scenarios and the rollback caveat: `docs/snapshots.md`.
 
-Both `readlink` commands should land on the same niri store package.
+## Binary caches & garbage collection
 
-## Binary caches
-
-The project caches live in `~/.config/nix/nix.conf` because `accept-flake-config` is off:
+The project caches and Nix settings live in `~/.config/nix/nix.conf` (managed by `modules/core/maintenance.nix`) because `accept-flake-config` is off:
 
 ```text
-extra-substituters = https://niri-nix.cachix.org https://noctalia.cachix.org https://vicinae.cachix.org
-extra-trusted-public-keys = niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=
+extra-substituters = https://cache.numtide.com https://niri-nix.cachix.org https://noctalia.cachix.org https://vicinae.cachix.org
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g= niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=
 ```
 
-Without these, Nix builds large packages locally.
+Without these, Nix builds large packages locally. GitHub API authentication for flake fetches is included via a `0400` sops template (`!include .../nix-access-tokens.conf`) from `modules/core/secrets.nix`.
+
+Weekly user profile cleanup runs via `nh-clean.timer` (`nh clean user --keep 5 --keep-since 7d --optimise`, replacing `nix.gc`), keeping at least 5 generations and everything from the last 7 days.
 
 ## Updating inputs
 
@@ -108,4 +123,3 @@ Some inputs are pinned on purpose:
 - `vicinae` must never follow the root nixpkgs. That would rebuild it from source against the wrong libraries (gcc15Stdenv vs system numen GLIBCXX skew) and skip `vicinae.cachix.org`. The input floats on upstream `main` with no override, so its nixpkgs always equals upstream's lock, and every rev's binary is already cached. Updates download instead of compiling. Just `nix flake update vicinae` and build. The flake's `lib` is also needed for `mkVicinaeExtension`, so nixpkgs' own `vicinae` package won't do.
 - `niri-nix` provides the overlay both Home Manager and System Manager use. Building niri against the root nixpkgs keeps it compatible with `/run/opengl-driver` (upstream prebuilts silently get zero outputs). Its own nixpkgs input is untouched, so it tracks upstream's lock. Nothing consumed here reads that input (the overlay instantiates with our pkgs; the home module uses `self.lib` plus our `package` override).
 - Zotero still bundles Firefox ESR 140, which nixpkgs marks insecure. `modules/graphical/zotero.nix` imports the root nixpkgs with a scoped `permittedInsecurePackages` entry instead of pinning a separate nixpkgs. Update that entry when nixpkgs bumps the bundled ESR.
-- `nixpkgs-llama` freezes both llama.cpp servers, so routine nixpkgs updates never trigger a from-source CUDA rebuild.
