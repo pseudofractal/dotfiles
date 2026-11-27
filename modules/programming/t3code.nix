@@ -29,6 +29,20 @@
       enabled = true;
     };
   };
+  # T3 gives Antigravity a private GEMINI_HOME, so it does not read the shared
+  # MCP config on its own. Link it into the profile before each launch. T3
+  # already links the shared skills and instruction files itself.
+  antigravityT3 = pkgs.writeShellApplication {
+    name = "antigravity-t3";
+    runtimeInputs = [pkgs.coreutils];
+    text = ''
+      if [ -n "''${GEMINI_HOME:-}" ] && [ -f "$HOME/.gemini/config/mcp_config.json" ]; then
+        mkdir -p "$GEMINI_HOME/config"
+        ln -sfn "$HOME/.gemini/config/mcp_config.json" "$GEMINI_HOME/config/mcp_config.json"
+      fi
+      exec ${lib.getExe pkgs.antigravity-cli} "$@"
+    '';
+  };
 in {
   programs.t3code = lib.mkIf (!isAndroid) {
     enable = true;
@@ -41,8 +55,17 @@ in {
         codex = enabledProvider "codex" (lib.getExe config.programs.codex.package);
         claudeAgent = enabledProvider "claudeAgent" (lib.getExe config.programs.claude-code.finalPackage);
         opencode = enabledProvider "opencode" (lib.getExe config.programs.opencode.package);
+        antigravity = {
+          driver = "antigravity";
+          enabled = true;
+          config = {
+            enabled = true;
+            authMethod = "oauth-personal";
+            binaryPath = lib.getExe antigravityT3;
+          };
+        };
       }
-      // lib.genAttrs ["cursor" "grok" "muse" "pi" "antigravity"] (driver: {
+      // lib.genAttrs ["cursor" "grok" "muse" "pi"] (driver: {
         inherit driver;
         enabled = false;
         config.enabled = false;
