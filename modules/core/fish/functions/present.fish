@@ -14,7 +14,7 @@ function present --description "Present a PDF with speaker notes using pdfpc"
         set -l selection (
             command fd --type f --extension pdf --hidden --exclude .git . $dirs \
                 | command fzf --prompt='PDF> ' --height=90% --reverse --border \
-                    --preview='pdf-preview {}' --preview-window='right:55%:wrap'
+                    --preview='pdfinfo -- {} 2>/dev/null | head -n 15' --preview-window='right:55%:wrap'
         )
 
         if test -z "$selection"

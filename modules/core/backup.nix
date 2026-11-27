@@ -6,28 +6,31 @@
 }: let
   cfg = config.dotfiles.backup;
 
-  mkRcloneCmd = name: opts: let
-    expandedSource = lib.replaceStrings ["~"] [config.home.homeDirectory] opts.sourcePath;
-  in
-    toString (
-      [
-        "${pkgs.rclone}/bin/rclone"
-        "sync"
-        expandedSource
-        "gdrive:${cfg.baseFolder}/${opts.drivePath}"
-        "--config"
-        config.sops.secrets.rclone_config.path
-        "--fast-list"
-        "--stats"
-        "30s"
-        "--log-level"
-        "INFO"
-      ]
-      ++ lib.optionals opts.incremental [
-        "--update"
-        "--checksum"
-      ]
-    );
+  expandHome = path:
+    if path == "~"
+    then config.home.homeDirectory
+    else if lib.hasPrefix "~/" path
+    then "${config.home.homeDirectory}/${lib.removePrefix "~/" path}"
+    else path;
+
+  mkRcloneArgs = opts:
+    [
+      "${pkgs.rclone}/bin/rclone"
+      "sync"
+      (expandHome opts.sourcePath)
+      "gdrive:${cfg.baseFolder}/${opts.drivePath}"
+      "--config"
+      config.sops.secrets.rclone_config.path
+      "--fast-list"
+      "--stats"
+      "30s"
+      "--log-level"
+      "INFO"
+    ]
+    ++ lib.optionals opts.incremental [
+      "--update"
+      "--checksum"
+    ];
 in {
   options.dotfiles.backup = {
     enable = lib.mkEnableOption "rclone backup service";
@@ -83,7 +86,7 @@ in {
             };
             Service = {
               Type = "oneshot";
-              ExecStart = mkRcloneCmd name opts;
+              ExecStart = lib.hm.strings.escapeSystemdExecArgs (mkRcloneArgs opts);
             };
           }
       )
@@ -109,13 +112,13 @@ in {
         name: opts:
           lib.nameValuePair "backup-${name}" {
             body = ''
-              echo (set_color cyan)"Starting backup: ${name}"(set_color normal)
-              ${mkRcloneCmd name opts}
+              printf '%sStarting backup: %s%s\n' "$(set_color cyan)" ${lib.escapeShellArg name} "$(set_color normal)"
+              ${lib.escapeShellArgs (mkRcloneArgs opts)}
               or begin
-                echo (set_color red)"Backup failed: ${name}"(set_color normal)
+                printf '%sBackup failed: %s%s\n' "$(set_color red)" ${lib.escapeShellArg name} "$(set_color normal)" >&2
                 return 1
               end
-              echo (set_color green)"Backup complete: ${name}"(set_color normal)
+              printf '%sBackup complete: %s%s\n' "$(set_color green)" ${lib.escapeShellArg name} "$(set_color normal)"
             '';
             description = "Manually trigger rclone backup for ${name}";
           }
