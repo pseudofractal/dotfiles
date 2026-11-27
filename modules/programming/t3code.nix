@@ -32,9 +32,10 @@
   # T3 gives Antigravity a private GEMINI_HOME and deliberately does not link
   # ~/.gemini/config/mcp_config.json into it (pingdotgg/t3code#42608). Link the
   # shared MCP config into the profile before each launch. T3 already links the
-  # shared skills and AGENTS.md itself.
+  # shared skills and AGENTS.md itself. The wrapper must be named `agy` because
+  # T3 only accepts custom Antigravity executables with that basename.
   antigravityT3 = pkgs.writeShellApplication {
-    name = "antigravity-t3";
+    name = "agy";
     runtimeInputs = [pkgs.coreutils];
     text = ''
       if [ -n "''${GEMINI_HOME:-}" ] && [ -f "$HOME/.gemini/config/mcp_config.json" ]; then
