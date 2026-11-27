@@ -202,7 +202,6 @@ in {
         {border.off = {};}
         {shadow.off = {};}
       ])
-    (rule [(match {title = "Tablet";})] [{open-fullscreen = true;}])
   ];
 
   layer-rule = [

@@ -17,7 +17,6 @@
     ./prism-launcher.nix
     ./sioyek.nix
     ./steam.nix
-    ./tablet.nix
     ./teams.nix
     ./tools.nix
     ./vivaldi.nix
