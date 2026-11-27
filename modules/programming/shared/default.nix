@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.dotfiles.programming.agents;
@@ -11,12 +12,12 @@ in {
     instructions = lib.mkOption {
       type = lib.types.lines;
       default = builtins.readFile ./instructions.md;
-      description = "Global instructions shared by OpenCode, Codex, Claude Code, and Copilot CLI.";
+      description = "Global instructions shared by OpenCode, Codex, Claude Code, Copilot CLI, and Antigravity.";
     };
     skills = lib.mkOption {
       type = lib.types.attrsOf (lib.types.either lib.types.lines lib.types.path);
       default = {};
-      description = "Named skill directories or SKILL.md content installed for all agents, including Copilot CLI.";
+      description = "Named skill directories or SKILL.md content installed for all agents, including Copilot CLI and Antigravity.";
     };
   };
 
@@ -46,6 +47,17 @@ in {
     programs.github-copilot-cli = {
       context = cfg.instructions;
       skills = cfg.skills;
+    };
+    programs.antigravity-cli = {
+      enable = true;
+      package = pkgs.antigravity-cli;
+      context = {
+        AGENTS = cfg.instructions;
+        GEMINI = cfg.instructions;
+      };
+      skills = cfg.skills;
+      enableMcpIntegration = true;
+      mutableSettings = true;
     };
   };
 }
