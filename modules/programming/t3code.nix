@@ -29,9 +29,10 @@
       enabled = true;
     };
   };
-  # T3 gives Antigravity a private GEMINI_HOME, so it does not read the shared
-  # MCP config on its own. Link it into the profile before each launch. T3
-  # already links the shared skills and instruction files itself.
+  # T3 gives Antigravity a private GEMINI_HOME and deliberately does not link
+  # ~/.gemini/config/mcp_config.json into it (pingdotgg/t3code#42608). Link the
+  # shared MCP config into the profile before each launch. T3 already links the
+  # shared skills and AGENTS.md itself.
   antigravityT3 = pkgs.writeShellApplication {
     name = "antigravity-t3";
     runtimeInputs = [pkgs.coreutils];
