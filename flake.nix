@@ -27,17 +27,28 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    nix-index-database = {
+      url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    catppuccin.url = "github:catppuccin/nix";
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     concord = {
       url = "github:chojs23/concord";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixgl.url = "github:nix-community/nixGL";
+    nixgl = {
+      url = "github:nix-community/nixGL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     niri-nix = {
       url = "git+https://codeberg.org/BANanaD3V/niri-nix";
     };
@@ -47,12 +58,13 @@
     };
     # Pinned to the release that matches the Android APK.
     nectarlink = {
-      url = "github:thtbee/nectarlink/v0.1.6-nightly.12";
+      url = "github:thtbee/nectarlink/v0.1.6-nightly.13";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-browser = {
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
     nur-vortriz.url = "github:Vortriz/nur-packages";
     firefox-addons = {
@@ -61,7 +73,12 @@
     };
     # Keep agent releases independent of the desktop's nixpkgs revision.
     llm-agents.url = "github:numtide/llm-agents.nix";
-    t3code.url = "github:ominit/t3code-flake";
+    t3code = {
+      url = "github:ominit/t3code-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+    # viu's upstream flake passes combined makeWrapperArgs strings that newer nixpkgs rejects.
     viu.url = "git+https://github.com/Benexl/fastanime";
     noctalia = {
       url = "github:noctalia-dev/noctalia/cachix";
@@ -74,11 +91,24 @@
       url = "github:numtide/system-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    kensaku.url = "github:pseudofractal/kensaku";
+    kensaku = {
+      url = "github:pseudofractal/kensaku";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # rmcl's flake omits pkg-config required by zstd-sys on newer nixpkgs.
     rmcl.url = "github:pseudofractal/rmcl";
-    mnemosyne.url = "github:pseudofractal/mnemosyne";
-    papyri.url = "git+ssh://git@github.com/pseudofractal/papyri";
-    shiryoku.url = "github:pseudofractal/shiryoku";
+    mnemosyne = {
+      url = "github:pseudofractal/mnemosyne";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    papyri = {
+      url = "git+ssh://git@github.com/pseudofractal/papyri";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    shiryoku = {
+      url = "github:pseudofractal/shiryoku";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     vicinae = {
       url = "github:vicinaehq/vicinae";
@@ -172,8 +202,10 @@
 
     formatter.${system} = treefmtEval.config.build.wrapper;
 
-    packages.${system}.nectarlink-nightly =
-      pkgs.callPackage ./tools/nectarlink-nightly.nix {};
+    packages.${system} = {
+      nectarlink-nightly = pkgs.callPackage ./tools/nectarlink-nightly.nix {};
+      system-manager = inputs.system-manager.packages.${system}.default;
+    };
 
     apps.${system}.nectarlink-nightly = {
       type = "app";

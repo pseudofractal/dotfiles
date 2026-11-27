@@ -36,6 +36,8 @@
 
   programs.bat.enable = true;
 
+  # Skip Home Manager's unconditional `bat cache --build` on every switch;
+  # rerun `bat cache --build` manually after adding custom bat themes/syntaxes.
   home.activation.batCache = lib.mkForce (lib.hm.dag.entryAfter ["linkGeneration"] ''
     if [ ! -f "${config.xdg.cacheHome}/bat/syntaxes.bin" ]; then
       export XDG_CACHE_HOME=${lib.escapeShellArg config.xdg.cacheHome}
@@ -55,7 +57,6 @@
     [
       # keep-sorted start
       age
-      bitwarden-cli
       rclone
       sops
       uutils-coreutils-noprefix

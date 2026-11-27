@@ -41,28 +41,41 @@ in {
     };
 
     templates."opencode-go-api-key".content = config.sops.placeholder.opencode_go_api_key;
+
+    # Nix resolves flake inputs through api.github.com; include the token from a
+    # 0400 file so all Nix invocations (interactive and non-interactive) avoid
+    # the 60/hour anonymous limit without leaking the token via NIX_CONFIG.
+    templates."nix-access-tokens.conf" = {
+      mode = "0400";
+      content = ''
+        access-tokens = github.com=${config.sops.placeholder.github_token}
+      '';
+    };
   };
+
+  nix.extraOptions = "!include ${config.sops.templates."nix-access-tokens.conf".path}";
 
   home.activation.opencodeGoApiKey = lib.mkIf (!isAndroid) (lib.hm.dag.entryAfter ["sops-nix"] ''
     auth_file="${config.home.homeDirectory}/.local/share/opencode/auth.json"
     key_file=${lib.escapeShellArg config.sops.templates."opencode-go-api-key".path}
     if [ -r "$key_file" ]; then
-      $DRY_RUN_CMD ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$auth_file")"
-      if [ -f "$auth_file" ]; then
-        if $DRY_RUN_CMD ${pkgs.jq}/bin/jq --rawfile key "$key_file" \
-          '.["opencode-go"] = ((.["opencode-go"] // {}) + {type: "api", key: ($key | rtrimstr("\n"))})' \
-          "$auth_file" > "$auth_file.tmp"; then
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/chmod 600 "$auth_file.tmp"
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$auth_file.tmp" "$auth_file"
-        else
-          ${pkgs.coreutils}/bin/rm -f "$auth_file.tmp"
-        fi
+      if [[ -v DRY_RUN ]]; then
+        echo "Dry run: would update $auth_file from $key_file"
       else
-        if $DRY_RUN_CMD ${pkgs.jq}/bin/jq -n --rawfile key "$key_file" \
-          '{["opencode-go"]: {type: "api", key: ($key | rtrimstr("\n"))}}' > "$auth_file.tmp"; then
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/chmod 600 "$auth_file.tmp"
-          $DRY_RUN_CMD ${pkgs.coreutils}/bin/mv "$auth_file.tmp" "$auth_file"
+        ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$auth_file")"
+        jq_filter='.["opencode-go"] = ((.["opencode-go"] // {}) + {type: "api", key: ($key | rtrimstr("\n"))})'
+        if (
+          umask 077
+          if [ -f "$auth_file" ]; then
+            ${pkgs.jq}/bin/jq --rawfile key "$key_file" "$jq_filter" "$auth_file" > "$auth_file.tmp"
+          else
+            ${pkgs.jq}/bin/jq -n --rawfile key "$key_file" "$jq_filter" > "$auth_file.tmp"
+          fi
+        ); then
+          ${pkgs.coreutils}/bin/chmod 600 "$auth_file.tmp"
+          ${pkgs.coreutils}/bin/mv "$auth_file.tmp" "$auth_file"
         else
+          echo "warning: failed to update $auth_file" >&2
           ${pkgs.coreutils}/bin/rm -f "$auth_file.tmp"
         fi
       fi
@@ -72,12 +85,6 @@ in {
   programs.fish.interactiveShellInit = ''
     if test -f ${config.sops.templates."exported-vars.fish".path}
       source ${config.sops.templates."exported-vars.fish".path}
-      if set -q GITHUB_PERSONAL_ACCESS_TOKEN; and test -n "$GITHUB_PERSONAL_ACCESS_TOKEN"
-        # Nix resolves flake inputs through api.github.com; authenticate it so
-        # rebuilds don't fall back to the 60/hour anonymous limit.
-        set -gx NIX_CONFIG "access-tokens = github.com=$GITHUB_PERSONAL_ACCESS_TOKEN
-    $NIX_CONFIG"
-      end
     end
   '';
 

@@ -1,9 +1,14 @@
 {
   config,
+  inputs,
+  isAndroid,
+  lib,
   pkgs,
   ...
 }: let
   uvBin = "${config.home.homeDirectory}/.local/bin/uv";
+  diskThresholdPercent = 80;
+  trashMaxAgeDays = 30;
 
   uvPrune = pkgs.writeShellScript "uv-prune" ''
     if [ -x "${uvBin}" ]; then
@@ -12,17 +17,17 @@
   '';
 
   diskCheck = pkgs.writeShellScript "disk-check" ''
-    use=$(df --output=pcent / | tail -n 1 | tr -dc '0-9')
-    if [ "$use" -ge 80 ]; then
-      export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
-      ${pkgs.libnotify}/bin/notify-send -u critical "Root disk at $use%" "Free space: trash-empty 30, uv cache prune, sudo paccache -r"
+    use=$(${pkgs.coreutils}/bin/df --output=pcent / | ${pkgs.coreutils}/bin/tail -n 1 | ${pkgs.coreutils}/bin/tr -dc '0-9')
+    if [ -n "$use" ] && [ "$use" -ge ${toString diskThresholdPercent} ]; then
+      export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(${pkgs.coreutils}/bin/id -u)/bus"
+      ${pkgs.libnotify}/bin/notify-send -u critical "Root disk at $use%" "Free space: trash-empty ${toString trashMaxAgeDays}, uv cache prune, sudo paccache -r"
     fi
   '';
 
-  monthlyTimer = name: {
+  mkMaintenanceTimer = name: onCalendar: {
     Unit.Description = "Maintenance timer: ${name}";
     Timer = {
-      OnCalendar = "monthly";
+      OnCalendar = onCalendar;
       Persistent = true;
       RandomizedDelaySec = "15min";
     };
@@ -31,14 +36,11 @@
 in {
   nix = {
     package = pkgs.nix;
-    gc = {
-      automatic = true;
-      dates = "weekly";
-      options = "--delete-older-than 14d";
-      persistent = true;
-    };
     settings = {
-      auto-optimise-store = true;
+      fallback = true;
+      keep-derivations = true;
+      keep-outputs = true;
+      warn-dirty = false;
       extra-substituters = [
         "https://cache.numtide.com"
         "https://niri-nix.cachix.org"
@@ -54,7 +56,53 @@ in {
     };
   };
 
-  home.packages = [pkgs.trash-cli];
+  programs =
+    {
+      nix-your-shell = {
+        enable = true;
+        enableFishIntegration = true;
+        nix-output-monitor.enable = !isAndroid;
+      };
+    }
+    // lib.optionalAttrs (!isAndroid) {
+      nh = {
+        enable = true;
+        homeFlake = "${config.home.homeDirectory}/dotfiles";
+        clean = {
+          enable = true;
+          dates = "weekly";
+          extraArgs = [
+            "--keep"
+            "5"
+            "--keep-since"
+            "7d"
+            "--optimise"
+          ];
+        };
+      };
+
+      nix-index = {
+        enable = true;
+        enableFishIntegration = true;
+      };
+
+      nix-index-database.comma.enable = true;
+    };
+
+  home.packages =
+    [pkgs.trash-cli]
+    ++ lib.optionals (!isAndroid) (
+      (with pkgs; [
+        # keep-sorted start
+        dix
+        nix-diff
+        nix-tree
+        # keep-sorted end
+      ])
+      ++ [
+        inputs.system-manager.packages.${pkgs.stdenv.hostPlatform.system}.default
+      ]
+    );
 
   systemd.user.services = {
     maintenance-uv-prune = {
@@ -66,15 +114,15 @@ in {
     };
 
     maintenance-trash-empty = {
-      Unit.Description = "Expire trash contents older than 30 days";
+      Unit.Description = "Expire trash contents older than ${toString trashMaxAgeDays} days";
       Service = {
         Type = "oneshot";
-        ExecStart = "${pkgs.trash-cli}/bin/trash-empty 30";
+        ExecStart = "${pkgs.trash-cli}/bin/trash-empty ${toString trashMaxAgeDays}";
       };
     };
 
     maintenance-disk-check = {
-      Unit.Description = "Warn when the root disk is over 80 percent full";
+      Unit.Description = "Warn when the root disk is over ${toString diskThresholdPercent} percent full";
       Service = {
         Type = "oneshot";
         ExecStart = diskCheck;
@@ -83,16 +131,8 @@ in {
   };
 
   systemd.user.timers = {
-    maintenance-uv-prune = monthlyTimer "uv-prune";
-    maintenance-trash-empty = monthlyTimer "trash-empty";
-    maintenance-disk-check = {
-      Unit.Description = "Maintenance timer: disk-check";
-      Timer = {
-        OnCalendar = "daily";
-        Persistent = true;
-        RandomizedDelaySec = "15min";
-      };
-      Install.WantedBy = ["timers.target"];
-    };
+    maintenance-uv-prune = mkMaintenanceTimer "uv-prune" "monthly";
+    maintenance-trash-empty = mkMaintenanceTimer "trash-empty" "monthly";
+    maintenance-disk-check = mkMaintenanceTimer "disk-check" "daily";
   };
 }

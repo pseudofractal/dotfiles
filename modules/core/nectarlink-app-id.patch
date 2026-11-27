@@ -1,8 +1,9 @@
 --- a/desktop/app/cpp/app_helpers.cpp
 +++ b/desktop/app/cpp/app_helpers.cpp
-@@ -775,10 +775,12 @@
-     }();
-     static int s_argc = static_cast<int>(s_args.size());
+@@ -803,11 +803,13 @@
+     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORMTHEME"))
+         qputenv("QT_QPA_PLATFORMTHEME", "xdgdesktopportal");
+ #endif
 -    auto app = std::unique_ptr<QGuiApplication>(new QApplication(s_argc, s_argv_list.data()));
  #ifdef __linux__
      // On Wayland this is the app id, which is how the dock finds our icon and name.
