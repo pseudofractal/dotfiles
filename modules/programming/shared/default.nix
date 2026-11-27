@@ -51,13 +51,15 @@ in {
     programs.antigravity-cli = {
       enable = true;
       package = pkgs.antigravity-cli;
-      context = {
-        AGENTS = cfg.instructions;
-        GEMINI = cfg.instructions;
-      };
+      context.AGENTS = cfg.instructions;
       skills = cfg.skills;
       enableMcpIntegration = true;
       mutableSettings = true;
     };
+    # Antigravity reads both global files and dedupes them only when they are
+    # symlinks to the same file. Keep AGENTS.md canonical and alias GEMINI.md
+    # so older Gemini CLI-style tooling still finds it.
+    home.file.".gemini/GEMINI.md".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.gemini/AGENTS.md";
   };
 }
