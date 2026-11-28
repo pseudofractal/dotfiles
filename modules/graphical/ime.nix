@@ -1,4 +1,15 @@
-{pkgs, ...}: let
+{
+  inputs,
+  pkgs,
+  ...
+}: let
+  typstMath = inputs.self.packages.${pkgs.stdenv.hostPlatform.system}.fcitx5-typst.override {
+    displayName = "Math";
+    label = "Math";
+  };
+  chineseAddons = pkgs.qt6Packages.fcitx5-chinese-addons.overrideAttrs (old: {
+    patches = (old.patches or []) ++ [./fcitx5-table-selection.patch];
+  });
   keyboard = pkgs.fcitx5.overrideAttrs (old: {
     postPatch =
       (old.postPatch or "")
@@ -34,32 +45,40 @@ in {
         fcitx5 = keyboard;
       };
       addons = [
+        chineseAddons
         m17n
         mozc
+        typstMath
       ];
       waylandFrontend = true;
       systemd.enable = true;
-      settings.inputMethod = {
-        GroupOrder."0" = "Default";
-        "Groups/0" = {
-          Name = "Default";
-          "Default Layout" = "us";
-          DefaultIM = "mozc";
+      settings = {
+        addons.classicui.globalSection = {
+          Font = "Maple Mono NF CN 14";
+          MenuFont = "Maple Mono NF CN 13";
         };
-        "Groups/0/Items/0" = {
-          Name = "m17n_t_math-latex";
-        };
-        "Groups/0/Items/1" = {
-          Name = "mozc";
-        };
-        "Groups/0/Items/2" = {
-          Name = "m17n_hi_itrans";
-        };
-        "Groups/0/Items/3" = {
-          Name = "m17n_or_itrans";
-        };
-        "Groups/0/Items/4" = {
-          Name = "keyboard-us";
+        inputMethod = {
+          GroupOrder."0" = "Default";
+          "Groups/0" = {
+            Name = "Default";
+            "Default Layout" = "us";
+            DefaultIM = "mozc";
+          };
+          "Groups/0/Items/0" = {
+            Name = "typst";
+          };
+          "Groups/0/Items/1" = {
+            Name = "mozc";
+          };
+          "Groups/0/Items/2" = {
+            Name = "m17n_hi_itrans";
+          };
+          "Groups/0/Items/3" = {
+            Name = "m17n_or_itrans";
+          };
+          "Groups/0/Items/4" = {
+            Name = "keyboard-us";
+          };
         };
       };
       sessionVariables = {
@@ -71,7 +90,6 @@ in {
   };
 
   home.file.".local/share/fcitx5/m17n/default".text = ''
-    t:math-latex:2:Math
     hi:itrans:2:Hindi
     or:itrans:2:Odia
     as:*:2

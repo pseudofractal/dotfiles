@@ -203,6 +203,7 @@
     formatter.${system} = treefmtEval.config.build.wrapper;
 
     packages.${system} = {
+      fcitx5-typst = pkgs.callPackage ./tools/fcitx5-typst.nix {};
       nectarlink-nightly = pkgs.callPackage ./tools/nectarlink-nightly.nix {};
       system-manager = inputs.system-manager.packages.${system}.default;
     };

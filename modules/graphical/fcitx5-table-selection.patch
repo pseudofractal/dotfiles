@@ -1,0 +1,31 @@
+--- a/im/table/state.cpp
++++ b/im/table/state.cpp
+@@ -900,8 +900,17 @@
+                     context->clear();
+                 }
+                 event.filterAndAccept();
+-            } else if (event.key().check(FcitxKey_Tab) ||
+-                       event.key().check(FcitxKey_KP_Tab)) {
++            } else if (!context->selected() &&
++                       event.key().checkKeyList(*config.defaultCandidate)) {
++                event.filterAndAccept();
++                if (autoSelectCandidate()) {
++                    return;
++                }
++                commitBuffer(true);
++                needUpdate = true;
++            } else if (*config.autoSelect &&
++                       (event.key().check(FcitxKey_Tab) ||
++                        event.key().check(FcitxKey_KP_Tab))) {
+                 {
+                     const CommitAfterSelectWrapper commitAfterSelectRAII(this);
+                     (void)autoSelectCandidate();
+@@ -1032,7 +1041,7 @@
+             break;
+         }
+         // if current key will produce some string, select the candidate.
+-        if (!autoSelectCandidate()) {
++        if (!*config.autoSelect || !autoSelectCandidate()) {
+             commitBuffer(true);
+             needUpdate = true;
+         }
