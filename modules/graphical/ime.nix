@@ -47,7 +47,7 @@ in {
           DefaultIM = "mozc";
         };
         "Groups/0/Items/0" = {
-          Name = "keyboard-us";
+          Name = "m17n_t_math-latex";
         };
         "Groups/0/Items/1" = {
           Name = "mozc";
@@ -57,6 +57,9 @@ in {
         };
         "Groups/0/Items/3" = {
           Name = "m17n_or_itrans";
+        };
+        "Groups/0/Items/4" = {
+          Name = "keyboard-us";
         };
       };
       sessionVariables = {
@@ -68,6 +71,7 @@ in {
   };
 
   home.file.".local/share/fcitx5/m17n/default".text = ''
+    t:math-latex:2:Math
     hi:itrans:2:Hindi
     or:itrans:2:Odia
     as:*:2
