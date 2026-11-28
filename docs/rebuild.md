@@ -50,7 +50,7 @@ When running Home Manager directly, request backups explicitly to avoid conflict
 home-manager switch --flake .#pseudofractal -b backup
 ```
 
-`systemd.user.startServices` is `false`, so a switch never starts services itself. Otherwise long oneshots like Lieer full syncs would block activation. The `rebuild` shortcut fills the gap: after a good Home Manager switch it restarts all user timers, so new or changed schedules apply. Restarting a timer only re-arms its schedule, never runs the job, and running syncs are left alone. It also reprints Home Manager's suggested service restarts in yellow at the end of a good switch, instead of leaving them buried in the activation log.
+`systemd.user.startServices` is `false`, so a switch never starts services itself. Otherwise long oneshots like Lieer full syncs would block activation. The `rebuild` shortcut fills the gap: after a good Home Manager switch it restarts all enabled user timers, so new or changed schedules apply. Restarting a timer only re-arms its schedule, never runs the job, and running syncs are left alone. It also reprints Home Manager's suggested daemon restarts in yellow at the end of a good switch (filtering out timer-driven oneshots and unloaded `stop` hints), instead of leaving them buried in the activation log.
 
 Switched without `rebuild`? Re-arm manually, e.g.:
 

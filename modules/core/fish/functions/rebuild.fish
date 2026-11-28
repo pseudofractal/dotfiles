@@ -70,18 +70,60 @@ function __rebuild_run_logged
     return $pipestatus[1]
 end
 
+function __rebuild_should_suggest_unit
+    set -l action $argv[1]
+    set -l unit $argv[2]
+
+    if string match -q '*.timer' -- "$unit"
+        return 1
+    end
+    if not command -q systemctl
+        return 0
+    end
+    if test "$action" = stop
+        systemctl --user is-active --quiet -- "$unit" 2>/dev/null
+        return $status
+    end
+
+    set -l props (systemctl --user show --property=Type,TriggeredBy -- "$unit" 2>/dev/null)
+    if contains -- Type=oneshot $props
+        return 1
+    end
+    if string match -rq '^TriggeredBy=.+' -- $props
+        return 1
+    end
+    return 0
+end
+
 function __rebuild_print_service_hints
     set -l switch_log $argv[1]
     if test -z "$switch_log"; or test "$switch_log" = /dev/null; or not test -f "$switch_log"
         return 0
     end
-    set -l suggested (
+    set -l raw_suggested (
         string replace -ra '\r' '' <"$switch_log" |
         string replace -ra '\e\[[0-9;?]*[ -/]*[@-~]' '' |
         string replace -ra '\e\][^\a\e]*(?:\a|\e\x5c)' '' |
         string match -r '^\s*systemctl --user (?:restart|start|stop) .*$' |
         string trim
     )
+    set -l suggested
+    for cmd in $raw_suggested
+        set -l tokens (string split -n ' ' -- "$cmd")
+        if test (count $tokens) -lt 4
+            continue
+        end
+        set -l action $tokens[3]
+        set -l kept
+        for unit in $tokens[4..-1]
+            if __rebuild_should_suggest_unit "$action" "$unit"
+                set -a kept "$unit"
+            end
+        end
+        if set -q kept[1]
+            set -a suggested "systemctl --user $action "(string join ' ' -- $kept)
+        end
+    end
     if set -q suggested[1]
         echo
         printf '%sSuggested service restarts (services never restart automatically):%s\n' "$(set_color --bold yellow)" "$(set_color normal)"

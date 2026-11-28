@@ -22,16 +22,21 @@ in {
   };
 
   home.activation.updateJetls = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    jetls_project="$HOME/.julia/environments/apps/JETLS"
+    if [[ ! -v DRY_RUN ]]; then
+      jetls_project="$HOME/.julia/environments/apps/JETLS"
 
-    echo "info: updating JETLS to the latest upstream release"
-    if JULIA_LOAD_PATH="@:@stdlib" ${lib.getExe pkgs.julia} \
-      --startup-file=no \
-      --project="$jetls_project" \
-      -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/JETLS.jl", rev="release")'; then
-      echo "info: JETLS is up to date with the latest upstream release"
-    else
-      echo "warning: failed to update JETLS; keeping the existing installation"
+      if ! jetls_output=$(
+        PATH="$HOME/.julia/bin:$PATH" \
+        JULIA_LOAD_PATH="@:@stdlib" \
+        ${lib.getExe pkgs.julia} \
+          --startup-file=no \
+          --project="$jetls_project" \
+          -e 'using Pkg; Pkg.Apps.add(; url="https://github.com/aviatesk/JETLS.jl", rev="release")' \
+          2>&1
+      ); then
+        echo "warning: failed to update JETLS; keeping the existing installation" >&2
+        printf '%s\n' "$jetls_output" >&2
+      fi
     fi
   '';
 
@@ -71,10 +76,10 @@ in {
   ];
   home.packages = with pkgs; [
     # keep-sorted start
+    (lib.lowPrio jupyter)
     devenv
     elan
     jetls
-    (lib.lowPrio jupyter)
     numbat
     runicfmt
     treefmtEval.config.build.wrapper
