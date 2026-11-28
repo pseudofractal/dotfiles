@@ -15,7 +15,7 @@
     };
   };
 in {
-  imports = [inputs.nur-vortriz.homeModules.zotero];
+  imports = [inputs.vpkgs.homeModules.zotero];
 
   programs.zotero = {
     enable = true;
@@ -33,7 +33,7 @@ in {
         "extensions.zotero.baseAttachmentPath" = attachmentPath;
       };
 
-      extensions = with inputs.nur-vortriz.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zoteroAddons; [
+      extensions = with inputs.vpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.zoteroAddons; [
         zotero-scipdf
         zotmoov
       ];

@@ -66,7 +66,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    nur-vortriz.url = "github:Vortriz/nur-packages";
+    vpkgs.url = "github:Vortriz/vpkgs";
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";

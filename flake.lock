@@ -886,21 +886,6 @@
         "type": "github"
       }
     },
-    "nur-vortriz": {
-      "locked": {
-        "lastModified": 1795794856,
-        "narHash": "sha256-AW6TtIw7CkapIdSnvRM+MFF2F2jWQyfpbtsEAU/a+FE=",
-        "owner": "Vortriz",
-        "repo": "nur-packages",
-        "rev": "f5df267c9be6b439e0b648d87a53b44aee8030b5",
-        "type": "github"
-      },
-      "original": {
-        "owner": "Vortriz",
-        "repo": "nur-packages",
-        "type": "github"
-      }
-    },
     "papyri": {
       "inputs": {
         "nixpkgs": [
@@ -987,7 +972,6 @@
         "nixpkgs": "nixpkgs_3",
         "nixpkgs-llama": "nixpkgs-llama",
         "noctalia": "noctalia",
-        "nur-vortriz": "nur-vortriz",
         "papyri": "papyri",
         "rmcl": "rmcl",
         "shiryoku": "shiryoku",
@@ -999,6 +983,7 @@
         "vicinae-color-picker": "vicinae-color-picker",
         "vicinae-extensions": "vicinae-extensions",
         "viu": "viu",
+        "vpkgs": "vpkgs",
         "ytm-player": "ytm-player",
         "zen-browser": "zen-browser"
       }
@@ -1469,6 +1454,21 @@
       "original": {
         "type": "git",
         "url": "https://github.com/Benexl/fastanime"
+      }
+    },
+    "vpkgs": {
+      "locked": {
+        "lastModified": 1795763055,
+        "narHash": "sha256-IdVDJeKIKmuv4AGoO08Hmu+6hOsk5EPUdnk6PLTdh/A=",
+        "owner": "Vortriz",
+        "repo": "vpkgs",
+        "rev": "140a686c7485ffc4478595bf36fb48863942e910",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Vortriz",
+        "repo": "vpkgs",
+        "type": "github"
       }
     },
     "ytm-player": {

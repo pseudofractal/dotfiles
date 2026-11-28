@@ -96,8 +96,8 @@ Full reference, including rescue scenarios and the rollback caveat: `docs/snapsh
 The project caches and Nix settings live in `~/.config/nix/nix.conf` (managed by `modules/core/maintenance.nix`) because `accept-flake-config` is off:
 
 ```text
-extra-substituters = https://cache.numtide.com https://niri-nix.cachix.org https://noctalia.cachix.org https://vicinae.cachix.org
-extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g= niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc=
+extra-substituters = https://cache.numtide.com https://niri-nix.cachix.org https://noctalia.cachix.org https://vicinae.cachix.org https://vortriz.cachix.org
+extra-trusted-public-keys = niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g= niri-nix.cachix.org-1:SvFtqpDcf7Sm1SMJdby1/+Y+6f3Yt3/3PMcSTKPJNJ0= noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4= vicinae.cachix.org-1:1kDrfienkGHPYbkpNj1mWTr7Fm1+zcenzgTizIcI3oc= vortriz.cachix.org-1:j+5MefZe7ymiJVrFW7kgX0maoW/QwxN3EQnDrmd1v2I=
 ```
 
 Without these, Nix builds large packages locally. GitHub API authentication for flake fetches is included via a `0400` sops template (`!include .../nix-access-tokens.conf`) from `modules/core/secrets.nix`.

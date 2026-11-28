@@ -5,7 +5,7 @@
   pkgs,
   ...
 }: let
-  yaziPlugins = inputs.nur-vortriz.legacyPackages.${pkgs.stdenv.hostPlatform.system}.yaziPlugins;
+  yaziPlugins = inputs.vpkgs.legacyPackages.${pkgs.stdenv.hostPlatform.system}.yaziPlugins;
 in {
   programs.yazi.plugins = lib.mkIf (!isAndroid) {
     bunny = yaziPlugins.bunny;
